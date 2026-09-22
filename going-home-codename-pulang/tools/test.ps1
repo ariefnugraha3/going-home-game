@@ -1,6 +1,8 @@
 param(
     [string]$Godot = 'D:\Godot_v4.7.2-stable_win64.exe\Godot_v4.7.2-stable_win64_console.exe',
-    [switch]$Visual
+    [switch]$Visual,
+    [ValidateSet('Story', 'Practice', 'All')][string]$Suite = 'All',
+    [ValidateSet(30, 60)][int]$FixedFps = 60
 )
 $ErrorActionPreference = 'Stop'
 $projectRoot = Split-Path $PSScriptRoot -Parent
@@ -12,12 +14,24 @@ try {
     $env:APPDATA = $testStorage
     & $Godot --headless --path $projectRoot --editor --import --quit --log-file (Join-Path $testStorage 'import.log')
     if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-    $testArgs = @('--path', $projectRoot, '--log-file', (Join-Path $testStorage 'tests.log'))
-    if (-not $Visual) { $testArgs += @('--headless', '--fixed-fps', '60') }
-    $testArgs += 'res://tests/TestRunner.tscn'
-    if ($Visual) { $testArgs += @('--', '--visual') }
-    & $Godot @testArgs
-    exit $LASTEXITCODE
+    if (Select-String -Path (Join-Path $testStorage 'import.log') -Pattern 'SCRIPT ERROR:|Parse Error:|Compile Error:' -Quiet) { exit 1 }
+    $scenes = @()
+    if ($Suite -in @('Story', 'All')) { $scenes += 'TestRunner' }
+    if ($Suite -in @('Practice', 'All')) { $scenes += 'PracticeTests' }
+    foreach ($scene in $scenes) {
+        $logPath = Join-Path $testStorage ($scene + '.log')
+        $testArgs = @('--path', $projectRoot, '--log-file', $logPath, '--quit-after', '60000')
+        if (-not $Visual) { $testArgs += @('--headless', '--fixed-fps', [string]$FixedFps) }
+        $testArgs += ('res://tests/' + $scene + '.tscn')
+        $testArgs += '--'
+        if ($Visual) { $testArgs += '--visual' }
+        if ($FixedFps -eq 30) { $testArgs += '--limit-30' }
+        & $Godot @testArgs
+        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+        if (Select-String -Path $logPath -Pattern 'SCRIPT ERROR:|Parse Error:|Compile Error:|FAIL:' -Quiet) { exit 1 }
+        if (-not (Select-String -Path $logPath -Pattern 'RESULT: \d+ checks, 0 failures' -Quiet)) { exit 1 }
+    }
+    exit 0
 } finally {
     $env:APPDATA = $previousAppData
 }

@@ -23,6 +23,7 @@ var dialogue_label: Label
 var dialogue_box: VBoxContainer
 var chapter_data: Dictionary
 var messages: Array
+var toolbar: HBoxContainer
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
@@ -172,7 +173,10 @@ func main_menu() -> void:
 	cont.disabled = not SaveManager.has_save()
 	_button(box, "Begin a new journey", func(): action_requested.emit("new"))
 	_button(box, "Settings & accessibility", show_settings)
-	_button(box, "Controls", show_controls)
+	var practice_row := HBoxContainer.new()
+	box.add_child(practice_row)
+	_button(practice_row, "Controls", show_controls).size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_button(practice_row, "Practice ride", func(): action_requested.emit("practice")).size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_button(box, "Credits", show_credits)
 	if not OS.has_feature("web"):
 		_button(box, "Quit", func(): action_requested.emit("quit"))
@@ -207,7 +211,7 @@ func _build_hud() -> void:
 	top.add_child(info)
 	_label(info, "P U L A N G    /    EASTBOUND", 15, GOLD)
 	route_label = _label(info, "Jakarta → Karawang", 22)
-	var toolbar := HBoxContainer.new()
+	toolbar = HBoxContainer.new()
 	hud.add_child(toolbar)
 	toolbar.anchor_left = 1
 	toolbar.anchor_right = 1

@@ -1,5 +1,31 @@
 # Validation record
 
+## M1 update · 2026-09-23
+
+Same Godot 4.7.2 build and native hardware as the initial record below. The new practice suite drives the complete route under physics rather than teleporting past bends, grades, or bumps.
+
+| Check | Result |
+| --- | --- |
+| Story regression suite, fixed render cadence at 60 and 30 | **93 checks, 0 failures** per run |
+| Practice suite, fixed render cadence at 60 and 30 | **34 checks, 0 failures** per run |
+| Native practice suite with actual 30 FPS cap | **34 checks, 0 failures** |
+| Combined headless suites | **127 checks, 0 failures** |
+| Complete assisted practice-road traversal | No automatic recovery; maximum lateral distance from road center **3.006 m** on a road with 5 m half-width; maximum bike/road height difference **0.057 m** |
+| Reduced-motion camera through full track | Zero camera roll |
+| Practice/story isolation | Story snapshot and journey file unchanged; title → practice → title scene replacement verified |
+| Render inspection at 1280×720 | Practice entry, cockpit, tight curve, shelter, sections, settings, rain/touch overlay inspected |
+| Updated PCK export and packed practice-scene boot | Pass; 475,276-byte resource pack, practice JSON/scripts/scene included, headless scene boot exits 0 after 120 frames |
+| Human 5/15-minute comfort sessions | **Pending**; use [M1 playtest guide](M1_PLAYTEST.md) |
+| Real browser and physical Android | **Pending**; matching export templates remain unavailable |
+
+Additional regressions cover an intentional solid-barrier collision, stopping without tunneling or false cruising speed, left-lane recovery, recovery after a fall, assist disabled, bounded camera lean, pause/time exclusion, throttle cleanup, weather/ambience switching, and local report serialization. Section jumps are excluded from distance; reports never replace story saves. Only the automatic full-track segment has zero recoveries; the later test deliberately exercises recovery twice.
+
+The test helper now supports `-Suite Story|Practice|All`, `-FixedFps 30|60`, and `-Visual`. It rejects script errors and missing success summaries even when Godot exits zero. Scene-navigation tests await completed scene replacement rather than assuming a fixed number of physics ticks is sufficient at 30 FPS.
+
+Headless `--fixed-fps` is a simulation-cadence check, not measured rendering performance. The native test uses `Engine.max_fps = 30`, keeps physics at 60 Hz, and captures actual rendered output. Neither is a physical Android benchmark or human comfort assessment.
+
+## Initial slice · 2026-09-22
+
 Date: 2026-09-22. Engine: **4.7.2.stable.official.ed1daf0bf**. Renderer: Compatibility / OpenGL 3.3. Native visual test hardware: NVIDIA GeForce RTX 3050 Laptop GPU on Windows.
 
 ## Executed

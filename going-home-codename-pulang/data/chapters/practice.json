@@ -1,0 +1,12 @@
+{
+  "length": 720.0,
+  "sections": [
+    {"id": "straight", "start": 10.0, "end": 100.0, "name": "Getting comfortable", "sign": "PRACTICE ROAD", "hint": "Gently accelerate, then try the brakes. There is no time limit."},
+    {"id": "gentle_curve", "start": 100.0, "end": 230.0, "name": "A gentle bend", "sign": "GENTLE BEND", "hint": "Keep left and make small steering adjustments."},
+    {"id": "tight_curve", "start": 230.0, "end": 350.0, "name": "A closer turn", "sign": "SLOW BENDS", "hint": "Ease off before the turn. You can change steering assist in Settings."},
+    {"id": "slope", "start": 350.0, "end": 550.0, "name": "Over the rise", "sign": "RISE AND FALL", "hint": "Let the road rise beneath you. The camera keeps a steady horizon."},
+    {"id": "bumps", "start": 550.0, "end": 605.0, "name": "An uneven stretch", "sign": "UNEVEN ROAD", "hint": "Small bumps ahead. Try a gentle pace."},
+    {"id": "intersection", "start": 605.0, "end": 660.0, "name": "A quiet junction", "sign": "JUNCTION AHEAD", "hint": "Slow down and glance left and right. Continue straight."},
+    {"id": "stop", "start": 660.0, "end": 720.0, "name": "A place to stop", "sign": "REST AREA", "hint": "Brake beside the shelter. Switch off the engine when you arrive."}
+  ]
+}

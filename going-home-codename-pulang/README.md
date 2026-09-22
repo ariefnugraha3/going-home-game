@@ -10,6 +10,8 @@ This repository now contains a **playable development slice**, from the Jakarta 
 2. Press **F6** only when testing a specific scene; use **F5** to play the game.
 3. Select **Begin a new journey**. Continue is enabled when a readable checkpoint exists.
 
+For the new M1 riding track, select **Practice ride** on the title menu. It is available immediately and leaves your story save untouched.
+
 The engine supplied for this workspace is:
 
 ```powershell
@@ -25,6 +27,22 @@ Apartment morning → short first-person commute → restructuring meeting → m
 Optional stops: fuel station and rice-field turnout. Shelter is required before resting. Stop near the green roadside signs and interact. If a stop is missed, the recovery action and the guesthouse's return-to-shelter behavior prevent a progression trap.
 
 Allow roughly **8–15 minutes** for a first unhurried run, depending on stops and reading. This is an estimate, not a measured playtest result. The roadmap's 30–60 minute polished vertical slice remains a later pacing/content target.
+
+## Riding practice · M1 update
+
+The separate **720 m practice road** includes a straight, a gentle bend, tighter bends, a four-meter rise/descent, small physical bumps, a quiet intersection, and a shelter/stop area. It uses the same motorcycle controller and keyboard/touch actions as the story.
+
+- Use **Sections** to revisit a section, or ride from the start to the shelter.
+- Brake at the shelter and interact to switch off the engine; choose **Ride the road again** to repeat.
+- Open **Pause → Settings & accessibility** to compare riding assist, reduced motion, FOV, or a 30 FPS limit.
+- The pause menu also lets you switch clear/rain weather, recover to the road, and save a local playtest report.
+- Reports are JSON files in `user://ride_reports/`. They record riding time/distance, contacts, recoveries, camera roll, settings, and a bounded window of frame timings. Pauses and section jumps are excluded from riding metrics. Reports never write to the journey save and are not uploaded.
+
+Steering assist now follows the upcoming road toward the left lane. Solid obstacles cause a forgiving stop, and recovery uses the active route. Distance/fuel tracking uses actual movement rather than requested motor speed.
+
+Use the [M1 playtest guide](docs/test/M1_PLAYTEST.md) for the remaining human comfort review. Automated physics checks and reports do not assess nausea or declare the milestone accepted.
+
+Local validation for this update: **93 story checks + 34 practice checks passed** at both 60 and 30 fixed render cadences. The **34 practice checks also passed in a native rendered run capped at 30 FPS**. The updated resource PCK exports and boots the practice scene; this does not replace a Web/Android export test.
 
 ## Controls
 
@@ -55,7 +73,7 @@ Touch controls use the same input actions and track multiple fingers. They appea
 
 ## Development roadmap
 
-Based on the [Development Roadmap v1](../PULANG_Development_Roadmap_v1.md). Status last reviewed: **2026-09-22**.
+Based on the [Development Roadmap v1](../PULANG_Development_Roadmap_v1.md). Status last reviewed: **2026-09-23**.
 
 **Legend:** `[x]` = implemented at the stated scope; `[ ]` = unfinished or awaiting validation. A completed prototype task does not mean its entire milestone has passed acceptance. **M0–M5 are in progress; M6–M14 have not started. No milestone is fully accepted yet.**
 
@@ -72,7 +90,9 @@ Based on the [Development Roadmap v1](../PULANG_Development_Roadmap_v1.md). Stat
 - [x] Implement first-person riding, acceleration, braking, steering, ground probes, and road recovery.
 - [x] Add prototype cockpit/instruments, engine loops, FOV settings, riding assist, and reduced motion.
 - [x] Test movement, braking, steering, ground contact, and pause behavior automatically.
-- [ ] Complete the dedicated test track with tighter curves, bumps, and an intersection.
+- [x] Complete the dedicated test track with straights, gentle/tighter curves, slope, physical bumps, an intersection, and a stop area.
+- [x] Add section selection, clear/rain comparison, repeat rides, and local playtest reports without changing story saves.
+- [x] Test continuous track traversal, collision response, route-aware recovery, pause, and save isolation automatically.
 - [ ] Pass human 5-minute and 15-minute riding tests, including comfort and handling at 30 FPS.
 
 ### M2 — Platform & Input Prototype · In progress
@@ -171,7 +191,7 @@ See [Implementation status](docs/IMPLEMENTATION_STATUS.md) for concrete follow-u
 
 `scripts/boot.gd` orchestrates the local scene flow. The global services are limited to game state, saving, input mode, audio, and dialogue. World, bike, scene transitions, cinematic director, interaction scanner, and UI have separate scripts.
 
-`scenes/chapters/` contains separately instantiated prologue and Karawang worlds. Most placeholder geometry is assembled by reusable mesh builders at runtime; open the game to see it. These builders are a small fixed environment kit, not an open-world city generator. Final artist-authored models can replace them without changing the narrative data.
+`scenes/chapters/` contains separately instantiated prologue and Karawang worlds. `scenes/practice/RidingPractice.tscn` is the separate M1 track. `RidingRoute` supplies route samples to both practice geometry and the shared bike controller; practice disables journey-stat recording. Most placeholder geometry is assembled by reusable mesh builders at runtime; open the game to see it. These builders are a small fixed environment kit, not an open-world city generator. Final artist-authored models can replace them without changing the narrative data.
 
 Content lives under `data/chapters`, `data/dialogue`, `data/phone`, and `data/cutscenes`. Public IDs are part of the save contract. Do not rename them without an explicit migration.
 
@@ -181,12 +201,13 @@ From this project directory:
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File tools/test.ps1
-powershell -ExecutionPolicy Bypass -File tools/test.ps1 -Visual
+powershell -ExecutionPolicy Bypass -File tools/test.ps1 -Suite Practice -FixedFps 30
+powershell -ExecutionPolicy Bypass -File tools/test.ps1 -Suite Practice -Visual -FixedFps 30
 ```
 
-The helper isolates all test saves in `.godot-test/`. **Do not run `tests/TestRunner.tscn` against your normal user profile**: its corruption and new-game cases deliberately replace the test save.
+The helper isolates all test saves in `.godot-test/`. **Do not run the test scenes against your normal user profile**: their corruption and new-game cases deliberately replace the test save. The default `-Suite All` runs story and practice sequentially; `-Suite Story` or `-Suite Practice` selects one. Headless `-FixedFps` changes simulated render cadence; with `-Visual`, it sets the actual native FPS cap. Physics remains at 60 ticks per second. The helper fails on script errors or a missing success summary, even if the engine exits with code zero.
 
-The suite exercises content references, conditions, schema validation, corrupt-save fallback, opening/skip handoff, physical throttle/brake/steering, ground contact, pause, every stop, multitouch action handling, journal persistence, and Continue. `-Visual` also captures rendered screenshots under `tests/screenshots/` (ignored by Git). See `docs/test/VALIDATION.md` for results and outstanding platform work.
+The story suite exercises content references, conditions, schema validation, corrupt-save fallback, opening/skip handoff, physical throttle/brake/steering, ground contact, pause, every stop, multitouch action handling, journal persistence, and Continue. The practice suite drives the full track under physics, checks solid-obstacle response, recovery, metrics, save isolation, and real title/practice scene transitions. `-Visual` also captures rendered screenshots under `tests/screenshots/` (ignored by Git). See [Validation record](docs/test/VALIDATION.md) for results and outstanding platform work.
 
 ## Export
 

@@ -14,7 +14,7 @@ var optional_details: Array[Node3D] = []
 var active_quality: int = -1
 
 static func center(distance: float) -> Vector3:
-	return Vector3(sin(distance / 180.0) * 20.0 + sin(distance / 77.0) * 3.0, sin(distance / 230.0) * 2.0, -distance)
+	return RidingRoute.story_center(distance)
 
 static func heading(distance: float) -> float:
 	var direction := center(distance + 2.0) - center(distance)

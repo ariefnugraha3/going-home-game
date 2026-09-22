@@ -28,7 +28,9 @@ func settle() -> void:
 
 func _ready() -> void:
 	visual_test = "--visual" in OS.get_cmdline_user_args()
-	Engine.max_fps = 0 if not visual_test else 60
+	var target_fps := 30 if "--limit-30" in OS.get_cmdline_user_args() else 60
+	Engine.max_fps = 0 if not visual_test else target_fps
+	GameState.settings.fps_limit = target_fps
 	await frames(2)
 	_test_data()
 	_test_save()

@@ -1,11 +1,11 @@
-# Implementation status · 0.1.0
+# Implementation status · M1 update, 2026-09-23
 
 This is a **prototype milestone delivery**, not a declaration that M0–M5 are accepted. Follow the original roadmap's human playtest and platform gates before chapter production.
 
 | Milestone | Implemented here | Remaining acceptance work |
 | --- | --- | --- |
 | M0 Foundation | GDScript/Compatibility, boot, menu, directories, version pin, settings, export presets | Matching templates, browser launch, Android launch, reproducible CI runner |
-| M1 Riding | CharacterBody3D, acceleration/brake/steer, comfort settings, slope probes, recovery, cockpit | Human 5/15-minute feel and nausea tests, tighter curve/intersection track, full hero bike art |
+| M1 Riding | CharacterBody3D, comfort settings, cockpit, route-aware assist/recovery, forgiving collision response; dedicated seven-section track, pause/weather/repeat controls, save-isolated local reports, full-track regression suite | Human 5/15-minute feel and nausea tests; physical-device and browser checks; final bike art remains in M4/M5 |
 | M2 Input/platform | Named actions, keyboard/arrows, multitouch overlay, input detection, pause lifecycle | Physical Android ergonomics and safe-area validation, Web iframe/focus tests, key rebinding |
 | M3 Narrative | Branches/conditions/flags, messages/replies, journal, checkpoint save and backup, cutscene director/skip | Notification queue scheduling, richer calls/photos, more migration fixtures, full localization key table |
 | M4 Mood | Low-poly environment kit, fields/warung/homes/poles/traffic, lighting/rain, layered synthetic sound | Final art direction, authored animation, real motorcycle recordings, regional ambience, richer terrain/LOD profiling |
@@ -15,7 +15,7 @@ This is a **prototype milestone delivery**, not a declaration that M0–M5 are a
 ## Concrete follow-up tasks
 
 1. **PLATFORM-01:** Install Godot 4.7.2 export templates. Configure Android JDK/SDK; create debug builds. Test Chrome/Firefox/Edge including an itch.io-like iframe and two physical Android classes.
-2. **RIDE-01:** Run uninterrupted 15-minute human rides with reduced motion on/off, Low at 30 FPS, phone pause/resume, continuous bends. Record comfort, stopping, steering corrections, and missed stops.
+2. **RIDE-01:** Use the implemented Practice ride and [M1 playtest guide](test/M1_PLAYTEST.md) for human 5/15-minute sessions with reduced motion on/off, Low at 30 FPS, pause/resume, and continuous bends. Record comfort, stopping, steering corrections, and missed stops. The technical track is complete; human acceptance remains open.
 3. **ART-01:** Replace prototype Thunder geometry with a reference-reviewed glTF hero motorcycle. Keep the round headlight, maintained paint, tank silhouette, analog cockpit, and intact seat. The supplied documents contain no actual reference image assets; current proportions are an approximation.
 4. **ART-02:** Replace simple character primitives with Raka/NPC rigs, hands, seated poses, and restrained gesture animation. Refine terrain-to-road edges, vegetation variety, and roadside silhouettes.
 5. **STORY-01:** Expand and time the opening morning/parking/commute/HR/sign-out/apartment/packing/departure shots. Current cinematics use static room compositions and text; final exterior departure and flashback performances are not implemented.

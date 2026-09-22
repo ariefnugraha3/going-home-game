@@ -70,6 +70,9 @@ func _on_action(action: String) -> void:
 			else:
 				_start_new()
 		"new_confirmed": _start_new()
+		"practice":
+			if state == "menu":
+				get_tree().change_scene_to_file("res://scenes/practice/RidingPractice.tscn")
 		"continue":
 			if SaveManager.load_game():
 				_restore_checkpoint()
@@ -92,7 +95,7 @@ func _on_action(action: String) -> void:
 		"menu": _return_to_menu()
 		"recover":
 			if state == "riding":
-				bike.teleport(clampf(-bike.position.z, 10, bike.route_limit - 20))
+				bike.recover_to_road()
 			_resume()
 		"quit": get_tree().quit()
 
