@@ -1,0 +1,20 @@
+{
+  "morning": {"location": "apartment", "title": "JAKARTA", "subtitle": "Tuesday · 06:40", "shots": [
+    {"camera": [1.8, 2.1, 4.4], "target": [0, 0.8, 0], "duration": 5, "text": "The alarm. The kettle. The same shirt on the chair."},
+    {"camera": [-1.6, 1.4, 1.8], "target": [-0.8, 0.9, -0.6], "duration": 5, "text": "Nine years in Jakarta. Most mornings know what to do."},
+    {"camera": [0.8, 1.2, 1.2], "target": [0, 0.7, -1], "duration": 4, "text": "Keys. Phone. One more ordinary day."}
+  ], "flags": {}},
+  "office": {"location": "office", "title": "LATE MORNING", "subtitle": "A message from the people team", "shots": [
+    {"camera": [1.4, 1.6, 2.9], "target": [0, 1, 0], "duration": 5, "text": "Nadia: Could you come to the small meeting room?"},
+    {"camera": [-2.3, 1.65, 2.6], "target": [0, 1.1, -0.8], "duration": 4, "text": "The corridor is quieter than usual."}
+  ], "flags": {}},
+  "night": {"location": "apartment", "title": "THE APARTMENT", "subtitle": "Tuesday · 20:16", "shots": [
+    {"camera": [2.8, 2, 4.5], "target": [0, 0.9, 0], "duration": 6, "text": "The laptop is still in the bag. There are already messages about other jobs."},
+    {"camera": [0.4, 1.4, 1.8], "target": [-0.8, 0.9, -0.6], "duration": 5, "text": "The phone lights up again. Mom."}
+  ], "flags": {}},
+  "departure": {"location": "apartment", "title": "THE NEXT MORNING", "subtitle": "Jakarta → Banyuwangi", "shots": [
+    {"camera": [-2.4, 1.8, 3.5], "target": [0, 0.7, -0.4], "duration": 5, "text": "Raincoat. Charger. Toolkit. The laptop comes too."},
+    {"camera": [1.5, 1.6, 2.7], "target": [0, 0.7, -0.4], "duration": 5, "text": "Dad used to check the straps twice. I check them twice."},
+    {"camera": [2.9, 2.1, 4.4], "target": [0, 0.8, 0], "duration": 5, "text": "For now, just go home."}
+  ], "flags": {"story.prologue.departed": true}}
+}

@@ -1,0 +1,28 @@
+{
+  "chapter_id": "karawang",
+  "display_name": "The first stretch",
+  "theme": "Leaving",
+  "start_location": "Jakarta",
+  "end_location": "Karawang",
+  "main_route_length": 1800,
+  "next_chapter_id": "cirebon",
+  "mandatory_events": ["warung", "rest"],
+  "weather_at_distance": 920,
+  "weather_end_distance": 1430,
+  "stops": [
+    {"id": "fuel", "distance": 390.0, "label": "Refuel", "title": "A little fuel, a little air"},
+    {"id": "scenic", "distance": 720.0, "label": "Switch off the engine", "title": "Beside the rice fields"},
+    {"id": "warung", "distance": 1130.0, "label": "Take shelter", "title": "Rain at Sari's warung"},
+    {"id": "rest", "distance": 1700.0, "label": "Rest for the night", "title": "A room in Karawang"}
+  ],
+  "journal": {
+    "id": "journal.karawang.first_night",
+    "prompt": "The first night away. What stays with me?",
+    "options": [
+      {"id": "unfinished", "text": "I still reached for my work phone at every stop."},
+      {"id": "tea", "text": "Someone made tea. I didn't have to explain much."},
+      {"id": "road", "text": "For a little while, all I had to do was ride."}
+    ]
+  },
+  "route": ["Jakarta", "Karawang", "Cirebon", "Tegal", "Pekalongan", "Semarang", "Salatiga", "Solo", "Ngawi", "Madiun", "Kediri", "Malang", "Lumajang", "Jember", "Banyuwangi"]
+}
