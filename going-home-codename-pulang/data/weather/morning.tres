@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="WeatherProfile" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/world/weather_profile.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+display_name = "Morning"
+sky_top = Color(0.38431, 0.56863, 0.59608, 1)
+horizon = Color(0.89412, 0.84314, 0.69412, 1)
+ambient_color = Color(0.74510, 0.79216, 0.77255, 1)
+ambient_energy = 0.32
+sun_color = Color(1.00000, 0.87451, 0.66667, 1)
+sun_energy = 0.72
+sun_rotation = Vector3(-28, -32, 0)
+fog_color = Color(0.82353, 0.78039, 0.65882, 1)
+fog_density = 0.0012
+rainfall = 0
+wetness = 0
+night = 0
+

@@ -97,7 +97,7 @@ func _ready() -> void:
 	await capture("practice_settings")
 	app._on_action("weather")
 	await frames(180)
-	check(app.world.wet and AudioManager.rain_target == 1, "Practice weather switch controls rain and ambience")
+	check(app.world.wet and is_equal_approx(AudioManager.rain_target, app.world.profiles.rain.rainfall), "Practice weather switch controls rain and ambience")
 	app._pause()
 	app.ui.show_sections()
 	await capture("practice_sections")

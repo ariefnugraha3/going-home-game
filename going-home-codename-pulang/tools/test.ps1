@@ -1,7 +1,7 @@
 param(
     [string]$Godot = 'D:\Godot_v4.7.2-stable_win64.exe\Godot_v4.7.2-stable_win64_console.exe',
     [switch]$Visual,
-    [ValidateSet('Story', 'Practice', 'Input', 'Narrative', 'All')][string]$Suite = 'All',
+    [ValidateSet('Story', 'Practice', 'Input', 'Narrative', 'Mood', 'All')][string]$Suite = 'All',
     [switch]$StoryDebug,
     [ValidateSet(30, 60)][int]$FixedFps = 60
 )
@@ -21,6 +21,7 @@ try {
     if ($Suite -in @('Practice', 'All')) { $scenes += 'PracticeTests' }
     if ($Suite -in @('Input', 'All')) { $scenes += 'InputTests' }
     if ($Suite -in @('Narrative', 'All')) { $scenes += 'NarrativeTests' }
+    if ($Suite -in @('Mood', 'All')) { $scenes += 'MoodTests' }
     foreach ($scene in $scenes) {
         $logPath = Join-Path $testStorage ($scene + '.log')
         $testArgs = @('--path', $projectRoot, '--log-file', $logPath, '--quit-after', '60000')

@@ -12,6 +12,7 @@ var enabled: bool = false
 var engine_on: bool = true
 var route_limit: float = 1760.0
 var camera: Camera3D
+var headlight: SpotLight3D
 var visual: BikeVisual
 var head: Node3D
 var lean: Node3D
@@ -38,6 +39,15 @@ func _ready() -> void:
 	camera.near = 0.04
 	camera.far = 900
 	camera.rotation.x = -0.14
+	headlight = SpotLight3D.new()
+	headlight.position = Vector3(0, 1.0, -0.85)
+	headlight.rotation_degrees.x = -8
+	headlight.light_color = Color("ffe1aa")
+	headlight.spot_range = 42
+	headlight.spot_angle = 32
+	headlight.light_energy = 0
+	headlight.shadow_enabled = false
+	add_child(headlight)
 	for z in [-0.7, 0.0, 0.7]:
 		var ray := RayCast3D.new()
 		ray.position = Vector3(0, 0.65, z)

@@ -39,6 +39,8 @@ func build(_is_city: bool = false) -> void:
 	LowPoly.box(self, route.sample(687) + Vector3(-2.5, 0.018, 0), Vector3(4, 0.025, 12), Color("7a9278"))
 	# A physical end barrier is a fallback behind the automatic gentle stop.
 	LowPoly.box(self, route.sample(724) + Vector3(0, 0.5, 0), Vector3(16, 1, 0.4), Color("8b8165")).create_trimesh_collision()
+	add_practical_light(route.sample(687) + Vector3(-13, 3, 0))
+	set_weather_profile("morning", true)
 
 func _build_surface(half_width: float, height: float, color: Color, is_road: bool) -> void:
 	var surface := SurfaceTool.new()

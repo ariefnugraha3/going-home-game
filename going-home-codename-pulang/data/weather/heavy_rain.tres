@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="WeatherProfile" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/world/weather_profile.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+display_name = "Heavy rain"
+sky_top = Color(0.20392, 0.28627, 0.33725, 1)
+horizon = Color(0.52157, 0.60784, 0.61961, 1)
+ambient_color = Color(0.58824, 0.68235, 0.72941, 1)
+ambient_energy = 0.34
+sun_color = Color(0.68627, 0.76863, 0.81569, 1)
+sun_energy = 0.2
+sun_rotation = Vector3(-50, -32, 0)
+fog_color = Color(0.58039, 0.65882, 0.67451, 1)
+fog_density = 0.007
+rainfall = 1
+wetness = 1
+night = 0
+

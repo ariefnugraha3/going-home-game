@@ -1,4 +1,4 @@
-# Implementation status · M3 narrative update, 2026-09-23
+# Implementation status · M4 mood update, 2026-09-24
 
 This is a **prototype milestone delivery**, not a declaration that M0–M5 are accepted. Follow the original roadmap's human playtest and platform gates before chapter production.
 
@@ -8,7 +8,7 @@ This is a **prototype milestone delivery**, not a declaration that M0–M5 are a
 | M1 Riding | CharacterBody3D, comfort settings, cockpit, route-aware assist/recovery, forgiving collision response; dedicated seven-section track, pause/weather/repeat controls, save-isolated local reports, full-track regression suite | Human 5/15-minute feel and nausea tests; physical-device and browser checks; final bike art remains in M4/M5 |
 | M2 Input/platform | Named actions, keyboard/arrows, persistent basic key remapping with conflict checks/reset, dynamic prompts, multitouch overlay with ownership cleanup, Android safe-area insets, simulated aspect-ratio checks | Physical Android ergonomics and safe-area validation, Web iframe/focus/audio/storage tests; see M2 checklist |
 | M3 Narrative | Branches/conditions/flags, delayed phone delivery and banner queue, unread/read/reply persistence, legacy phone migration, read-only opt-in flag viewer, journal, checkpoint save and backup, cutscene director/skip | Real Web/Android save and lifecycle validation; richer calls/photos and full localization key table remain broader production work |
-| M4 Mood | Low-poly environment kit, fields/warung/homes/poles/traffic, lighting/rain, layered synthetic sound | Final art direction, authored animation, real motorcycle recordings, regional ambience, richer terrain/LOD profiling |
+| M4 Mood | Low-poly environment kit; eight authored lighting/weather resources with interruptible blends; variable rain/fog/wetness; night beam/stop lamps; practice comparison menu and reports; synthetic insect/rain/bird ambience | Human art/audio acceptance, hero bike/character refinement, authored animation, real motorcycle/regional recordings, first music cue, terrain/LOD and target-platform profiling |
 | M5 Slice | Complete compact Jakarta-to-Karawang playable loop | 30–60 minute pacing, production-quality required shots, final assets/animations, all platform/comfort acceptance tests |
 | M6–M14 | Not begun | Production tools, all remaining chapters, alpha/beta, optimization, releases |
 
@@ -30,7 +30,7 @@ This is a **prototype milestone delivery**, not a declaration that M0–M5 are a
 - Mirror images are static sky/road approximations, not true rear views.
 - Traffic is a small decorative pool in the opposing lane with no collision penalties.
 - Fuel bottoms out at an assistance reserve; this prototype cannot strand the player.
-- Weather is authored clear/rain rather than all six final profiles.
+- Weather and lighting use eight combined authored presets. Final NPC weather behavior, puddle details, recorded regional ambience, and music remain unfinished; no astronomical time simulation is used.
 - Save checkpoints restore stable scenes, not an exact moving position or a half-spoken line. Dialogue decisions survive via flags, and a dialogue interrupted by quitting may be replayed from the stable checkpoint.
 - JSON integrity checks validate schema and keep a previous backup; they do not authenticate save files.
 - Photo mode, controller support, extra save slots, UI scaling, and dynamic mirrors are not claimed.

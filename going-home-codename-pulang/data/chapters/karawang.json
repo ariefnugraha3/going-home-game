@@ -9,6 +9,15 @@
   "mandatory_events": ["warung", "rest"],
   "weather_at_distance": 920,
   "weather_end_distance": 1430,
+  "atmosphere": [
+    {"distance": 0, "profile": "morning"},
+    {"distance": 650, "profile": "overcast"},
+    {"distance": 920, "profile": "drizzle"},
+    {"distance": 1050, "profile": "rain"},
+    {"distance": 1250, "profile": "heavy_rain"},
+    {"distance": 1350, "profile": "drizzle"},
+    {"distance": 1430, "profile": "golden_hour"}
+  ],
   "stops": [
     {"id": "fuel", "distance": 390.0, "label": "Refuel", "title": "A little fuel, a little air"},
     {"id": "scenic", "distance": 720.0, "label": "Switch off the engine", "title": "Beside the rice fields"},

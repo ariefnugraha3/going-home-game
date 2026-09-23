@@ -4,6 +4,8 @@ extends GameUI
 var hint_label: Label
 var sections: Array = []
 var session_summary: String = ""
+var weather_profiles: Dictionary = {}
+var weather_name: String = "Morning"
 
 func _build_hud() -> void:
 	super._build_hud()
@@ -39,6 +41,7 @@ func show_pause() -> void:
 	_button(box, "Settings & accessibility", show_settings)
 	_button(box, "Controls", show_controls)
 	_button(box, "Clear skies / rain", func(): action_requested.emit("weather"))
+	_button(box, "Light & weather: " + weather_name, func(): action_requested.emit("atmosphere"))
 	_button(box, "Return safely to the road", func(): action_requested.emit("recover"))
 	_button(box, "Save a local playtest report", func(): action_requested.emit("report"))
 	_button(box, "Return to title", func(): action_requested.emit("menu"))
@@ -48,6 +51,14 @@ func show_sections() -> void:
 	var box := _panel("Find your rhythm", "Try a section again, or ride the full road from the start.")
 	for section in sections:
 		_button(box, section.name, func(): action_requested.emit("section:" + section.id))
+	_button(box, "Back", func(): action_requested.emit("back"))
+
+func show_atmosphere() -> void:
+	_clear("atmosphere")
+	var box := _panel("Light along the road", "Choose a mood for this practice ride. Changes blend in as you resume.")
+	for id in WeatherProfile.IDS:
+		var profile: WeatherProfile = weather_profiles[id]
+		_button(box, profile.display_name, func(): action_requested.emit("atmosphere:" + id))
 	_button(box, "Back", func(): action_requested.emit("back"))
 
 func show_rest() -> void:

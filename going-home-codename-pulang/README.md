@@ -70,6 +70,18 @@ For development, launch a debug/editor game with:
 
 Final local validation: **93 story + 34 practice + 44 input + 58 narrative = 229 checks passed** at a fixed 30 render cadence. The native narrative suite with the viewer enabled also passes **61 checks**, including the unread badge staying inside the screen at an actual 30 FPS cap. Real Web/Android narrative and save acceptance remains open.
 
+## Light and weather · M4 update
+
+Eight editable Godot resources in `data/weather/` now define **Morning, Overcast, Drizzle, Rain, Heavy rain, Morning mist, Golden hour, and Night**. Sky, directional light, ambient color, fog, rain density, and road wetness blend over three seconds. Selecting another profile cancels the old transition; pause freezes it. The effects use Compatibility-friendly fog, a bounded rain overlay, and simple road materials.
+
+Use **Practice ride → Pause → Light & weather** to compare profiles on the same road. A selection resumes the ride; section changes retain the chosen mood. The existing clear/rain shortcut remains available. Local practice reports include the selected profile, and practice never writes to the story save.
+
+Karawang now moves through morning → overcast → drizzle → rain/heavy rain → clearing drizzle → golden hour using authored distance cues. Rest/reflection and Continue at the completed chapter use night. Night adds a motorcycle headlight, warm lamps at stops, and an original synthesized insect loop; rain volume follows its intensity and birds fade out at night. These remain prototype audio and lighting, with final recordings, art review, and music still pending.
+
+See the [M4 visual/audio review guide](docs/test/M4_PLAYTEST.md). This update does not close the human art, audio, comfort, or target-platform performance gates.
+
+Local validation: **281 combined checks passed** at a fixed 30 render cadence; **52 mood checks also passed with native rendering capped at 30 FPS**. All eight profiles and the comparison menu were inspected in rendered screenshots. Human listening and real Web/Android profiling remain pending.
+
 ## Controls (defaults)
 
 | Action | Keyboard |
@@ -99,7 +111,7 @@ Touch controls use the same input actions and track multiple fingers. They appea
 
 ## Development roadmap
 
-Based on the [Development Roadmap v1](../PULANG_Development_Roadmap_v1.md). Status last reviewed: **2026-09-23**.
+Based on the [Development Roadmap v1](../PULANG_Development_Roadmap_v1.md). Status last reviewed: **2026-09-24**.
 
 **Legend:** `[x]` = implemented at the stated scope; `[ ]` = unfinished or awaiting validation. A completed prototype task does not mean its entire milestone has passed acceptance. **M0–M5 are in progress; M6–M14 have not started. No milestone is fully accepted yet.**
 
@@ -146,7 +158,9 @@ Based on the [Development Roadmap v1](../PULANG_Development_Roadmap_v1.md). Stat
 
 - [x] Build the low-poly roadside kit: fields, trees, poles, homes, warung, fuel stop, guesthouse, and traffic.
 - [x] Add a Thunder 250-inspired placeholder bike, clear/rain transitions, and layered synthesized audio.
-- [ ] Complete morning, overcast, golden-hour, and night lighting variants plus drizzle/full-rain treatment.
+- [x] Implement authored morning, overcast, golden-hour, and night profiles plus drizzle, rain, heavy rain, and mist.
+- [x] Blend sky/light/fog/wetness/rain; add a practice comparison menu, night headlight/stop lamps, and synthetic insect ambience.
+- [x] Test transition interruption/pause, rain quality limits, chapter profile restoration, and practice save isolation.
 - [ ] Refine hero bike and character art; add recorded motorcycle/regional ambience and the first music cue.
 - [ ] Review visual identity and sound quality, and profile actual target-platform builds.
 
@@ -236,9 +250,10 @@ powershell -ExecutionPolicy Bypass -File tools/test.ps1 -Suite Practice -FixedFp
 powershell -ExecutionPolicy Bypass -File tools/test.ps1 -Suite Practice -Visual -FixedFps 30
 powershell -ExecutionPolicy Bypass -File tools/test.ps1 -Suite Input -Visual
 powershell -ExecutionPolicy Bypass -File tools/test.ps1 -Suite Narrative -StoryDebug -Visual
+powershell -ExecutionPolicy Bypass -File tools/test.ps1 -Suite Mood -Visual -FixedFps 30
 ```
 
-The helper isolates all test saves in `.godot-test/`. **Do not run the test scenes against your normal user profile**: their corruption and new-game cases deliberately replace the test save. The default `-Suite All` runs story, practice, input, and narrative sequentially; `-Suite Story`, `-Suite Practice`, `-Suite Input`, or `-Suite Narrative` selects one. `-StoryDebug` enables additional viewer checks in the narrative suite. Headless `-FixedFps` changes simulated render cadence; with `-Visual`, it sets the actual native FPS cap. Physics remains at 60 ticks per second. The helper fails on script errors or a missing success summary, even if the engine exits with code zero.
+The helper isolates all test saves in `.godot-test/`. **Do not run the test scenes against your normal user profile**: their corruption and new-game cases deliberately replace the test save. The default `-Suite All` runs story, practice, input, narrative, and mood sequentially; use `-Suite Story`, `Practice`, `Input`, `Narrative`, or `Mood` to select one. `-StoryDebug` enables additional viewer checks in the narrative suite. Headless `-FixedFps` changes simulated render cadence; with `-Visual`, it sets the actual native FPS cap. Physics remains at 60 ticks per second. The helper fails on script errors or a missing success summary, even if the engine exits with code zero.
 
 The story suite exercises content references, conditions, schema validation, corrupt-save fallback, opening/skip handoff, physical throttle/brake/steering, ground contact, pause, every stop, multitouch action handling, journal persistence, and Continue. The practice suite drives the full track under physics, checks solid-obstacle response, recovery, metrics, save isolation, and real title/practice scene transitions. `-Visual` also captures rendered screenshots under `tests/screenshots/` (ignored by Git). See [Validation record](docs/test/VALIDATION.md) for results and outstanding platform work.
 

@@ -172,8 +172,7 @@ func _start_road(distance: float = 12.0, save: bool = true) -> void:
 	state = "riding"
 	ui.riding()
 	ui.toast("Jakarta → Karawang · Take your time. Stop wherever you like.")
-	if distance > chapter_data.weather_at_distance and distance < chapter_data.weather_end_distance:
-		world.set_weather(true)
+	world.set_weather_profile(_road_profile(distance), true)
 	await flow.fade_in()
 
 func _dialogue_finished(id: String) -> void:
@@ -197,6 +196,7 @@ func _dialogue_finished(id: String) -> void:
 			GameState.checkpoint = "rest"
 			SaveManager.save_game()
 			state = "reflection"
+			world.set_weather_profile("night")
 			ui.show_journal(true)
 
 func _interact() -> void:
@@ -244,6 +244,7 @@ func _restore_checkpoint() -> void:
 		"rest", "complete":
 			await _start_road(1690, false)
 			bike.stop()
+			world.set_weather_profile("night", true)
 			_set_overview(1700)
 			if GameState.checkpoint == "rest":
 				state = "reflection"
@@ -313,7 +314,9 @@ func _process(delta: float) -> void:
 	elapsed += delta
 	if not is_instance_valid(ui):
 		return
-	ui.weather.rain = world.wet and state == "riding" and not get_tree().paused
+	ui.weather.intensity = world.rain_amount
+	ui.weather.rain = world.rain_amount > 0.01 and state == "riding" and not get_tree().paused
+	bike.headlight.light_energy = world.night_amount * 2.5 if bike.enabled else 0
 	ui.weather.queue_redraw()
 	if state != "riding" or get_tree().paused or flow.busy:
 		_advance_phone(delta)
@@ -327,12 +330,20 @@ func _process(delta: float) -> void:
 		return
 	scanner.scan(bike, world.stops)
 	ui.update_hud(bike.speed_mps * 3.6, distance, scanner.get_interaction_label(bike), scanner.can_interact(bike), false)
-	if distance > chapter_data.weather_at_distance and distance < chapter_data.weather_end_distance and not world.wet:
-		world.set_weather(true)
-		ui.toast("Rain ahead · There's a warung by the road")
-	elif distance > chapter_data.weather_end_distance and world.wet:
-		world.set_weather(false)
+	var profile_id := _road_profile(distance)
+	if world.current_profile != profile_id:
+		var was_wet := world.wet
+		world.set_weather_profile(profile_id)
+		if world.wet and not was_wet:
+			ui.toast("Rain ahead · There's a warung by the road")
 	_advance_phone(delta)
+
+func _road_profile(distance: float) -> String:
+	var id := "morning"
+	for entry in chapter_data.atmosphere:
+		if distance >= entry.distance:
+			id = entry.profile
+	return id
 
 func _advance_phone(delta: float) -> void:
 	# Evaluate after road events: a weather toast or new cutscene owns this frame first.

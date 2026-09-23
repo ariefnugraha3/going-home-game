@@ -36,7 +36,13 @@ def birds(t):
     chirp = max(0, 1 - abs(phase - .45) / .18)
     return .19 * chirp * math.sin(math.tau * (1800 * t + 80 * math.sin(t * 30)))
 write("birds", 16, birds)
-for name in ["bike_idle", "bike_load", "wind", "rain", "birds"]:
+def insects(t):
+    pulse = max(0, math.sin(math.tau * 3.0 * t)) ** 9
+    phrase = .45 + .55 * max(0, math.sin(math.tau * t / 4))
+    return .12 * pulse * phrase * (math.sin(math.tau * 3100 * t) + .3 * math.sin(math.tau * 4200 * t))
+write("insects", 12, insects)
+for name in ["bike_idle", "bike_load", "wind", "rain", "birds", "insects"]:
     path = ROOT / (name + ".wav.import")
-    path.write_text('[remap]\nimporter="wav"\ntype="AudioStreamWAV"\n\n[deps]\nsource_file="res://assets/audio/' + name + '.wav"\n\n[params]\nforce/8_bit=false\nforce/mono=true\nforce/max_rate=false\nedit/trim=false\nedit/normalize=false\nedit/loop_mode=2\nedit/loop_begin=0\nedit/loop_end=-1\ncompress/mode=2\n')
-print("Generated five original placeholder loops.")
+    if not path.exists():
+        path.write_text('[remap]\nimporter="wav"\ntype="AudioStreamWAV"\n\n[deps]\nsource_file="res://assets/audio/' + name + '.wav"\n\n[params]\nforce/8_bit=false\nforce/mono=true\nforce/max_rate=false\nedit/trim=false\nedit/normalize=false\nedit/loop_mode=2\nedit/loop_begin=0\nedit/loop_end=-1\ncompress/mode=2\n')
+print("Generated six original placeholder loops.")

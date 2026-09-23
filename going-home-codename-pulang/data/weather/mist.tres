@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="WeatherProfile" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/world/weather_profile.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+display_name = "Morning mist"
+sky_top = Color(0.50980, 0.60784, 0.63137, 1)
+horizon = Color(0.77255, 0.81569, 0.78431, 1)
+ambient_color = Color(0.76078, 0.80392, 0.81176, 1)
+ambient_energy = 0.4
+sun_color = Color(0.92157, 0.87451, 0.73333, 1)
+sun_energy = 0.42
+sun_rotation = Vector3(-25, -32, 0)
+fog_color = Color(0.76471, 0.81176, 0.79216, 1)
+fog_density = 0.009
+rainfall = 0
+wetness = 0.3
+night = 0
+

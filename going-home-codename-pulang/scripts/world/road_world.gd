@@ -12,6 +12,13 @@ var elapsed: float = 0.0
 var road_material: StandardMaterial3D
 var optional_details: Array[Node3D] = []
 var active_quality: int = -1
+signal weather_profile_changed(id: String)
+var profiles: Dictionary = {}
+var current_profile: String = "morning"
+var rain_amount: float = 0
+var night_amount: float = 0
+var weather_tween: Tween
+var practical_lights: Array[OmniLight3D] = []
 
 static func center(distance: float) -> Vector3:
 	return RidingRoute.story_center(distance)
@@ -27,8 +34,10 @@ func build(is_city: bool = false) -> void:
 	_build_landscape()
 	_build_stops()
 	_build_traffic()
+	set_weather_profile("morning", true)
 
 func _build_environment() -> void:
+	profiles = WeatherProfile.load_presets()
 	var world_env := WorldEnvironment.new()
 	environment = Environment.new()
 	environment.background_mode = Environment.BG_SKY
@@ -148,6 +157,7 @@ func _build_stops() -> void:
 	for stop in stops:
 		var d: float = stop.distance
 		var pos := center(d)
+		add_practical_light(pos + Vector3(-14, 3, 0))
 		stop["position"] = pos + Vector3(-5.8, 0, 0)
 		LowPoly.box(self, pos + Vector3(-9, -0.05, 0), Vector3(12, 0.15, 26), Color("b3ab8c"))
 		LowPoly.box(self, pos + Vector3(-6.7, 2.8, 12), Vector3(3.5, 1.5, 0.15), Color("345747"))
@@ -183,6 +193,9 @@ func _build_traffic() -> void:
 
 func _process(delta: float) -> void:
 	elapsed += delta
+	for lamp in practical_lights:
+		lamp.light_energy = night_amount * 2.2
+		lamp.visible = night_amount > 0.01
 	if active_quality != GameState.settings.quality:
 		active_quality = GameState.settings.quality
 		sun.shadow_enabled = active_quality > 0
@@ -198,10 +211,47 @@ func _process(delta: float) -> void:
 		car.visible = GameState.settings.quality > 0
 
 func set_weather(rain: bool) -> void:
-	wet = rain
-	var tween := create_tween().set_parallel(true)
-	tween.tween_property(environment, "fog_density", 0.004 if rain else 0.0012, 3)
-	tween.tween_property(environment, "fog_light_color", Color("a6b9b5") if rain else Color("d2c7a8"), 3)
-	tween.tween_property(sun, "light_energy", 0.36 if rain else 0.72, 3)
-	tween.tween_property(road_material, "albedo_color", Color("3b4e4d") if rain else Color("555954"), 3)
-	AudioManager.rain_target = 1.0 if rain else 0.0
+	set_weather_profile("rain" if rain else "morning")
+
+func set_weather_profile(id: String, instant: bool = false) -> bool:
+	if not profiles.has(id):
+		return false
+	var profile: WeatherProfile = profiles[id]
+	if profile == null:
+		return false
+	if is_instance_valid(weather_tween):
+		weather_tween.kill()
+	current_profile = id
+	wet = profile.rainfall > 0
+	AudioManager.rain_target = profile.rainfall
+	AudioManager.night_target = profile.night
+	var sky_material: ProceduralSkyMaterial = environment.sky.sky_material
+	var properties := [
+		[sky_material, "sky_top_color", profile.sky_top], [sky_material, "sky_horizon_color", profile.horizon],
+		[sky_material, "ground_horizon_color", profile.horizon], [sky_material, "ground_bottom_color", profile.ambient_color.darkened(0.4)],
+		[environment, "ambient_light_color", profile.ambient_color], [environment, "ambient_light_energy", profile.ambient_energy],
+		[environment, "fog_light_color", profile.fog_color], [environment, "fog_density", profile.fog_density],
+		[sun, "light_color", profile.sun_color], [sun, "light_energy", profile.sun_energy], [sun, "rotation_degrees", profile.sun_rotation],
+		[road_material, "albedo_color", Color("555954").lerp(Color("334746"), profile.wetness)],
+		[road_material, "roughness", lerpf(0.95, 0.32, profile.wetness)],
+		[self, "rain_amount", profile.rainfall], [self, "night_amount", profile.night]
+	]
+	if not instant:
+		weather_tween = create_tween().set_parallel(true).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	for item in properties:
+		if instant:
+			item[0].set(item[1], item[2])
+		else:
+			weather_tween.tween_property(item[0], item[1], item[2], 3.0)
+	weather_profile_changed.emit(id)
+	return true
+
+func add_practical_light(point: Vector3) -> void:
+	var lamp := OmniLight3D.new()
+	lamp.position = point
+	lamp.light_color = Color("ffc887")
+	lamp.omni_range = 12
+	lamp.shadow_enabled = false
+	lamp.light_energy = 0
+	add_child(lamp)
+	practical_lights.append(lamp)

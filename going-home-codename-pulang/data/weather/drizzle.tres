@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="WeatherProfile" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/world/weather_profile.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+display_name = "Drizzle"
+sky_top = Color(0.34902, 0.43137, 0.47843, 1)
+horizon = Color(0.63529, 0.71373, 0.70980, 1)
+ambient_color = Color(0.68235, 0.74902, 0.77647, 1)
+ambient_energy = 0.38
+sun_color = Color(0.79216, 0.85098, 0.85098, 1)
+sun_energy = 0.3
+sun_rotation = Vector3(-45, -32, 0)
+fog_color = Color(0.65098, 0.72549, 0.70980, 1)
+fog_density = 0.0035
+rainfall = 0.25
+wetness = 0.45
+night = 0
+

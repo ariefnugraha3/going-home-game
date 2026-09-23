@@ -26,6 +26,7 @@ func _ready() -> void:
 	ui = PracticeUI.new()
 	add_child(ui)
 	ui.sections = world.definition.sections
+	ui.weather_profiles = world.profiles
 	ui.action_requested.connect(_on_action)
 	start_section("straight")
 	AudioManager.unlock()
@@ -53,12 +54,19 @@ func _on_action(action: String) -> void:
 	if action.begins_with("section:"):
 		start_section(action.trim_prefix("section:"))
 		return
+	if action.begins_with("atmosphere:"):
+		world.set_weather_profile(action.trim_prefix("atmosphere:"))
+		_resume()
+		return
 	match action:
 		"pause", "back": _pause()
 		"resume": _resume()
 		"sections":
 			_pause()
 			ui.show_sections()
+		"atmosphere":
+			_pause()
+			ui.show_atmosphere()
 		"recover":
 			bike.recover_to_road()
 			resting = false
@@ -72,6 +80,7 @@ func _on_action(action: String) -> void:
 				resting = true
 				ui.show_rest()
 		"report":
+			metrics.weather_profile = world.current_profile
 			var path := metrics.save_report()
 			ui.toast("Playtest report saved locally" if not path.is_empty() else "Could not save the report. Please check storage.")
 		"menu":
@@ -102,7 +111,7 @@ func _unhandled_input(event: InputEvent) -> void:
 	if event.is_echo() or leaving:
 		return
 	if event.is_action_pressed("pause"):
-		if ui.mode in ["settings", "sections", "controls"]:
+		if ui.mode in ["settings", "sections", "controls", "atmosphere"]:
 			_pause()
 		elif get_tree().paused:
 			_resume()
@@ -122,7 +131,10 @@ func _physics_process(delta: float) -> void:
 func _process(delta: float) -> void:
 	if not is_instance_valid(ui):
 		return
-	ui.weather.rain = world.wet and not resting and not get_tree().paused
+	ui.weather_name = world.profiles[world.current_profile].display_name
+	ui.weather.intensity = world.rain_amount
+	ui.weather.rain = world.rain_amount > 0.01 and not resting and not get_tree().paused
+	bike.headlight.light_energy = world.night_amount * 2.5 if bike.enabled and not resting else 0
 	ui.weather.queue_redraw()
 	if get_tree().paused:
 		return
@@ -139,4 +151,5 @@ func _exit_tree() -> void:
 	InputModeManager.release_riding()
 	AudioManager.engine_active = false
 	AudioManager.rain_target = 0
+	AudioManager.night_target = 0
 	LowPoly.materials.clear()

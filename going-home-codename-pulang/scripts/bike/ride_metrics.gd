@@ -9,6 +9,7 @@ var max_roll_degrees: float = 0.0
 var frame_samples: Array[float] = []
 var previous_position := Vector3.ZERO
 var has_position: bool = false
+var weather_profile: String = "morning"
 
 func reset_position() -> void:
 	has_position = false
@@ -41,6 +42,7 @@ func snapshot() -> Dictionary:
 		"recoveries": recoveries, "obstacle_contacts": contacts, "max_camera_roll_degrees": max_roll_degrees,
 		"recent_frame_count": sorted.size(), "recent_frame_median_ms": median, "recent_frame_p95_ms": p95,
 		"settings": GameState.settings.duplicate(true),
+		"weather_profile": weather_profile,
 		"human_comfort_review": "Not assessed by this report"}
 
 func save_report() -> String:
