@@ -44,7 +44,33 @@ Use the [M1 playtest guide](docs/test/M1_PLAYTEST.md) for the remaining human co
 
 Local validation for this update: **93 story checks + 34 practice checks passed** at both 60 and 30 fixed render cadences. The **34 practice checks also passed in a native rendered run capped at 30 FPS**. The updated resource PCK exports and boots the practice scene; this does not replace a Web/Android export test.
 
-## Controls
+## Input and layout · M2 update
+
+Open **Controls** from the title or either pause menu, or **Settings & accessibility → Keyboard controls**. Select an action and press a single key to replace its shortcuts. Escape cancels capture; **Restore default keyboard controls** brings back every default. Preferences survive restarts and new journeys in the separate settings file.
+
+Riding, glance, interaction, phone/journal/route, and recovery controls can be changed. Conflicting keys are rejected; other actions' defaults stay reserved so restoring defaults remains predictable. Escape, Enter, and cinematic Space remain fixed. Modifier combinations and function keys are excluded. Bindings use physical key positions; this is a basic keyboard remapping system, not controller or per-layout key localization support.
+
+Interaction and phone notification hints follow the selected controls or switch to touch instructions. Touch buttons now follow the safe UI rectangle, release on hiding/backgrounding/resizing, and support dragging out of and back into a control. Unrelated touches no longer release keyboard actions. The interaction button sits above the riding controls. On Android, the UI uses the reported display safe area; simulated inset/aspect-ratio tests are covered locally, while real notch and touch ergonomics validation remains pending.
+
+M2 validation covered **93 story + 34 practice + 44 input checks (171 total)**. See the [validation record](docs/test/VALIDATION.md) and [M2 platform checklist](docs/test/M2_PLAYTEST.md). M2 remains in progress until browser and physical Android gates pass.
+
+## Phone and story inspection · M3 update
+
+Messages now arrive through a separate `PhoneDataService`, using story conditions and `delay_seconds` in `data/phone/messages.json`. Delivery time advances during riding, scenic stops, and the chapter ending; cutscenes, dialogue, transitions, pause, and open menus freeze it. Delivered messages wait for a free banner slot and appear in delivery order. The Phone button shows an unread count; opening the inbox marks delivered messages read and suppresses their queued banners.
+
+Delivered/read/replied messages, displayed notices, and remaining delivery delays are part of the journey save. Message arrival, banner display, reading, and replying save quietly without replacing the banner with a checkpoint toast. Continue retains the stable story checkpoint. A delay resumes from the last saved value rather than counting time while the game is closed. Existing v1 saves migrate automatically; already read/replied messages do not notify again. A banner hidden by a new dialogue or menu is considered shown; its message remains in the inbox.
+
+For development, launch a debug/editor game with:
+
+```powershell
+& 'D:\Godot_v4.7.2-stable_win64.exe\Godot_v4.7.2-stable_win64.exe' --path . -- --story-debug
+```
+
+**Story debug** then appears on the story title/pause menus. It provides a read-only snapshot of chapter/checkpoint, searchable flags, dialogue state, and phone delivery state. Refresh updates the snapshot. It cannot edit flags or save progress, is absent from normal launches and practice mode, and is disabled in release builds. See the [M3 test guide](docs/test/M3_PLAYTEST.md) for authoring and acceptance checks.
+
+Final local validation: **93 story + 34 practice + 44 input + 58 narrative = 229 checks passed** at a fixed 30 render cadence. The native narrative suite with the viewer enabled also passes **61 checks**, including the unread badge staying inside the screen at an actual 30 FPS cap. Real Web/Android narrative and save acceptance remains open.
+
+## Controls (defaults)
 
 | Action | Keyboard |
 | --- | --- |
@@ -99,6 +125,9 @@ Based on the [Development Roadmap v1](../PULANG_Development_Roadmap_v1.md). Stat
 
 - [x] Implement named input actions, WASD/arrows, keyboard/touch detection, and multitouch controls.
 - [x] Test simultaneous touch steering/acceleration and release cleanup in the local integration suite.
+- [x] Add persistent keyboard remapping, conflict validation, cancel/reset controls, and input-aware interaction/phone hints.
+- [x] Add safe-area UI insets, responsive touch-zone layout, and cleanup on hiding, resizing, focus loss, and backgrounding.
+- [x] Test remapped physical keys in the shared bike controller, settings persistence, touch event routing, and simulated 16:9, 20:9, and 4:3 safe rectangles.
 - [ ] Validate browser keyboard focus, fullscreen, audio activation, and save persistence in an iframe.
 - [ ] Validate touch ergonomics, safe areas, and the same gameplay loop on physical Android devices.
 
@@ -108,7 +137,9 @@ Based on the [Development Roadmap v1](../PULANG_Development_Roadmap_v1.md). Stat
 - [x] Implement phone messages/replies, authored journal choices, and checkpoint save/load with backup recovery.
 - [x] Implement cinematic shot sequencing and deterministic skip/control handoff.
 - [x] Test the encounter → journal → save → reload sequence and dialogue references.
-- [ ] Add the notification queue and story-flag debug viewer.
+- [x] Add delayed phone delivery, serialized banners, unread counts, and persistent delivery/read/reply state with legacy-save migration.
+- [x] Add an opt-in, read-only story-flag debug viewer with filtering and refresh.
+- [x] Test delivery locks, queue order, save/reload deduplication, malformed phone state, and the encounter → message/reply → journal sequence.
 - [ ] Validate narrative/save behavior in real Web and Android builds.
 
 ### M4 — Visual & Audio Mood Prototype · In progress
@@ -203,9 +234,11 @@ From this project directory:
 powershell -ExecutionPolicy Bypass -File tools/test.ps1
 powershell -ExecutionPolicy Bypass -File tools/test.ps1 -Suite Practice -FixedFps 30
 powershell -ExecutionPolicy Bypass -File tools/test.ps1 -Suite Practice -Visual -FixedFps 30
+powershell -ExecutionPolicy Bypass -File tools/test.ps1 -Suite Input -Visual
+powershell -ExecutionPolicy Bypass -File tools/test.ps1 -Suite Narrative -StoryDebug -Visual
 ```
 
-The helper isolates all test saves in `.godot-test/`. **Do not run the test scenes against your normal user profile**: their corruption and new-game cases deliberately replace the test save. The default `-Suite All` runs story and practice sequentially; `-Suite Story` or `-Suite Practice` selects one. Headless `-FixedFps` changes simulated render cadence; with `-Visual`, it sets the actual native FPS cap. Physics remains at 60 ticks per second. The helper fails on script errors or a missing success summary, even if the engine exits with code zero.
+The helper isolates all test saves in `.godot-test/`. **Do not run the test scenes against your normal user profile**: their corruption and new-game cases deliberately replace the test save. The default `-Suite All` runs story, practice, input, and narrative sequentially; `-Suite Story`, `-Suite Practice`, `-Suite Input`, or `-Suite Narrative` selects one. `-StoryDebug` enables additional viewer checks in the narrative suite. Headless `-FixedFps` changes simulated render cadence; with `-Visual`, it sets the actual native FPS cap. Physics remains at 60 ticks per second. The helper fails on script errors or a missing success summary, even if the engine exits with code zero.
 
 The story suite exercises content references, conditions, schema validation, corrupt-save fallback, opening/skip handoff, physical throttle/brake/steering, ground contact, pause, every stop, multitouch action handling, journal persistence, and Continue. The practice suite drives the full track under physics, checks solid-obstacle response, recovery, metrics, save isolation, and real title/practice scene transitions. `-Visual` also captures rendered screenshots under `tests/screenshots/` (ignored by Git). See [Validation record](docs/test/VALIDATION.md) for results and outstanding platform work.
 

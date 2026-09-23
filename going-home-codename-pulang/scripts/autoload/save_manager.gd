@@ -29,6 +29,20 @@ func validate(data: Variant) -> bool:
 			return false
 	if not data.phone.get("read", []) is Array or not data.phone.get("replies", {}) is Dictionary:
 		return false
+	for field in ["read", "delivered", "notified"]:
+		if not data.phone.get(field, []) is Array:
+			return false
+		for id in data.phone.get(field, []):
+			if not id is String:
+				return false
+	if not data.phone.get("pending", {}) is Dictionary:
+		return false
+	for id in data.phone.get("pending", {}):
+		var delay: Variant = data.phone.pending[id]
+		if not id is String or (not delay is float and not delay is int):
+			return false
+		if not is_finite(float(delay)) or delay < 0:
+			return false
 	for entry in data.journal.values():
 		if not entry is Dictionary or not entry.get("text") is String:
 			return false
@@ -44,6 +58,14 @@ func migrate(data: Dictionary) -> Dictionary:
 		result.get_or_add("dialogue_states", {})
 		result.phone.get_or_add("read", [])
 		result.phone.get_or_add("replies", {})
+		# Additive v1 migration: old read/replied messages must not notify again.
+		var known: Array = result.phone.read.duplicate()
+		for id in result.phone.replies:
+			if id not in known:
+				known.append(id)
+		result.phone.get_or_add("delivered", known.duplicate())
+		result.phone.get_or_add("notified", known.duplicate())
+		result.phone.get_or_add("pending", {})
 		return result
 	return {}
 
@@ -61,7 +83,7 @@ func read_save(path: String = SAVE_PATH) -> Dictionary:
 func has_save() -> bool:
 	return not read_save().is_empty() or not read_save(SAVE_PATH + ".bak").is_empty()
 
-func save_game() -> bool:
+func save_game(announce: bool = true) -> bool:
 	var data := GameState.snapshot()
 	if not validate(data):
 		return _fail("The checkpoint could not be saved.")
@@ -80,7 +102,8 @@ func save_game() -> bool:
 	if DirAccess.rename_absolute(absolute + ".tmp", absolute) != OK:
 		return _fail("Could not finish saving. Your previous checkpoint is safe.")
 	last_error = ""
-	save_completed.emit()
+	if announce:
+		save_completed.emit()
 	return true
 
 func load_game() -> bool:
@@ -98,13 +121,15 @@ func _fail(reason: String) -> bool:
 	save_failed.emit(reason)
 	return false
 
-func save_settings() -> void:
+func save_settings() -> bool:
 	var config := ConfigFile.new()
 	for key in GameState.settings:
 		config.set_value("settings", key, GameState.settings[key])
-	if config.save(SETTINGS_PATH) != OK:
+	var saved := config.save(SETTINGS_PATH) == OK
+	if not saved:
 		save_failed.emit("Settings could not be saved.")
 	apply_settings()
+	return saved
 
 func load_settings() -> void:
 	var config := ConfigFile.new()

@@ -6,10 +6,10 @@ var ui: GameUI
 var director: CutsceneDirector
 var scanner: InteractionScanner
 var flow: SceneFlow
+var phone_service: PhoneDataService
 var overview: Camera3D
 var state: String = "menu"
 var commute: bool = false
-var road_notified: bool = false
 var pending_encounter: String = ""
 var elapsed: float = 0
 var chapter_data: Dictionary = {}
@@ -31,7 +31,10 @@ func _ready() -> void:
 	director = CutsceneDirector.new()
 	director.process_mode = Node.PROCESS_MODE_PAUSABLE
 	add_child(director)
+	phone_service = PhoneDataService.new()
+	add_child(phone_service)
 	ui = GameUI.new()
+	ui.phone_service = phone_service
 	add_child(ui)
 	flow = SceneFlow.new()
 	add_child(flow)
@@ -77,6 +80,12 @@ func _on_action(action: String) -> void:
 			if SaveManager.load_game():
 				_restore_checkpoint()
 		"pause": _pause()
+		"story_debug":
+			if ui.story_debug_available():
+				get_tree().paused = true
+				InputModeManager.release_riding()
+				AudioManager.engine_active = false
+				ui.show_story_debug()
 		"resume": _resume()
 		"phone", "journal", "map":
 			if state not in ["riding", "complete", "scenic"]:
@@ -88,7 +97,9 @@ func _on_action(action: String) -> void:
 			elif action == "journal": ui.show_journal()
 			else: ui.show_map()
 		"back":
-			if state == "menu": ui.main_menu()
+			if state == "menu":
+				get_tree().paused = false
+				ui.main_menu()
 			else: ui.show_pause()
 		"interact": _interact()
 		"skip": director.finish()
@@ -140,7 +151,7 @@ func _start_commute() -> void:
 	bike.engine_on = true
 	bike.camera.make_current()
 	ui.riding()
-	ui.toast("W / ↑ to ride · S / ↓ to brake · Keep left")
+	ui.toast("Use RIDE and BRAKE · Keep left" if InputModeManager.touch_mode or GameState.settings.touch else "%s to ride · %s to brake · Keep left" % [InputModeManager.key_label("accelerate"), InputModeManager.key_label("brake")])
 	await flow.fade_in()
 
 func _start_road(distance: float = 12.0, save: bool = true) -> void:
@@ -149,7 +160,6 @@ func _start_road(distance: float = 12.0, save: bool = true) -> void:
 	director.clear_room()
 	_build_world(false)
 	commute = false
-	road_notified = false
 	GameState.chapter = "karawang"
 	if save:
 		GameState.checkpoint = "road_start"
@@ -176,7 +186,6 @@ func _dialogue_finished(id: String) -> void:
 		"warung":
 			GameState.checkpoint = "warung"
 			SaveManager.save_game()
-			ui.toast("A message from Dad · Tab to open your phone")
 			_resume_ride()
 		"fuel":
 			GameState.bike.fuel = 12.0
@@ -287,7 +296,7 @@ func _unhandled_input(event: InputEvent) -> void:
 	if flow.busy or event.is_echo():
 		return
 	if event.is_action_pressed("pause"):
-		if ui.mode in ["settings", "controls", "credits", "confirm_new"]:
+		if ui.mode in ["settings", "controls", "credits", "confirm_new", "story_debug"]:
 			_on_action("back")
 		elif get_tree().paused:
 			_resume()
@@ -307,12 +316,14 @@ func _process(delta: float) -> void:
 	ui.weather.rain = world.wet and state == "riding" and not get_tree().paused
 	ui.weather.queue_redraw()
 	if state != "riding" or get_tree().paused or flow.busy:
+		_advance_phone(delta)
 		return
 	var distance := -bike.position.z
 	if commute:
 		ui.update_hud(bike.speed_mps * 3.6, distance, "Ride to the office · Keep left", false, true)
 		if distance > 305:
 			_play_cutscene("office")
+		_advance_phone(delta)
 		return
 	scanner.scan(bike, world.stops)
 	ui.update_hud(bike.speed_mps * 3.6, distance, scanner.get_interaction_label(bike), scanner.can_interact(bike), false)
@@ -321,9 +332,14 @@ func _process(delta: float) -> void:
 		ui.toast("Rain ahead · There's a warung by the road")
 	elif distance > chapter_data.weather_end_distance and world.wet:
 		world.set_weather(false)
-	if distance > 180 and not road_notified:
-		road_notified = true
-		ui.toast("A message from Mom · Tab to read when you stop")
+	_advance_phone(delta)
+
+func _advance_phone(delta: float) -> void:
+	# Evaluate after road events: a weather toast or new cutscene owns this frame first.
+	var delivery_allowed := state in ["riding", "scenic", "complete"] and ui.mode in ["riding", "scenic", "complete"] and not get_tree().paused and not flow.busy
+	var notice := phone_service.advance(delta, delivery_allowed, ui.toast_timer <= 0)
+	if not notice.is_empty():
+		ui.toast("%s · %s · %s to open Phone when you're ready" % [notice.from, notice.type, InputModeManager.prompt_for("open_phone")], true)
 
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_APPLICATION_FOCUS_OUT or what == NOTIFICATION_APPLICATION_PAUSED:

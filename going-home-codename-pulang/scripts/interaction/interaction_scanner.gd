@@ -22,5 +22,5 @@ func get_interaction_label(bike: BikeMotorController) -> String:
 		return ""
 	if not can_interact(bike):
 		return "Slow down · " + candidate.label
-	var key := "Tap" if InputModeManager.touch_mode or GameState.settings.touch else "E"
+	var key := InputModeManager.prompt_for("interact")
 	return key + "  ·  " + candidate.label

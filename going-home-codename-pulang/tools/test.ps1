@@ -1,7 +1,8 @@
 param(
     [string]$Godot = 'D:\Godot_v4.7.2-stable_win64.exe\Godot_v4.7.2-stable_win64_console.exe',
     [switch]$Visual,
-    [ValidateSet('Story', 'Practice', 'All')][string]$Suite = 'All',
+    [ValidateSet('Story', 'Practice', 'Input', 'Narrative', 'All')][string]$Suite = 'All',
+    [switch]$StoryDebug,
     [ValidateSet(30, 60)][int]$FixedFps = 60
 )
 $ErrorActionPreference = 'Stop'
@@ -18,6 +19,8 @@ try {
     $scenes = @()
     if ($Suite -in @('Story', 'All')) { $scenes += 'TestRunner' }
     if ($Suite -in @('Practice', 'All')) { $scenes += 'PracticeTests' }
+    if ($Suite -in @('Input', 'All')) { $scenes += 'InputTests' }
+    if ($Suite -in @('Narrative', 'All')) { $scenes += 'NarrativeTests' }
     foreach ($scene in $scenes) {
         $logPath = Join-Path $testStorage ($scene + '.log')
         $testArgs = @('--path', $projectRoot, '--log-file', $logPath, '--quit-after', '60000')
@@ -25,6 +28,7 @@ try {
         $testArgs += ('res://tests/' + $scene + '.tscn')
         $testArgs += '--'
         if ($Visual) { $testArgs += '--visual' }
+        if ($StoryDebug) { $testArgs += '--story-debug' }
         if ($FixedFps -eq 30) { $testArgs += '--limit-30' }
         & $Godot @testArgs
         if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }

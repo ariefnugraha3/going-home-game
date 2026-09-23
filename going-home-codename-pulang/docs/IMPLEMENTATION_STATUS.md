@@ -1,4 +1,4 @@
-# Implementation status · M1 update, 2026-09-23
+# Implementation status · M3 narrative update, 2026-09-23
 
 This is a **prototype milestone delivery**, not a declaration that M0–M5 are accepted. Follow the original roadmap's human playtest and platform gates before chapter production.
 
@@ -6,8 +6,8 @@ This is a **prototype milestone delivery**, not a declaration that M0–M5 are a
 | --- | --- | --- |
 | M0 Foundation | GDScript/Compatibility, boot, menu, directories, version pin, settings, export presets | Matching templates, browser launch, Android launch, reproducible CI runner |
 | M1 Riding | CharacterBody3D, comfort settings, cockpit, route-aware assist/recovery, forgiving collision response; dedicated seven-section track, pause/weather/repeat controls, save-isolated local reports, full-track regression suite | Human 5/15-minute feel and nausea tests; physical-device and browser checks; final bike art remains in M4/M5 |
-| M2 Input/platform | Named actions, keyboard/arrows, multitouch overlay, input detection, pause lifecycle | Physical Android ergonomics and safe-area validation, Web iframe/focus tests, key rebinding |
-| M3 Narrative | Branches/conditions/flags, messages/replies, journal, checkpoint save and backup, cutscene director/skip | Notification queue scheduling, richer calls/photos, more migration fixtures, full localization key table |
+| M2 Input/platform | Named actions, keyboard/arrows, persistent basic key remapping with conflict checks/reset, dynamic prompts, multitouch overlay with ownership cleanup, Android safe-area insets, simulated aspect-ratio checks | Physical Android ergonomics and safe-area validation, Web iframe/focus/audio/storage tests; see M2 checklist |
+| M3 Narrative | Branches/conditions/flags, delayed phone delivery and banner queue, unread/read/reply persistence, legacy phone migration, read-only opt-in flag viewer, journal, checkpoint save and backup, cutscene director/skip | Real Web/Android save and lifecycle validation; richer calls/photos and full localization key table remain broader production work |
 | M4 Mood | Low-poly environment kit, fields/warung/homes/poles/traffic, lighting/rain, layered synthetic sound | Final art direction, authored animation, real motorcycle recordings, regional ambience, richer terrain/LOD profiling |
 | M5 Slice | Complete compact Jakarta-to-Karawang playable loop | 30–60 minute pacing, production-quality required shots, final assets/animations, all platform/comfort acceptance tests |
 | M6–M14 | Not begun | Production tools, all remaining chapters, alpha/beta, optimization, releases |
@@ -20,7 +20,7 @@ This is a **prototype milestone delivery**, not a declaration that M0–M5 are a
 4. **ART-02:** Replace simple character primitives with Raka/NPC rigs, hands, seated poses, and restrained gesture animation. Refine terrain-to-road edges, vegetation variety, and roadside silhouettes.
 5. **STORY-01:** Expand and time the opening morning/parking/commute/HR/sign-out/apartment/packing/departure shots. Current cinematics use static room compositions and text; final exterior departure and flashback performances are not implemented.
 6. **AUDIO-01:** Replace synthesized loop placeholders with licensed or original recorded vehicle layers and Indonesian environmental audio. Add ignition/shutdown/mechanical cues and a restrained music motif.
-7. **UI-01:** Validate minimum Android touch sizes/notches, add UI scaling/remapping, make phone Calls/Photos functional if retained in final scope.
+7. **UI-01:** Run the [M2 platform checklist](test/M2_PLAYTEST.md) for Android touch sizes/notches and browser focus. Basic keyboard remapping and safe-area layout are implemented; adjustable UI scaling and phone Calls/Photos remain future work if retained in scope.
 8. **PERF-01:** Profile real exports. Combine repeated road markings/poles/vegetation into MultiMeshes where measured draw calls justify it; confirm scene-memory recovery over repeated transitions.
 9. **CONTENT-01:** Only after the slice gate passes, author Cirebon onward with chapter scenes and the existing data interfaces. Preserve all listed GDD chapters and the restrained Banyuwangi/family-home ending.
 
@@ -38,4 +38,4 @@ This is a **prototype milestone delivery**, not a declaration that M0–M5 are a
 
 ## Save contract
 
-Schema v1 is stored at `user://journey.json`, with `.bak` as the last valid primary and `.tmp` as a verified staging write. It contains chapter/checkpoint, flags, dialogue states, bike fuel/condition/distance, journal selections, phone read/replies. Settings live in `user://settings.cfg`. New Game replaces journey state while preserving settings. Future schema versions currently fail safely, rather than being guessed or downgraded.
+Schema v1 is stored at `user://journey.json`, with `.bak` as the last valid primary and `.tmp` as a verified staging write. It contains chapter/checkpoint, flags, dialogue states, bike fuel/condition/distance, journal selections, and phone read/replies/delivered/notified/pending state. Missing additive phone fields migrate from pre-queue v1 saves; legacy read/replied IDs are already delivered and notified. Pending values are remaining seconds of unlocked gameplay, saved at checkpoints and phone events. Quiet phone saves retain the stable story checkpoint; they do not restore an exact riding position. Settings live in `user://settings.cfg`. New Game replaces journey state while preserving settings. Future schema versions currently fail safely, rather than being guessed or downgraded.

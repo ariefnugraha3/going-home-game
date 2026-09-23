@@ -37,6 +37,7 @@ func show_pause() -> void:
 	_button(box, "Continue practicing", func(): action_requested.emit("resume")).grab_focus()
 	_button(box, "Choose a road section", func(): action_requested.emit("sections"))
 	_button(box, "Settings & accessibility", show_settings)
+	_button(box, "Controls", show_controls)
 	_button(box, "Clear skies / rain", func(): action_requested.emit("weather"))
 	_button(box, "Return safely to the road", func(): action_requested.emit("recover"))
 	_button(box, "Save a local playtest report", func(): action_requested.emit("report"))

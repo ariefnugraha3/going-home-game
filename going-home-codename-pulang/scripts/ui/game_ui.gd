@@ -22,13 +22,16 @@ var subtitle_label: Label
 var dialogue_label: Label
 var dialogue_box: VBoxContainer
 var chapter_data: Dictionary
-var messages: Array
+var phone_service: PhoneDataService
+var phone_button: Button
+var phone_toast: bool = false
 var toolbar: HBoxContainer
+var capture_action: String = ""
+var capture_button: Button
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	chapter_data = JSON.parse_string(FileAccess.get_file_as_string("res://data/chapters/karawang.json"))
-	messages = JSON.parse_string(FileAccess.get_file_as_string("res://data/phone/messages.json"))
 	root = Control.new()
 	root.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	root.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -55,6 +58,26 @@ func _ready() -> void:
 	toast_label.add_theme_constant_override("shadow_offset_x", 1)
 	toast_label.add_theme_constant_override("shadow_offset_y", 2)
 	DialogueManager.line_changed.connect(show_dialogue)
+	if is_instance_valid(phone_service):
+		phone_service.inbox_changed.connect(_update_phone_badge)
+		_update_phone_badge()
+	get_viewport().size_changed.connect(_update_safe_area)
+	_update_safe_area()
+
+func _update_safe_area() -> void:
+	var bounds := get_viewport().get_visible_rect()
+	if OS.has_feature("android"):
+		var safe := Rect2(DisplayServer.get_display_safe_area())
+		if safe.has_area():
+			bounds = (get_viewport().get_screen_transform().affine_inverse() * safe).intersection(bounds)
+	apply_safe_area(bounds)
+
+func apply_safe_area(bounds: Rect2) -> void:
+	var viewport_size := get_viewport().get_visible_rect().size
+	root.offset_left = bounds.position.x
+	root.offset_top = bounds.position.y
+	root.offset_right = bounds.end.x - viewport_size.x
+	root.offset_bottom = bounds.end.y - viewport_size.y
 
 func _theme() -> Theme:
 	var theme := Theme.new()
@@ -108,6 +131,10 @@ func _button(parent: Node, title: String, callback: Callable) -> Button:
 	return button
 
 func _clear(next_mode: String) -> void:
+	capture_action = ""
+	if phone_toast and next_mode not in ["riding", "scenic", "complete"]:
+		toast_timer = 0
+		toast_label.hide()
 	mode = next_mode
 	if is_instance_valid(toast_label):
 		toast_label.anchor_top = 0 if next_mode == "riding" else 1
@@ -139,6 +166,7 @@ func _panel(title: String, subtitle: String = "") -> VBoxContainer:
 	var scroll := ScrollContainer.new()
 	panel.add_child(scroll)
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	scroll.follow_focus = true
 	var box := VBoxContainer.new()
 	box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	scroll.add_child(box)
@@ -178,6 +206,8 @@ func main_menu() -> void:
 	_button(practice_row, "Controls", show_controls).size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_button(practice_row, "Practice ride", func(): action_requested.emit("practice")).size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_button(box, "Credits", show_credits)
+	if story_debug_available():
+		_button(box, "Story debug", func(): action_requested.emit("story_debug"))
 	if not OS.has_feature("web"):
 		_button(box, "Quit", func(): action_requested.emit("quit"))
 	var place := _label(screen, "01  /  THE FIRST STRETCH", 18, CREAM)
@@ -212,6 +242,7 @@ func _build_hud() -> void:
 	_label(info, "P U L A N G    /    EASTBOUND", 15, GOLD)
 	route_label = _label(info, "Jakarta → Karawang", 22)
 	toolbar = HBoxContainer.new()
+	toolbar.grow_horizontal = Control.GROW_DIRECTION_BEGIN
 	hud.add_child(toolbar)
 	toolbar.anchor_left = 1
 	toolbar.anchor_right = 1
@@ -219,7 +250,9 @@ func _build_hud() -> void:
 	toolbar.offset_right = -30
 	toolbar.offset_top = 28
 	for item in [["Phone", "phone"], ["Journal", "journal"], ["Route", "map"], ["Ⅱ", "pause"]]:
-		_button(toolbar, item[0], func(): action_requested.emit(item[1]))
+		var button := _button(toolbar, item[0], func(): action_requested.emit(item[1]))
+		if item[1] == "phone":
+			phone_button = button
 	speed_label = _label(hud, "00", 44)
 	speed_label.add_theme_color_override("font_shadow_color", Color("14251d"))
 	speed_label.add_theme_constant_override("shadow_offset_y", 2)
@@ -255,6 +288,8 @@ func update_hud(kph: float, distance: float, context: String, can_interact: bool
 	prompt.visible = not context.is_empty()
 	prompt.disabled = not can_interact
 	touch.visible = InputModeManager.touch_mode or GameState.settings.touch
+	prompt.offset_top = -208 if touch.visible else -97
+	prompt.offset_bottom = -154 if touch.visible else -43
 	speed_label.visible = not touch.visible
 	status_label.visible = not touch.visible
 
@@ -264,6 +299,8 @@ func show_pause() -> void:
 	_button(box, "Continue riding", func(): action_requested.emit("resume")).grab_focus()
 	_button(box, "Settings & accessibility", show_settings)
 	_button(box, "Controls", show_controls)
+	if story_debug_available():
+		_button(box, "Story debug", func(): action_requested.emit("story_debug"))
 	_button(box, "Return to the road safely", func(): action_requested.emit("recover"))
 	_button(box, "Return to title", func(): action_requested.emit("menu"))
 	_paragraph(box, "Progress saves at the departure, shelter, and rest checkpoints. Returning to the title resumes from your last checkpoint.", 18, MUTED)
@@ -321,15 +358,54 @@ func show_settings() -> void:
 	text_size.toggled.connect(func(value: bool):
 		GameState.settings.text_size = 28 if value else 22
 		SaveManager.save_settings())
+	_button(box, "Keyboard controls", show_controls)
 	_button(box, "Back", func(): action_requested.emit("back"))
 
 func show_controls() -> void:
 	_clear("controls")
 	var box := _panel("No need to hurry", "Keep left. Brake near a roadside sign, then interact.")
-	for text in ["W / ↑   Accelerate        S / ↓ / Space   Brake", "A / D or ← / →   Steer        Q / R   Glance", "E   Interact when stopped        Enter   Advance dialogue", "Tab   Phone        J   Journal        M   Route", "Esc   Pause / Back        Backspace   Return to road", "Hold Space   Skip a cinematic", "Touch: left/right steering areas, RIDE and BRAKE. Use the large interaction button when stopped."]:
-		_paragraph(box, text, 20)
+	_paragraph(box, "Select a control, then press a key to replace its shortcuts. Escape cancels. Controls use physical key positions. Other controls' default keys stay reserved.", 18, MUTED)
+	for action in InputModeManager.REMAPPABLE:
+		var button := _button(box, "%s: %s" % [InputModeManager.REMAPPABLE[action], InputModeManager.key_label(action)], func(): pass)
+		button.pressed.connect(func(): _begin_binding(action, button))
+		if action == "accelerate":
+			button.grab_focus()
+	_paragraph(box, "Fixed controls: Escape pauses / goes back. Enter activates the focused menu or dialogue button. Hold Space to skip a cinematic.\nTouch: use LEFT / RIGHT, RIDE / BRAKE and the interaction button above them.", 20)
 	_paragraph(box, "Stop at Sari's warung before resting at the guesthouse. Fuel and scenic stops are optional. You can take your time.", 20, GOLD)
+	_button(box, "Restore default keyboard controls", func():
+		var saved := InputModeManager.reset_bindings()
+		show_controls()
+		toast("Default keyboard controls restored." if saved else "Defaults applied for this session, but settings could not be saved."))
 	_button(box, "Back", func(): action_requested.emit("back"))
+
+func _begin_binding(action: String, button: Button) -> void:
+	if is_instance_valid(capture_button) and not capture_action.is_empty():
+		capture_button.text = "%s: %s" % [InputModeManager.REMAPPABLE[capture_action], InputModeManager.key_label(capture_action)]
+	capture_action = action
+	capture_button = button
+	button.text = "Press a key for %s (Escape to cancel)" % InputModeManager.REMAPPABLE[action]
+	InputModeManager.release_riding()
+
+func _input(event: InputEvent) -> void:
+	if capture_action.is_empty() or not event is InputEventKey:
+		return
+	get_viewport().set_input_as_handled()
+	if not event.pressed or event.echo:
+		return
+	if event.keycode == KEY_ESCAPE or event.physical_keycode == KEY_ESCAPE:
+		capture_button.text = "%s: %s" % [InputModeManager.REMAPPABLE[capture_action], InputModeManager.key_label(capture_action)]
+		capture_action = ""
+		return
+	if event.ctrl_pressed or event.alt_pressed or event.meta_pressed or event.shift_pressed:
+		toast("Choose one key without Ctrl, Alt, Command or Shift.")
+		return
+	var error := InputModeManager.rebind(capture_action, event.physical_keycode)
+	if not error.is_empty():
+		toast(error)
+		return
+	capture_button.text = "%s: %s" % [InputModeManager.REMAPPABLE[capture_action], InputModeManager.key_label(capture_action)]
+	capture_action = ""
+	toast("Keyboard control saved.")
 
 func show_credits() -> void:
 	_clear("credits")
@@ -341,26 +417,59 @@ func show_phone() -> void:
 	_clear("phone")
 	var box := _panel("Your phone", "MESSAGES & EMAIL   /   Read when you're ready.")
 	var any := false
-	for message in messages:
-		if not GameState.flags.get(message.condition, false):
-			continue
+	var inbox: Array = phone_service.received_messages() if is_instance_valid(phone_service) else []
+	for message in inbox:
 		any = true
 		_label(box, message.from + "  ·  " + message.type, 21, GOLD)
 		_paragraph(box, message.text, 21)
-		if message.id not in GameState.phone.read:
-			GameState.phone.read.append(message.id)
 		if GameState.phone.replies.has(message.id):
 			_paragraph(box, "You: " + GameState.phone.replies[message.id], 20, MUTED)
 		else:
 			_button(box, "Reply: " + message.reply, func():
-				GameState.phone.replies[message.id] = message.reply
-				GameState.set_flag("phone." + message.id + ".replied")
-				SaveManager.save_game()
+				phone_service.reply(message.id)
 				show_phone())
 		box.add_child(HSeparator.new())
 	if not any:
 		_paragraph(box, "No new messages. A quiet morning.", 22, MUTED)
+	if is_instance_valid(phone_service):
+		phone_service.mark_inbox_read()
 	_button(box, "Put the phone away", func(): action_requested.emit("resume"))
+
+func _update_phone_badge() -> void:
+	if is_instance_valid(phone_button) and is_instance_valid(phone_service):
+		var count := phone_service.unread_count()
+		phone_button.text = "Phone (%d)" % count if count > 0 else "Phone"
+
+func story_debug_available() -> bool:
+	return OS.is_debug_build() and "--story-debug" in OS.get_cmdline_user_args() and is_instance_valid(phone_service)
+
+func show_story_debug() -> void:
+	if not story_debug_available():
+		return
+	_clear("story_debug")
+	toast_timer = 0
+	var box := _panel("Story debug", "Read-only session state. Refresh to inspect changes; nothing here edits or saves the journey.")
+	_button(box, "Refresh", show_story_debug).grab_focus()
+	_button(box, "Back", func(): action_requested.emit("back"))
+	_paragraph(box, "Chapter: %s   /   Checkpoint: %s\nActive dialogue: %s" % [GameState.chapter, GameState.checkpoint, DialogueManager.active_id], 18, GOLD)
+	var filter := LineEdit.new()
+	filter.placeholder_text = "Filter flag names or values"
+	filter.custom_minimum_size.y = 48
+	box.add_child(filter)
+	var flags_label := _paragraph(box, _debug_flags(""), 18)
+	filter.text_changed.connect(func(query: String): flags_label.text = _debug_flags(query))
+	_paragraph(box, "Dialogue states\n" + JSON.stringify(GameState.dialogue_states, "  "), 18)
+	_paragraph(box, "Phone delivery state\n" + JSON.stringify(GameState.phone, "  "), 18)
+
+func _debug_flags(query: String) -> String:
+	var lines := PackedStringArray()
+	var keys: Array = GameState.flags.keys()
+	keys.sort()
+	for key in keys:
+		var line := "%s = %s" % [key, JSON.stringify(GameState.flags[key])]
+		if query.is_empty() or line.to_lower().contains(query.to_lower()):
+			lines.append(line)
+	return "No matching flags." if lines.is_empty() else "\n".join(lines)
 
 func show_map() -> void:
 	_clear("map")
@@ -455,9 +564,10 @@ func show_end() -> void:
 	_button(box, "Read the journal", func(): action_requested.emit("journal"))
 	_button(box, "Return to title", func(): action_requested.emit("menu"))
 
-func toast(text: String) -> void:
+func toast(text: String, is_phone_notice: bool = false) -> void:
 	toast_label.text = text
 	toast_timer = 5
+	phone_toast = is_phone_notice
 
 func _process(delta: float) -> void:
 	toast_timer = maxf(0, toast_timer - delta)
