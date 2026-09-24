@@ -22,6 +22,8 @@ var subtitle_label: Label
 var dialogue_label: Label
 var dialogue_box: VBoxContainer
 var chapter_data: Dictionary
+var phone_section: String = "Home"
+var phone_origin: bool = false
 var phone_service: PhoneDataService
 var phone_button: Button
 var phone_toast: bool = false
@@ -131,6 +133,7 @@ func _button(parent: Node, title: String, callback: Callable) -> Button:
 	return button
 
 func _clear(next_mode: String) -> void:
+	phone_origin = false
 	capture_action = ""
 	if phone_toast and next_mode not in ["riding", "scenic", "complete"]:
 		toast_timer = 0
@@ -413,27 +416,63 @@ func show_credits() -> void:
 	_paragraph(box, "Based on the PULANG GDD v2, TDD v1, and Development Roadmap v1.\n\nBuilt with Godot Engine 4.7.2.\nOriginal low-poly geometry and synthesized placeholder audio created for this project.\nGodot's bundled font: Noto Sans.\n\nMotorcycle design reference: Suzuki Thunder 250 (2000). No affiliation or endorsement.\n\nThis playable development slice follows Raka from Jakarta to his first night in Karawang. The remaining journey is still in development.", 22)
 	_button(box, "Back", func(): action_requested.emit("back"))
 
-func show_phone() -> void:
+func show_phone(section: String = "Home") -> void:
+	if section not in ["Home", "Messages", "Email", "Calls"]:
+		section = "Home"
 	_clear("phone")
-	var box := _panel("Your phone", "MESSAGES & EMAIL   /   Read when you're ready.")
-	var any := false
-	var inbox: Array = phone_service.received_messages() if is_instance_valid(phone_service) else []
+	phone_section = section
+	var box := _panel("Your phone", "Read when you're ready.")
+	if section == "Home":
+		for channel in PhoneDataService.CHANNELS:
+			var count: int = phone_service.unread_count(channel) if is_instance_valid(phone_service) else 0
+			_button(box, "%s (%d unread)" % [channel, count], func(): show_phone(channel))
+		var call_count: int = phone_service.call_history().size() if is_instance_valid(phone_service) else 0
+		_button(box, "Calls (%d)" % call_count, func(): show_phone("Calls"))
+		_button(box, "Route", func(): show_map(true))
+		_button(box, "Journal", func(): show_journal(false, true))
+	else:
+		_button(box, "Back to phone", func(): show_phone()).grab_focus()
+		_label(box, section, 27, GOLD)
+		if section == "Calls":
+			_show_calls(box)
+		else:
+			_show_inbox(box, section)
+	_button(box, "Put the phone away", func(): action_requested.emit("resume"))
+
+func _show_inbox(box: VBoxContainer, channel: String) -> void:
+	var inbox: Array = phone_service.received_messages(channel) if is_instance_valid(phone_service) else []
+	if inbox.is_empty():
+		_paragraph(box, "No email yet." if channel == "Email" else "No messages yet. A quiet moment.", 22, MUTED)
 	for message in inbox:
-		any = true
-		_label(box, message.from + "  ·  " + message.type, 21, GOLD)
+		_label(box, message.from, 21, GOLD)
 		_paragraph(box, message.text, 21)
 		if GameState.phone.replies.has(message.id):
 			_paragraph(box, "You: " + GameState.phone.replies[message.id], 20, MUTED)
 		else:
 			_button(box, "Reply: " + message.reply, func():
 				phone_service.reply(message.id)
-				show_phone())
+				show_phone(channel))
 		box.add_child(HSeparator.new())
-	if not any:
-		_paragraph(box, "No new messages. A quiet morning.", 22, MUTED)
 	if is_instance_valid(phone_service):
-		phone_service.mark_inbox_read()
-	_button(box, "Put the phone away", func(): action_requested.emit("resume"))
+		phone_service.mark_inbox_read(channel)
+
+func _show_calls(box: VBoxContainer) -> void:
+	var history: Array = phone_service.call_history() if is_instance_valid(phone_service) else []
+	if history.is_empty():
+		_paragraph(box, "No completed calls yet.", 22, MUTED)
+	for call in history:
+		_label(box, call.from + " / " + call.direction, 21, GOLD)
+		_paragraph(box, call.when, 18, MUTED)
+		_paragraph(box, "What stayed with me", 20, GOLD)
+		_paragraph(box, call.note, 21)
+		_paragraph(box, call.from + ": " + call.remembered_line, 21)
+		box.add_child(HSeparator.new())
+
+func phone_back() -> bool:
+	if phone_origin or (mode == "phone" and phone_section != "Home"):
+		show_phone()
+		return true
+	return false
 
 func _update_phone_badge() -> void:
 	if is_instance_valid(phone_button) and is_instance_valid(phone_service):
@@ -471,17 +510,22 @@ func _debug_flags(query: String) -> String:
 			lines.append(line)
 	return "No matching flags." if lines.is_empty() else "\n".join(lines)
 
-func show_map() -> void:
+func show_map(from_phone: bool = false) -> void:
 	_clear("map")
+	phone_origin = from_phone
 	var box := _panel("A long way east", "JAKARTA → BANYUWANGI   /   Your journey across Java")
 	box.add_child(RouteMap.new())
 	_paragraph(box, "Today: Jakarta → Karawang", 28, GOLD)
 	_paragraph(box, "Fuel station  ·  Rice-field turnout  ·  Sari's warung  ·  Guesthouse\n\nStop by the warung when the rain comes. The guesthouse is just beyond the fields.", 22)
 	_paragraph(box, "Beyond this chapter\n" + "  →  ".join(chapter_data.route.slice(2)), 18, MUTED)
-	_button(box, "Fold the map", func(): action_requested.emit("resume"))
+	if from_phone:
+		_button(box, "Back to phone", func(): show_phone())
+	else:
+		_button(box, "Fold the map", func(): action_requested.emit("resume"))
 
-func show_journal(write: bool = false) -> void:
+func show_journal(write: bool = false, from_phone: bool = false) -> void:
 	_clear("reflection" if write else "journal")
+	phone_origin = from_phone and not write
 	var data: Dictionary = chapter_data.journal
 	var box := _panel("The travel journal", "KARAWANG   /   The first night")
 	if write:
@@ -494,7 +538,10 @@ func show_journal(write: bool = false) -> void:
 	else:
 		_paragraph(box, "An empty page. I'll write something when I stop for the night.", 25, MUTED)
 	if not write:
-		_button(box, "Close the journal", func(): action_requested.emit("resume"))
+		if from_phone:
+			_button(box, "Back to phone", func(): show_phone())
+		else:
+			_button(box, "Close the journal", func(): action_requested.emit("resume"))
 
 func show_cinematic(title: String, subtitle: String, text: String) -> void:
 	_clear("cinematic")

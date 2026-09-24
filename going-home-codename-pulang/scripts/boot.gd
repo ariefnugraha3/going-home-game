@@ -308,7 +308,9 @@ func _unhandled_input(event: InputEvent) -> void:
 	if flow.busy or event.is_echo():
 		return
 	if event.is_action_pressed("pause"):
-		if ui.mode in ["settings", "controls", "credits", "confirm_new", "story_debug"]:
+		if ui.phone_back():
+			pass
+		elif ui.mode in ["settings", "controls", "credits", "confirm_new", "story_debug"]:
 			_on_action("back")
 		elif get_tree().paused:
 			_resume()

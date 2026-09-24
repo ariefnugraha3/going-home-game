@@ -56,7 +56,7 @@ M2 validation covered **93 story + 34 practice + 44 input checks (171 total)**. 
 
 ## Phone and story inspection · M3 update
 
-Messages now arrive through a separate `PhoneDataService`, using story conditions and `delay_seconds` in `data/phone/messages.json`. Delivery time advances during riding, scenic stops, and the chapter ending; cutscenes, dialogue, transitions, pause, and open menus freeze it. Delivered messages wait for a free banner slot and appear in delivery order. The Phone button shows an unread count; opening the inbox marks delivered messages read and suppresses their queued banners.
+Messages now arrive through a separate `PhoneDataService`, using story conditions and `delay_seconds` in `data/phone/messages.json`. Delivery time advances during riding, scenic stops, and the chapter ending; cutscenes, dialogue, transitions, pause, and open menus freeze it. Delivered messages wait for a free banner slot and appear in delivery order. The Phone button shows an unread count; opening Messages or Email marks the delivered entries in that section read and suppresses their queued banners. Phone home leaves both sections unread.
 
 Delivered/read/replied messages, displayed notices, and remaining delivery delays are part of the journey save. Message arrival, banner display, reading, and replying save quietly without replacing the banner with a checkpoint toast. Continue retains the stable story checkpoint. A delay resumes from the last saved value rather than counting time while the game is closed. Existing v1 saves migrate automatically; already read/replied messages do not notify again. A banner hidden by a new dialogue or menu is considered shown; its message remains in the inbox.
 
@@ -115,6 +115,18 @@ A **two-second memory insert** before departure shows young Raka behind his fath
 The opening now totals **23 shots / 101 authored seconds** before dialogue, riding, transitions and pauses. These are reusable animation prototypes, not finished character art: skinning, facial/lip animation, walking, waking, complete packing actions, refined hand contact and cinematic sound remain open. The memory uses continuous ambient crossfades; its final authored sound bridge remains pending.
 
 Local validation: **474 combined checks passed**, including **142 cinematic checks**, at fixed 30 render cadence. The 142 cinematic checks also passed in native Godot at a 30 FPS cap. Phone, packing, father/child and departure poses were inspected in rendered captures. Human animation/comfort review and real Web/Android validation remain pending.
+
+## Phone sections and call history - M5 update, 2026-09-25
+
+**Phone** now opens a home screen with **Messages, Email, Calls, Route, and Journal**. Messages and Email show separate unread counts. Opening one section marks all delivered entries in that section read, including those below the scroll fold, while leaving the other section unread. The HUD Phone badge still shows the combined unread total. Replies remain authored and stay in their current section after sending.
+
+**Calls** contains Mom's first-evening call only after its dialogue completes. It shows the story time, Raka's short recollection, and a remembered line from the existing dialogue data. Either dialogue branch unlocks the same shared recollection. Reading call history never restarts dialogue or changes flags/checkpoints. It derives availability from the existing saved dialogue-completion state, so old v1 saves remain compatible and New Game clears the history naturally.
+
+**Route** and **Journal** open from the phone with a **Back to phone** button. Escape returns from a section/shortcut to phone home, then closes the phone on the next press. Direct map/journal shortcuts retain their original close behavior. Riding stays paused throughout phone navigation.
+
+This implements a call-history view, not outgoing calls or audio replay. Photos, additional call content, voice playback, and a full localization key table remain future work. The [phone review guide](docs/test/M3_PLAYTEST.md) includes the updated authoring and acceptance checks.
+
+Local validation: **511 combined checks passed** at fixed 30 render cadence, including **35 phone checks**. The Phone suite also passed all 35 checks in native Godot capped at 30 FPS; home, Messages, Email and Calls captures were inspected. Real browser/Android and human readability acceptance remain open.
 
 ## Controls (defaults)
 
@@ -186,6 +198,8 @@ Based on the [Development Roadmap v1](../PULANG_Development_Roadmap_v1.md). Stat
 - [x] Add delayed phone delivery, serialized banners, unread counts, and persistent delivery/read/reply state with legacy-save migration.
 - [x] Add an opt-in, read-only story-flag debug viewer with filtering and refresh.
 - [x] Test delivery locks, queue order, save/reload deduplication, malformed phone state, and the encounter → message/reply → journal sequence.
+- [x] Add phone home, separate Messages/Email unread state, completed-call history, and Route/Journal return navigation.
+- [x] Test channel reads/replies, call completion gates, read-only history, old-schema save/load, New Game, and phone navigation locks.
 - [ ] Validate narrative/save behavior in real Web and Android builds.
 
 ### M4 — Visual & Audio Mood Prototype · In progress
@@ -293,9 +307,10 @@ powershell -ExecutionPolicy Bypass -File tools/test.ps1 -Suite Narrative -StoryD
 powershell -ExecutionPolicy Bypass -File tools/test.ps1 -Suite Mood -Visual -FixedFps 30
 powershell -ExecutionPolicy Bypass -File tools/test.ps1 -Suite Audio -Visual -FixedFps 30
 powershell -ExecutionPolicy Bypass -File tools/test.ps1 -Suite Cinematic -Visual -FixedFps 30
+powershell -ExecutionPolicy Bypass -File tools/test.ps1 -Suite Phone -Visual -FixedFps 30
 ```
 
-The helper isolates all test saves in `.godot-test/`. **Do not run the test scenes against your normal user profile**: their corruption and new-game cases deliberately replace the test save. The default `-Suite All` runs story, practice, input, narrative, mood, audio, and cinematic sequentially; use `-Suite Story`, `Practice`, `Input`, `Narrative`, `Mood`, `Audio`, or `Cinematic` to select one. `-StoryDebug` enables additional viewer checks in the narrative suite. Headless `-FixedFps` changes simulated render cadence; with `-Visual`, it sets the actual native FPS cap. Physics remains at 60 ticks per second. The helper fails on script errors or a missing success summary, even if the engine exits with code zero.
+The helper isolates all test saves in `.godot-test/`. **Do not run the test scenes against your normal user profile**: their corruption and new-game cases deliberately replace the test save. The default `-Suite All` runs story, practice, input, narrative, mood, audio, cinematic, and phone sequentially; use `-Suite Story`, `Practice`, `Input`, `Narrative`, `Mood`, `Audio`, `Cinematic`, or `Phone` to select one. `-StoryDebug` enables additional viewer checks in the narrative suite. Headless `-FixedFps` changes simulated render cadence; with `-Visual`, it sets the actual native FPS cap. Physics remains at 60 ticks per second. The helper fails on script errors or a missing success summary, even if the engine exits with code zero.
 
 The story suite exercises content references, conditions, schema validation, corrupt-save fallback, opening/skip handoff, physical throttle/brake/steering, ground contact, pause, every stop, multitouch action handling, journal persistence, and Continue. The practice suite drives the full track under physics, checks solid-obstacle response, recovery, metrics, save isolation, and real title/practice scene transitions. `-Visual` also captures rendered screenshots under `tests/screenshots/` (ignored by Git). See [Validation record](docs/test/VALIDATION.md) for results and outstanding platform work.
 

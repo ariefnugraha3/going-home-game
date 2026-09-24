@@ -3,9 +3,12 @@ extends Node
 
 signal inbox_changed
 var messages: Array = []
+var calls: Array = []
+const CHANNELS := ["Messages", "Email"]
 
 func _ready() -> void:
 	messages = JSON.parse_string(FileAccess.get_file_as_string("res://data/phone/messages.json"))
+	calls = JSON.parse_string(FileAccess.get_file_as_string("res://data/phone/calls.json"))
 	GameState.flag_changed.connect(_flag_changed)
 	GameState.journey_changed.connect(reconcile)
 	reconcile()
@@ -67,30 +70,43 @@ func message_by_id(id: String) -> Dictionary:
 			return message
 	return {}
 
-func received_messages() -> Array:
+func received_messages(channel: String = "") -> Array:
 	var result: Array = []
 	for id in GameState.phone.delivered:
 		var message := message_by_id(id)
-		if not message.is_empty():
+		if not message.is_empty() and (channel.is_empty() or message.type == channel):
 			result.append(message.duplicate(true))
 	return result
 
-func unread_count() -> int:
+func unread_count(channel: String = "") -> int:
 	var count := 0
-	for message in received_messages():
+	for message in received_messages(channel):
 		if message.id not in GameState.phone.read and not GameState.phone.replies.has(message.id):
 			count += 1
 	return count
 
-func mark_inbox_read() -> void:
+func mark_inbox_read(channel: String = "") -> void:
 	var changed := false
-	for message in received_messages():
+	for message in received_messages(channel):
 		if message.id not in GameState.phone.read:
 			GameState.phone.read.append(message.id)
 			changed = true
 	if changed:
 		SaveManager.save_game(false)
 		inbox_changed.emit()
+
+func call_history() -> Array:
+	# Completion already belongs to the stable save contract. Reading history
+	# never starts a dialogue or writes a second source of call-completion state.
+	var result: Array = []
+	for call in calls:
+		if GameState.dialogue_states.get(call.dialogue, "") != "complete":
+			continue
+		var entry: Dictionary = call.duplicate(true)
+		var nodes: Dictionary = DialogueManager.content.get(call.dialogue, {}).get("nodes", {})
+		entry["remembered_line"] = nodes.get(call.remembered_node, {}).get("text", "")
+		result.append(entry)
+	return result
 
 func reply(id: String) -> bool:
 	var message := message_by_id(id)

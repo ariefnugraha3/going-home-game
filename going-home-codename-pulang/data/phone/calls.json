@@ -1,0 +1,11 @@
+[
+  {
+    "id": "mom_first_evening",
+    "from": "Mom",
+    "when": "Tuesday / 20:16",
+    "direction": "Incoming call",
+    "dialogue": "mother",
+    "note": "Mom asked whether I had eaten. I told her about the team being cut. She said I could come home. Dad still leaves the gate key in the same place.",
+    "remembered_node": "home"
+  }
+]

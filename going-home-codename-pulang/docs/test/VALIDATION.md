@@ -1,5 +1,25 @@
 # Validation record
 
+## M5 phone interface update - 2026-09-25
+
+Godot **4.7.2.stable.official.ed1daf0bf**, Compatibility. Native checks use Windows / NVIDIA RTX 3050 Laptop GPU at a 30 FPS cap.
+
+| Check | Result |
+| --- | --- |
+| Combined headless suites, fixed 30 render cadence | **96 Story + 34 Practice + 44 Input + 60 Narrative + 52 Mood + 48 Audio + 142 Cinematic + 35 Phone = 511 checks, 0 failures** |
+| Native Phone suite, actual 30 FPS cap | **35 checks, 0 failures** |
+| Read status and replies | Home preserves unread state; Messages/Email filter and mark their own delivered entries; reply remains in Email; existing save/load retains reads and replies |
+| Call history | Both completed mother-call branches unlock one recollection; unfinished call/final-line flag alone does not; repeated reads do not write saves, set flags or replay dialogue |
+| Navigation | Actual UI buttons open correct sections; Back/Escape returns shortcuts to phone while paused; home closes to riding; direct map retains original close behavior |
+| Story/save isolation | Calls, Route and Journal browsing leaves checkpoint file unchanged; cinematic locks prevent phone opening; paused bike cannot move; New Game clears live history and badges |
+| Native inspection | Home, Messages, Email and Calls captured and inspected at 1280 x 720; longer Messages list remains scrollable |
+| Resource PCK export and isolated boot | **Pass**, 1,144,432 bytes; calls JSON included; packed main scene boots outside the source project and exits 0 after 120 frames |
+| Human readability, touch and real Web/Android acceptance | **Pending**, see [phone review guide](M3_PLAYTEST.md) |
+
+Reproduce with `powershell -ExecutionPolicy Bypass -File tools/test.ps1 -Suite All -FixedFps 30` and `powershell -ExecutionPolicy Bypass -File tools/test.ps1 -Suite Phone -Visual -FixedFps 30`. Native log: `.godot-test/PhoneTests-native30.log`; screenshots: `tests/screenshots/phone_*.png` (ignored).
+
+Narrative gains two section-read checks (60 in a normal launch, 63 with StoryDebug enabled). The legacy combined service methods remain available when no channel is specified. Calls use the existing saved dialogue-completion state, with no new save fields or schema migration. The history is an authored recollection and remembered line, not voice playback or a transcript. No game parser/runtime errors in final runs; the pre-existing sandbox certificate-store startup error remains. The resource PCK is not an HTML5/APK build; matching export templates and real platform acceptance remain pending.
+
 ## M5 character performance update - 2026-09-25
 
 Godot **4.7.2.stable.official.ed1daf0bf**, Compatibility. Native rendering uses Windows / NVIDIA RTX 3050 Laptop GPU at a 30 FPS cap.

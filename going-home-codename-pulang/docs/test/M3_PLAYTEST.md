@@ -8,7 +8,7 @@ Current delays: Dimas 2 s and recruiter 7 s after the layoff condition; Mom 5 s 
 
 The UI reads message copies from `PhoneDataService`. Delivery order, read/reply state, displayed notice IDs and pending remaining times live in `GameState.phone`. Checkpoints and phone events save these values. No wall-clock or offline delivery is simulated. Reload restores remaining delay at the last save. Read/replied legacy messages migrate without repeated notifications. New Game resets all phone history.
 
-A notice is marked shown when it takes the banner slot. Opening dialogue/pause hides it; it is not replayed afterward, and the message stays in the inbox. Reading the inbox marks its delivered messages read, including entries below the scroll fold. Status toasts may replace a notice, but there is only one visible banner. Save failures remain visible and prevent a new notice from covering the error; the notice retries after the banner slot becomes free.
+A notice is marked shown when it takes the banner slot. Opening dialogue/pause hides it; it is not replayed afterward, and the message stays in the inbox. Phone home does not mark content read. Opening Messages or Email marks that section's delivered entries read, including entries below the scroll fold; other sections remain unread. Status toasts may replace a notice, but there is only one visible banner. Save failures remain visible and prevent a new notice from covering the error; the notice retries after the banner slot becomes free.
 
 ## Story inspection
 
@@ -28,4 +28,21 @@ There are no editing/reset/save commands in the viewer. Normal launches, practic
 - [ ] Load a pre-queue v1 save. Read/replied conversations remain available; other eligible messages can arrive with their configured delay.
 - [ ] Repeat in Web iframe/fullscreen and physical Android, including suspend/resume, force-stop/relaunch and available storage. Record device/browser/version and results.
 
-Browser/Android and human acceptance remain pending; native automated results do not close those gates. Calls, Photos, and a full localization key table are not implemented by this update.
+Browser/Android and human acceptance remain pending; native automated results do not close those gates. Completed-call history is implemented; outgoing calls, voice playback, Photos and a full localization key table remain open.
+
+## Phone sections and call history
+
+`PhoneDataService.received_messages(channel)`, `unread_count(channel)` and `mark_inbox_read(channel)` filter the existing authored `type` values Messages/Email. Omitting the channel retains the combined service view for legacy callers. Reading a section persists the existing read IDs; the save schema does not change. Unknown nonempty channels match no messages.
+
+`data/phone/calls.json` defines stable call IDs, caller, authored story time, direction, source dialogue, recollection and a remembered dialogue-node reference. `call_history()` exposes a copy only when that source dialogue's saved state is complete. The remembered line comes from the dialogue data; the note is an authored summary shared by both mother-call branches. It is not a recording/transcript. Reading it does not call DialogueManager.start, set flags or write saves. There are no external phone/network integrations.
+
+- [ ] Open Phone with both Messages and Email unread. Confirm home changes neither count; reading one section only clears that section. Return to riding and check unseen/unannounced content can still notify.
+- [ ] Reply to the recruiter in Email; the reply stays in Email and persists after Continue. Check readability on small screens, including the scrollable Messages list.
+- [ ] Open Calls before and after finishing Mom's conversation on both branches. Before completion it should be empty; afterward it should contain one recollection without replaying the conversation.
+- [ ] Open Route/Journal through Phone, then use Back or Escape: return to phone home while paused. Escape at home closes the phone. Direct map/journal hotkeys still close back to gameplay.
+- [ ] Start a new journey: no old call history, messages, replies or unread badges should remain.
+- [ ] Repeat with touch and physical keyboard in browser/Android builds once platform prerequisites are available.
+
+`powershell -ExecutionPolicy Bypass -File tools/test.ps1 -Suite Phone -Visual -FixedFps 30`
+
+This suite exercises real UI button callbacks, back-key navigation, separate read status, reply/save round trips, both call branches, partial-call gating, read-only history, movement locks and New Game. Native captures are stored under ignored `tests/screenshots/phone_*.png`. Automated checks do not replace touch ergonomics or human narrative review.
