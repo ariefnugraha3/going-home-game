@@ -94,6 +94,18 @@ These are original synthesized prototypes, not regional or motorcycle recordings
 
 Local validation: **329 combined checks passed** at fixed 30 render cadence (**93 Story + 34 Practice + 44 Input + 58 Narrative + 52 Mood + 48 Audio**). The native Audio suite passed **50 checks** at a 30 FPS cap, including real stream playback and pause state. Human listening and real Web/Android acceptance remain pending.
 
+## Opening cinematics - M5 update
+
+The opening now has **22 authored shots across five sequences**: morning routine and parking, HR notification/meeting, post-meeting sign-out, evening apartment, and packing/departure. Phone and laptop inserts show the alarm, HR message, recruiter opportunities, Apply, Mom, and the route home. The bike appears in the parking set with luggage at departure, followed by a PULANG title reveal and the existing ride into Karawang.
+
+Shots in `data/cutscenes/opening.json` define stable IDs, purpose, framing, FOV, duration, optional camera endpoint, set, and prop text. `CinematicStage` builds the replaceable interior/parking sets; the director handles framing, restrained camera travel and the shared rider/bike departure movement. **Reduced camera motion** disables camera travel. Pause freezes the timeline; hold Space or select **Skip scene** to finish the current sequence, restore its final set/framing, and commit its flags once.
+
+The restructuring conversation now leads through badge/sign-out before the evening scene. Existing checkpoint IDs remain unchanged: Continue restores the stable checkpoint, not an individual shot. An interruption around the meeting can replay the commute/meeting from its saved checkpoint. Continue at departure restores packing, and finishing/skipping it restores the riding camera and controls.
+
+The authored shot durations total **99 seconds**, excluding dialogue, commute, transitions and player pauses. This remains a compact prototype: actors use seated blocking geometry, and bike departure uses root movement. Final rigs/gestures, waking/walking/packing performances, the father-memory insert, cinematic foley/voice treatment and the planned 30-60 minute slice remain unfinished. Use the [M5 cinematic review guide](docs/test/M5_CINEMATIC_PLAYTEST.md).
+
+Local validation: **424 combined checks passed** at fixed 30 render cadence, including **92 cinematic checks**. The same 92 cinematic checks also passed with native rendering capped at 30 FPS. Representative phone/laptop, packing, night, cluster and departure/title captures were inspected. Human pacing, final art and Web/Android acceptance remain pending.
+
 ## Controls (defaults)
 
 | Action | Keyboard |
@@ -183,6 +195,8 @@ Based on the [Development Roadmap v1](../PULANG_Development_Roadmap_v1.md). Stat
 - [x] Connect Jakarta opening → commute → layoff → mother's call → departure → first road segment.
 - [x] Connect optional stops → rain shelter/conversation → guesthouse → journal → chapter ending.
 - [x] Test the compact desktop flow, checkpoint recovery, and Continue through completion.
+- [x] Expand the opening to 22 authored shots with interior/parking sets, readable phone/laptop inserts, post-meeting sign-out, and departure/title reveal.
+- [x] Add per-shot framing/FOV, restrained camera travel, reduced-motion behavior, deterministic skip, pause and stable-checkpoint regression checks.
 - [ ] Expand and playtest pacing toward the planned 30–60 minute slice.
 - [ ] Finish production-quality opening cutscenes, character animation, hero assets, and audio.
 - [ ] Pass browser, Android, performance, riding-comfort, and narrative acceptance gates.
@@ -266,9 +280,10 @@ powershell -ExecutionPolicy Bypass -File tools/test.ps1 -Suite Input -Visual
 powershell -ExecutionPolicy Bypass -File tools/test.ps1 -Suite Narrative -StoryDebug -Visual
 powershell -ExecutionPolicy Bypass -File tools/test.ps1 -Suite Mood -Visual -FixedFps 30
 powershell -ExecutionPolicy Bypass -File tools/test.ps1 -Suite Audio -Visual -FixedFps 30
+powershell -ExecutionPolicy Bypass -File tools/test.ps1 -Suite Cinematic -Visual -FixedFps 30
 ```
 
-The helper isolates all test saves in `.godot-test/`. **Do not run the test scenes against your normal user profile**: their corruption and new-game cases deliberately replace the test save. The default `-Suite All` runs story, practice, input, narrative, mood, and audio sequentially; use `-Suite Story`, `Practice`, `Input`, `Narrative`, `Mood`, or `Audio` to select one. `-StoryDebug` enables additional viewer checks in the narrative suite. Headless `-FixedFps` changes simulated render cadence; with `-Visual`, it sets the actual native FPS cap. Physics remains at 60 ticks per second. The helper fails on script errors or a missing success summary, even if the engine exits with code zero.
+The helper isolates all test saves in `.godot-test/`. **Do not run the test scenes against your normal user profile**: their corruption and new-game cases deliberately replace the test save. The default `-Suite All` runs story, practice, input, narrative, mood, audio, and cinematic sequentially; use `-Suite Story`, `Practice`, `Input`, `Narrative`, `Mood`, `Audio`, or `Cinematic` to select one. `-StoryDebug` enables additional viewer checks in the narrative suite. Headless `-FixedFps` changes simulated render cadence; with `-Visual`, it sets the actual native FPS cap. Physics remains at 60 ticks per second. The helper fails on script errors or a missing success summary, even if the engine exits with code zero.
 
 The story suite exercises content references, conditions, schema validation, corrupt-save fallback, opening/skip handoff, physical throttle/brake/steering, ground contact, pause, every stop, multitouch action handling, journal persistence, and Continue. The practice suite drives the full track under physics, checks solid-obstacle response, recovery, metrics, save isolation, and real title/practice scene transitions. `-Visual` also captures rendered screenshots under `tests/screenshots/` (ignored by Git). See [Validation record](docs/test/VALIDATION.md) for results and outstanding platform work.
 

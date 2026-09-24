@@ -1,5 +1,28 @@
 # Validation record
 
+## M5 opening cinematic update - 2026-09-24
+
+Godot **4.7.2.stable.official.ed1daf0bf**, Compatibility. Native rendering uses Windows / NVIDIA RTX 3050 Laptop GPU at a 30 FPS cap.
+
+| Check | Result |
+| --- | --- |
+| Final combined headless suites, fixed 30 render cadence | **96 Story + 34 Practice + 44 Input + 58 Narrative + 52 Mood + 48 Audio + 92 Cinematic = 424 checks, 0 failures** |
+| Native Cinematic suite, actual 30 FPS cap | **92 checks, 0 failures** |
+| Authored content | 22 shots across morning, office, sign-out, night and departure; unique per-sequence shot IDs, valid timing/framing/FOV and matching stage selection |
+| Timeline and skip | Natural completion once per sequence; skip from every shot matches final flags, set and camera framing; short press ignored, held skip completes |
+| Camera and staging | Dolly moves; reduced motion stays static; pause freezes clock; rider/bike move together; luggage visible; parking uses city ambience |
+| Cleanup and handoff | Old stages freed on replacement/cancellation; departure Continue locks riding, then restores camera, controls and road-start checkpoint |
+| Integrated story | Layoff dialogue now leads to sign-out, evening apartment, mother call and departure; existing save schema/checkpoint IDs retained |
+| Native inspection | All 22 shot starts plus departure midpoint captured; representative phone, HR screen, cluster, packing, night and departure/title images reviewed at 1280 x 720 |
+| Resource export and isolated packed boot | **Pass**, 1,134,396-byte PCK; new stage script and opening JSON included; main scene boots outside the source project and exits 0 after 120 frames |
+| Human pacing, final performance/art, actual browser/Android | **Pending**; use [M5 cinematic review guide](M5_CINEMATIC_PLAYTEST.md) |
+
+Reproduce with `powershell -ExecutionPolicy Bypass -File tools/test.ps1 -Suite All -FixedFps 30` and `powershell -ExecutionPolicy Bypass -File tools/test.ps1 -Suite Cinematic -Visual -FixedFps 30`. Native log: `.godot-test/CinematicTests-native30.log`; captures: `tests/screenshots/cinematic_*.png` (ignored).
+
+The resource PCK is not an HTML5/APK build; matching export templates and real platform validation remain pending.
+
+The timeline harness advances shot time directly between captures; it does not measure human reading speed or approve cinematic pacing. Authored shot time is 99 seconds excluding transitions, commute, dialogue and pauses. Actors and props remain code-built blocking geometry; departure is root movement, not final rig animation. No parser/runtime errors in the final runs. The pre-existing sandbox certificate-store startup error remains and does not affect offline tests.
+
 ## M4 audio update - 2026-09-24
 
 Godot **4.7.2.stable.official.ed1daf0bf**, Compatibility. Native checks use Windows / NVIDIA RTX 3050 Laptop GPU.

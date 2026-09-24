@@ -507,6 +507,12 @@ func show_cinematic(title: String, subtitle: String, text: String) -> void:
 		bar.anchor_bottom = 1 if bottom else 0.15
 	var title_label := _label(screen, title + "    /    " + subtitle, 18, GOLD)
 	title_label.position = Vector2(45, 35)
+	if title == "PULANG":
+		var reveal := _label(screen, "PULANG", 56, CREAM)
+		reveal.anchor_left = 0.2
+		reveal.anchor_right = 0.8
+		reveal.anchor_top = 0.2
+		reveal.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	subtitle_label = _label(screen, text, GameState.settings.text_size)
 	subtitle_label.anchor_left = 0.1
 	subtitle_label.anchor_right = 0.9

@@ -1,4 +1,4 @@
-# Implementation status · M4 audio update, 2026-09-24
+# Implementation status · M5 cinematic update, 2026-09-24
 
 This is a **prototype milestone delivery**, not a declaration that M0–M5 are accepted. Follow the original roadmap's human playtest and platform gates before chapter production.
 
@@ -9,7 +9,7 @@ This is a **prototype milestone delivery**, not a declaration that M0–M5 are a
 | M2 Input/platform | Named actions, keyboard/arrows, persistent basic key remapping with conflict checks/reset, dynamic prompts, multitouch overlay with ownership cleanup, Android safe-area insets, simulated aspect-ratio checks | Physical Android ergonomics and safe-area validation, Web iframe/focus/audio/storage tests; see M2 checklist |
 | M3 Narrative | Branches/conditions/flags, delayed phone delivery and banner queue, unread/read/reply persistence, legacy phone migration, read-only opt-in flag viewer, journal, checkpoint save and backup, cutscene director/skip | Real Web/Android save and lifecycle validation; richer calls/photos and full localization key table remain broader production work |
 | M4 Mood | Low-poly environment kit; eight authored lighting/weather resources with interruptible blends; variable rain/fog/wetness; night beam/stop lamps; practice comparison menu and reports; synthetic insect/rain/bird/location ambience; shelter rain; ignition/cooldown; first-night music phrase; Music/SFX controls and lifecycle tests | Human art/audio acceptance, hero bike/character refinement, authored animation, real motorcycle/regional recordings, final music/mix review, terrain/LOD and target-platform profiling |
-| M5 Slice | Complete compact Jakarta-to-Karawang playable loop | 30–60 minute pacing, production-quality required shots, final assets/animations, all platform/comfort acceptance tests |
+| M5 Slice | Complete compact Jakarta-to-Karawang playable loop; 22-shot opening with readable inserts, parking set, post-meeting sign-out, restrained camera motion, departure/title reveal and cinematic regression suite | 30–60 minute pacing, production-quality required shots, final assets/animations, all platform/comfort acceptance tests |
 | M6–M14 | Not begun | Production tools, all remaining chapters, alpha/beta, optimization, releases |
 
 ## Concrete follow-up tasks
@@ -18,7 +18,7 @@ This is a **prototype milestone delivery**, not a declaration that M0–M5 are a
 2. **RIDE-01:** Use the implemented Practice ride and [M1 playtest guide](test/M1_PLAYTEST.md) for human 5/15-minute sessions with reduced motion on/off, Low at 30 FPS, pause/resume, and continuous bends. Record comfort, stopping, steering corrections, and missed stops. The technical track is complete; human acceptance remains open.
 3. **ART-01:** Replace prototype Thunder geometry with a reference-reviewed glTF hero motorcycle. Keep the round headlight, maintained paint, tank silhouette, analog cockpit, and intact seat. The supplied documents contain no actual reference image assets; current proportions are an approximation.
 4. **ART-02:** Replace simple character primitives with Raka/NPC rigs, hands, seated poses, and restrained gesture animation. Refine terrain-to-road edges, vegetation variety, and roadside silhouettes.
-5. **STORY-01:** Expand and time the opening morning/parking/commute/HR/sign-out/apartment/packing/departure shots. Current cinematics use static room compositions and text; final exterior departure and flashback performances are not implemented.
+5. **STORY-01:** The opening now has 22 timed shots, interior/parking sets, phone/laptop inserts, sign-out, camera movement and a prototype exterior departure/title reveal. Finish waking/walking/packing performances, rigs/gestures, father-memory insert and cinematic foley/voice treatment. Use the M5 cinematic review guide for natural-speed pacing and readability; the 30-60 minute slice target is still open.
 6. **AUDIO-01:** Replace synthesized loop placeholders with licensed or original recorded vehicle layers and Indonesian environmental audio. Synthesized ignition/cooldown, location ambience and the first restrained motif are implemented. Review their audibility, timbre and transitions on headphones/phone speakers; finish recorded mechanical layers and the final mix.
 7. **UI-01:** Run the [M2 platform checklist](test/M2_PLAYTEST.md) for Android touch sizes/notches and browser focus. Basic keyboard remapping and safe-area layout are implemented; adjustable UI scaling and phone Calls/Photos remain future work if retained in scope.
 8. **PERF-01:** Profile real exports. Combine repeated road markings/poles/vegetation into MultiMeshes where measured draw calls justify it; confirm scene-memory recovery over repeated transitions.

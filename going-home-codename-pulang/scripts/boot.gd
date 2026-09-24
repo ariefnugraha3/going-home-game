@@ -128,6 +128,7 @@ func _play_cutscene(id: String) -> void:
 func _cutscene_finished(id: String) -> void:
 	match id:
 		"morning": _start_commute()
+		"signout": _play_cutscene("night")
 		"office":
 			state = "dialogue"
 			DialogueManager.start("layoff")
@@ -181,7 +182,7 @@ func _start_road(distance: float = 12.0, save: bool = true) -> void:
 
 func _dialogue_finished(id: String) -> void:
 	match id:
-		"layoff": _play_cutscene("night")
+		"layoff": _play_cutscene("signout")
 		"mother":
 			GameState.checkpoint = "departure"
 			SaveManager.save_game()
@@ -288,7 +289,8 @@ func _resume() -> void:
 		ui.show_dialogue(line)
 	elif state == "cutscene":
 		var data: Dictionary = director.definitions[director.active_id]
-		ui.show_cinematic(data.title, data.subtitle, data.shots[director.shot_index].text)
+		var shot: Dictionary = data.shots[director.shot_index]
+		ui.show_cinematic(shot.get("title", data.title), data.subtitle, shot.text)
 
 func _return_to_menu() -> void:
 	get_tree().paused = false
@@ -358,7 +360,8 @@ func _road_profile(distance: float) -> String:
 func _update_audio_context() -> void:
 	match state:
 		"menu", "transition": AudioManager.set_context("menu")
-		"cutscene", "reflection", "complete": AudioManager.set_context("indoors", true)
+		"cutscene": AudioManager.set_context(director.audio_context(), director.stage_id != "parking")
+		"reflection", "complete": AudioManager.set_context("indoors", true)
 		"dialogue": AudioManager.set_context("warung" if pending_encounter == "warung" else "indoors", true)
 		"scenic": AudioManager.set_context("fields")
 		"riding": AudioManager.set_context(AudioManager.road_context(-bike.position.z, commute))

@@ -1,20 +1,542 @@
 {
-  "morning": {"location": "apartment", "title": "JAKARTA", "subtitle": "Tuesday · 06:40", "shots": [
-    {"camera": [1.8, 2.1, 4.4], "target": [0, 0.8, 0], "duration": 5, "text": "The alarm. The kettle. The same shirt on the chair."},
-    {"camera": [-1.6, 1.4, 1.8], "target": [-0.8, 0.9, -0.6], "duration": 5, "text": "Nine years in Jakarta. Most mornings know what to do."},
-    {"camera": [0.8, 1.2, 1.2], "target": [0, 0.7, -1], "duration": 4, "text": "Keys. Phone. One more ordinary day."}
-  ], "flags": {}},
-  "office": {"location": "office", "title": "LATE MORNING", "subtitle": "A message from the people team", "shots": [
-    {"camera": [1.4, 1.6, 2.9], "target": [0, 1, 0], "duration": 5, "text": "Nadia: Could you come to the small meeting room?"},
-    {"camera": [-2.3, 1.65, 2.6], "target": [0, 1.1, -0.8], "duration": 4, "text": "The corridor is quieter than usual."}
-  ], "flags": {}},
-  "night": {"location": "apartment", "title": "THE APARTMENT", "subtitle": "Tuesday · 20:16", "shots": [
-    {"camera": [2.8, 2, 4.5], "target": [0, 0.9, 0], "duration": 6, "text": "The laptop is still in the bag. There are already messages about other jobs."},
-    {"camera": [0.4, 1.4, 1.8], "target": [-0.8, 0.9, -0.6], "duration": 5, "text": "The phone lights up again. Mom."}
-  ], "flags": {}},
-  "departure": {"location": "apartment", "title": "THE NEXT MORNING", "subtitle": "Jakarta → Banyuwangi", "shots": [
-    {"camera": [-2.4, 1.8, 3.5], "target": [0, 0.7, -0.4], "duration": 5, "text": "Raincoat. Charger. Toolkit. The laptop comes too."},
-    {"camera": [1.5, 1.6, 2.7], "target": [0, 0.7, -0.4], "duration": 5, "text": "Dad used to check the straps twice. I check them twice."},
-    {"camera": [2.9, 2.1, 4.4], "target": [0, 0.8, 0], "duration": 5, "text": "For now, just go home."}
-  ], "flags": {"story.prologue.departed": true}}
+  "morning": {
+    "location": "apartment",
+    "title": "JAKARTA",
+    "subtitle": "Tuesday / 06:40",
+    "purpose": "Establish an ordinary working morning before the restructuring.",
+    "characters": [
+      "Raka"
+    ],
+    "audio_priority": "location ambience; no underscore",
+    "shots": [
+      {
+        "shot_id": "alarm",
+        "camera": [
+          1.1,
+          1.6,
+          0.15
+        ],
+        "target": [
+          0.86,
+          0.94,
+          -0.45
+        ],
+        "duration": 3,
+        "text": "The alarm. Another Tuesday.",
+        "fov": 32,
+        "framing": "insert",
+        "movement": "static",
+        "transition": "cut",
+        "actor": false
+      },
+      {
+        "shot_id": "room",
+        "camera": [
+          3.5,
+          2.2,
+          3.6
+        ],
+        "target": [
+          0.6,
+          1,
+          -0.5
+        ],
+        "duration": 5,
+        "text": "Nine years in Jakarta. Most mornings know what to do.",
+        "fov": 45,
+        "framing": "wide",
+        "movement": "dolly",
+        "transition": "cut",
+        "camera_end": [
+          3.3,
+          2.2,
+          3.6
+        ]
+      },
+      {
+        "shot_id": "coffee",
+        "camera": [
+          -1.8,
+          1.55,
+          0.05
+        ],
+        "target": [
+          -1.08,
+          1.06,
+          -0.72
+        ],
+        "duration": 4,
+        "text": "The kettle. A cup before the road.",
+        "fov": 38,
+        "framing": "insert",
+        "movement": "static",
+        "transition": "cut",
+        "actor": false
+      },
+      {
+        "shot_id": "badge",
+        "camera": [
+          -0.8,
+          1.6,
+          0.25
+        ],
+        "target": [
+          -0.5,
+          0.92,
+          -0.35
+        ],
+        "duration": 4,
+        "text": "Work badge. Keys. The same shirt on the chair.",
+        "fov": 32,
+        "framing": "insert",
+        "movement": "static",
+        "transition": "cut",
+        "actor": false
+      },
+      {
+        "shot_id": "parking",
+        "camera": [
+          3.7,
+          1.8,
+          4.3
+        ],
+        "target": [
+          0,
+          0.8,
+          0
+        ],
+        "duration": 5,
+        "text": "Downstairs, the old motorcycle waits.",
+        "fov": 45,
+        "framing": "medium wide",
+        "movement": "dolly",
+        "transition": "cut",
+        "location": "parking",
+        "camera_end": [
+          3.2,
+          1.8,
+          4.3
+        ]
+      },
+      {
+        "shot_id": "cluster",
+        "camera": [
+          0.35,
+          2.1,
+          1.1
+        ],
+        "target": [
+          0.6,
+          1.12,
+          0
+        ],
+        "duration": 3,
+        "text": "One more ordinary day.",
+        "fov": 38,
+        "framing": "insert",
+        "movement": "static",
+        "transition": "cut",
+        "location": "parking"
+      }
+    ],
+    "flags": {}
+  },
+  "office": {
+    "location": "office",
+    "title": "LATE MORNING",
+    "subtitle": "A message from the people team",
+    "purpose": "Move from desk notification to a restrained meeting.",
+    "characters": [
+      "Raka",
+      "Nadia"
+    ],
+    "audio_priority": "location ambience; no underscore",
+    "shots": [
+      {
+        "shot_id": "hr_message",
+        "camera": [
+          0.35,
+          1.48,
+          0.1
+        ],
+        "target": [
+          0.2,
+          1.18,
+          -0.95
+        ],
+        "duration": 5,
+        "text": "Nadia: Could you come to the small meeting room?",
+        "fov": 40,
+        "framing": "insert",
+        "movement": "static",
+        "transition": "cut",
+        "screen": "PEOPLE TEAM\nMeeting room 03\nWhen you have a moment.",
+        "actor": false
+      },
+      {
+        "shot_id": "meeting_room",
+        "camera": [
+          2.9,
+          1.9,
+          3.1
+        ],
+        "target": [
+          0.2,
+          1,
+          -0.65
+        ],
+        "duration": 5,
+        "text": "The meeting room is quieter than usual.",
+        "fov": 45,
+        "framing": "medium wide",
+        "movement": "dolly",
+        "transition": "cut",
+        "camera_end": [
+          2.6,
+          1.9,
+          3.1
+        ]
+      },
+      {
+        "shot_id": "meeting",
+        "camera": [
+          2.1,
+          1.6,
+          1.2
+        ],
+        "target": [
+          0.2,
+          1.1,
+          -0.55
+        ],
+        "duration": 5,
+        "text": "Nadia leaves her notes face down. There is time to sit.",
+        "fov": 45,
+        "framing": "two shot",
+        "movement": "static",
+        "transition": "cut"
+      }
+    ],
+    "flags": {}
+  },
+  "signout": {
+    "location": "office",
+    "title": "AFTER THE MEETING",
+    "subtitle": "Tuesday / 12:08",
+    "purpose": "Let ordinary work objects carry the aftermath without implying personal failure.",
+    "characters": [
+      "Raka"
+    ],
+    "audio_priority": "location ambience; no underscore",
+    "shots": [
+      {
+        "shot_id": "badge_return",
+        "camera": [
+          -0.65,
+          1.55,
+          0.12
+        ],
+        "target": [
+          -0.5,
+          0.92,
+          -0.35
+        ],
+        "duration": 3,
+        "text": "The badge stays on the table.",
+        "fov": 32,
+        "framing": "insert",
+        "movement": "static",
+        "transition": "cut",
+        "actor": false
+      },
+      {
+        "shot_id": "signing_out",
+        "camera": [
+          0.35,
+          1.48,
+          0.1
+        ],
+        "target": [
+          0.2,
+          1.18,
+          -0.95
+        ],
+        "duration": 4,
+        "text": "Nine years, and then a small message on a screen.",
+        "fov": 40,
+        "framing": "insert",
+        "movement": "static",
+        "transition": "cut",
+        "screen": "Signing out...",
+        "actor": false
+      },
+      {
+        "shot_id": "empty_desk",
+        "camera": [
+          2.7,
+          1.9,
+          2.5
+        ],
+        "target": [
+          0,
+          0.9,
+          -0.6
+        ],
+        "duration": 4,
+        "text": "There is nothing else to carry from this desk.",
+        "fov": 45,
+        "framing": "wide",
+        "movement": "static",
+        "transition": "cut",
+        "screen": "Session ended",
+        "actor": false
+      }
+    ],
+    "flags": {}
+  },
+  "night": {
+    "location": "apartment",
+    "title": "THE APARTMENT",
+    "subtitle": "Tuesday / 20:16",
+    "purpose": "Keep Raka's professional options visible before the invitation home.",
+    "characters": [
+      "Raka"
+    ],
+    "audio_priority": "location ambience; no underscore",
+    "shots": [
+      {
+        "shot_id": "evening_wide",
+        "camera": [
+          3.4,
+          2,
+          3.8
+        ],
+        "target": [
+          0.3,
+          1,
+          -0.3
+        ],
+        "duration": 6,
+        "text": "The apartment has gone quiet. Outside, the rain has stopped.",
+        "fov": 45,
+        "framing": "wide",
+        "movement": "static",
+        "transition": "cut",
+        "phone": "20:16"
+      },
+      {
+        "shot_id": "recruiters",
+        "camera": [
+          0.35,
+          1.48,
+          0.1
+        ],
+        "target": [
+          0.2,
+          1.18,
+          -0.95
+        ],
+        "duration": 5,
+        "text": "A recruiter. A former teammate. There are already other possibilities.",
+        "fov": 40,
+        "framing": "insert",
+        "movement": "static",
+        "transition": "cut",
+        "screen": "New opportunities\nCan we talk this week?\nYour experience would fit.",
+        "actor": false,
+        "phone": "20:16"
+      },
+      {
+        "shot_id": "apply",
+        "camera": [
+          0.4,
+          1.42,
+          0.05
+        ],
+        "target": [
+          0.2,
+          1.18,
+          -0.95
+        ],
+        "duration": 4,
+        "text": "The application can wait until tomorrow.",
+        "fov": 38,
+        "framing": "insert",
+        "movement": "static",
+        "transition": "cut",
+        "screen": "Senior operations role\n\nApply",
+        "actor": false,
+        "phone": "20:16"
+      },
+      {
+        "shot_id": "mom_calls",
+        "camera": [
+          1.1,
+          1.6,
+          0.15
+        ],
+        "target": [
+          0.86,
+          0.94,
+          -0.45
+        ],
+        "duration": 4,
+        "text": "The phone lights up again. Mom.",
+        "fov": 32,
+        "framing": "insert",
+        "movement": "static",
+        "transition": "cut",
+        "phone": "Mom",
+        "actor": false
+      },
+      {
+        "shot_id": "call_profile",
+        "camera": [
+          2.4,
+          1.7,
+          1.4
+        ],
+        "target": [
+          0,
+          1.2,
+          0.35
+        ],
+        "duration": 4,
+        "text": "I pick up.",
+        "fov": 45,
+        "framing": "medium profile",
+        "movement": "static",
+        "transition": "cut",
+        "phone": "Mom"
+      }
+    ],
+    "flags": {}
+  },
+  "departure": {
+    "location": "apartment",
+    "title": "THE NEXT MORNING",
+    "subtitle": "Jakarta → Banyuwangi",
+    "purpose": "Show a considered choice to go home, with work still possible.",
+    "characters": [
+      "Raka"
+    ],
+    "audio_priority": "location ambience; no underscore",
+    "shots": [
+      {
+        "shot_id": "morning_light",
+        "camera": [
+          3.4,
+          2.1,
+          3.7
+        ],
+        "target": [
+          0.2,
+          0.95,
+          -0.3
+        ],
+        "duration": 5,
+        "text": "The morning has room in it. I do not open the inbox yet.",
+        "fov": 45,
+        "framing": "wide",
+        "movement": "static",
+        "transition": "cut",
+        "phone": "08:10"
+      },
+      {
+        "shot_id": "packing",
+        "camera": [
+          -1.3,
+          1.7,
+          0.9
+        ],
+        "target": [
+          -0.35,
+          1,
+          -0.35
+        ],
+        "duration": 5,
+        "text": "Raincoat. Charger. Toolkit. The laptop comes too.",
+        "fov": 42,
+        "framing": "insert",
+        "movement": "static",
+        "transition": "cut",
+        "packing": true,
+        "actor": false
+      },
+      {
+        "shot_id": "route",
+        "camera": [
+          0.35,
+          1.48,
+          0.1
+        ],
+        "target": [
+          0.2,
+          1.18,
+          -0.95
+        ],
+        "duration": 5,
+        "text": "East, across Java. No need to do it all today.",
+        "fov": 40,
+        "framing": "insert",
+        "movement": "static",
+        "transition": "cut",
+        "screen": "JAKARTA\nKarawang ... Banyuwangi\nA long way home",
+        "packing": true,
+        "actor": false
+      },
+      {
+        "shot_id": "straps",
+        "camera": [
+          2,
+          1.5,
+          2.1
+        ],
+        "target": [
+          -0.4,
+          0.9,
+          0
+        ],
+        "duration": 5,
+        "text": "Dad used to check the straps twice. I check them twice.",
+        "fov": 40,
+        "framing": "insert",
+        "movement": "static",
+        "transition": "cut",
+        "location": "parking",
+        "luggage": true
+      },
+      {
+        "shot_id": "departure",
+        "camera": [
+          3.8,
+          1.35,
+          4.7
+        ],
+        "target": [
+          1,
+          0.9,
+          0
+        ],
+        "duration": 6,
+        "text": "For now, just go home.",
+        "fov": 45,
+        "framing": "low medium wide",
+        "movement": "dolly",
+        "transition": "cut",
+        "location": "parking",
+        "luggage": true,
+        "travel": 2.5,
+        "camera_end": [
+          4.2,
+          1.35,
+          4.7
+        ],
+        "title": "PULANG"
+      }
+    ],
+    "flags": {
+      "story.prologue.departed": true
+    }
+  }
 }
