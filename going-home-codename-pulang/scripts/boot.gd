@@ -112,6 +112,7 @@ func _on_action(action: String) -> void:
 
 func _start_new() -> void:
 	get_tree().paused = false
+	AudioManager.reset_scene_audio()
 	GameState.new_journey()
 	SaveManager.save_game()
 	_play_cutscene("morning")
@@ -146,6 +147,7 @@ func _start_commute() -> void:
 	SaveManager.save_game()
 	bike.route_limit = 335
 	bike.teleport(12)
+	AudioManager.vehicle_event("start")
 	state = "riding"
 	bike.enabled = true
 	bike.engine_on = true
@@ -166,6 +168,8 @@ func _start_road(distance: float = 12.0, save: bool = true) -> void:
 		SaveManager.save_game()
 	bike.route_limit = 1735
 	bike.teleport(distance)
+	if GameState.checkpoint not in ["rest", "complete"]:
+		AudioManager.vehicle_event("start")
 	bike.enabled = true
 	bike.engine_on = true
 	bike.camera.make_current()
@@ -197,6 +201,7 @@ func _dialogue_finished(id: String) -> void:
 			SaveManager.save_game()
 			state = "reflection"
 			world.set_weather_profile("night")
+			AudioManager.play_music_cue("first_night")
 			ui.show_journal(true)
 
 func _interact() -> void:
@@ -209,6 +214,7 @@ func _interact() -> void:
 		bike.teleport(1095)
 		return
 	bike.stop()
+	AudioManager.vehicle_event("stop")
 	pending_encounter = id
 	var center := RoadWorld.center(stop.distance)
 	if id == "scenic":
@@ -262,6 +268,8 @@ func _pause() -> void:
 	ui.show_pause()
 
 func _resume_ride() -> void:
+	if not bike.enabled:
+		AudioManager.vehicle_event("start")
 	state = "riding"
 	bike.engine_on = true
 	bike.enabled = true
@@ -284,6 +292,7 @@ func _resume() -> void:
 
 func _return_to_menu() -> void:
 	get_tree().paused = false
+	AudioManager.reset_scene_audio()
 	state = "menu"
 	director.active_id = ""
 	DialogueManager.active_id = ""
@@ -314,6 +323,7 @@ func _process(delta: float) -> void:
 	elapsed += delta
 	if not is_instance_valid(ui):
 		return
+	_update_audio_context()
 	ui.weather.intensity = world.rain_amount
 	ui.weather.rain = world.rain_amount > 0.01 and state == "riding" and not get_tree().paused
 	bike.headlight.light_energy = world.night_amount * 2.5 if bike.enabled else 0
@@ -345,6 +355,14 @@ func _road_profile(distance: float) -> String:
 			id = entry.profile
 	return id
 
+func _update_audio_context() -> void:
+	match state:
+		"menu", "transition": AudioManager.set_context("menu")
+		"cutscene", "reflection", "complete": AudioManager.set_context("indoors", true)
+		"dialogue": AudioManager.set_context("warung" if pending_encounter == "warung" else "indoors", true)
+		"scenic": AudioManager.set_context("fields")
+		"riding": AudioManager.set_context(AudioManager.road_context(-bike.position.z, commute))
+
 func _advance_phone(delta: float) -> void:
 	# Evaluate after road events: a weather toast or new cutscene owns this frame first.
 	var delivery_allowed := state in ["riding", "scenic", "complete"] and ui.mode in ["riding", "scenic", "complete"] and not get_tree().paused and not flow.busy
@@ -358,4 +376,5 @@ func _notification(what: int) -> void:
 			_pause()
 
 func _exit_tree() -> void:
+	AudioManager.reset_scene_audio()
 	LowPoly.materials.clear()

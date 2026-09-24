@@ -76,11 +76,23 @@ Eight editable Godot resources in `data/weather/` now define **Morning, Overcast
 
 Use **Practice ride → Pause → Light & weather** to compare profiles on the same road. A selection resumes the ride; section changes retain the chosen mood. The existing clear/rain shortcut remains available. Local practice reports include the selected profile, and practice never writes to the story save.
 
-Karawang now moves through morning → overcast → drizzle → rain/heavy rain → clearing drizzle → golden hour using authored distance cues. Rest/reflection and Continue at the completed chapter use night. Night adds a motorcycle headlight, warm lamps at stops, and an original synthesized insect loop; rain volume follows its intensity and birds fade out at night. These remain prototype audio and lighting, with final recordings, art review, and music still pending.
+Karawang now moves through morning → overcast → drizzle → rain/heavy rain → clearing drizzle → golden hour using authored distance cues. Rest/reflection and Continue at the completed chapter use night. Night adds a motorcycle headlight, warm lamps at stops, and an original synthesized insect loop; rain volume follows its intensity and birds fade out at night. These remain prototype audio and lighting, with final recordings, art review, and human mix acceptance still pending.
 
 See the [M4 visual/audio review guide](docs/test/M4_PLAYTEST.md). This update does not close the human art, audio, comfort, or target-platform performance gates.
 
 Local validation: **281 combined checks passed** at a fixed 30 render cadence; **52 mood checks also passed with native rendering capped at 30 FPS**. All eight profiles and the comparison menu were inspected in rendered screenshots. Human listening and real Web/Android profiling remain pending.
+
+## Location audio and music · M4 update
+
+The road now blends between city traffic, roadside, fields, warung, and indoor ambience using `data/audio/soundscape.json`. Loops keep their playback position across zone changes. A sheltered stop adds roof rain only while it is raining; the warung adds sparse crockery sounds. Riding wind fades out when the engine stops.
+
+An original **24-second first-night phrase** plays when the guesthouse conversation ends. It finishes into silence; selecting a journal entry keeps the current phrase, and Continue at rest/completion does not replay it. Actual stops and departures trigger synthesized engine cooldown/ignition; pause/resume does not replay ignition. Music pauses with the game. Backgrounding suspends playback and mutes output; returning resumes the same audio.
+
+**Settings & accessibility** now includes persistent **Music volume** and **Sound effects volume** controls alongside Master, Vehicle, and Ambience. Vehicle controls engine loops; Sound effects controls ignition/cooldown. Zero fully mutes the selected bus. Audio still requires user activation.
+
+These are original synthesized prototypes, not regional or motorcycle recordings. Final recording replacement and human listening acceptance remain open. See the [M4 review guide](docs/test/M4_PLAYTEST.md) for the listening checklist.
+
+Local validation: **329 combined checks passed** at fixed 30 render cadence (**93 Story + 34 Practice + 44 Input + 58 Narrative + 52 Mood + 48 Audio**). The native Audio suite passed **50 checks** at a 30 FPS cap, including real stream playback and pause state. Human listening and real Web/Android acceptance remain pending.
 
 ## Controls (defaults)
 
@@ -107,7 +119,7 @@ Touch controls use the same input actions and track multiple fingers. They appea
 - External JSON dialogue, branching choices and conditions, namespaced flags, cutscene shot sequences, deterministic skip handoff, phone replies, journal choices.
 - One active save slot, schema v1, verified temporary writes, backup fallback for a corrupt primary save. Settings have a separate ConfigFile.
 - Pausing on focus loss/backgrounding, touch release cleanup, reduced motion, dialogue text sizing, volume sliders, 30 FPS limit, quality presets.
-- Original synthesized placeholder engine/road/rain/bird loops; audio starts after a user interaction. No final recorded motorcycle or regional ambience assets yet.
+- Original synthesized engine/road/rain/bird/insect/location loops, vehicle cues and a sparse first-night music phrase; audio starts after a user interaction. No final recorded motorcycle or regional ambience assets yet.
 
 ## Development roadmap
 
@@ -161,7 +173,9 @@ Based on the [Development Roadmap v1](../PULANG_Development_Roadmap_v1.md). Stat
 - [x] Implement authored morning, overcast, golden-hour, and night profiles plus drizzle, rain, heavy rain, and mist.
 - [x] Blend sky/light/fog/wetness/rain; add a practice comparison menu, night headlight/stop lamps, and synthetic insect ambience.
 - [x] Test transition interruption/pause, rain quality limits, chapter profile restoration, and practice save isolation.
-- [ ] Refine hero bike and character art; add recorded motorcycle/regional ambience and the first music cue.
+- [x] Add continuous location ambience, sheltered roof rain, ignition/cooldown, and the first restrained original music prototype.
+- [x] Add persistent Music/SFX controls, true zero-volume mute, and audio pause/background/Continue regression checks.
+- [ ] Refine hero bike and character art; replace synthesized placeholders with recorded motorcycle/regional ambience and review the final mix.
 - [ ] Review visual identity and sound quality, and profile actual target-platform builds.
 
 ### M5 — Vertical Slice · In progress
@@ -251,9 +265,10 @@ powershell -ExecutionPolicy Bypass -File tools/test.ps1 -Suite Practice -Visual 
 powershell -ExecutionPolicy Bypass -File tools/test.ps1 -Suite Input -Visual
 powershell -ExecutionPolicy Bypass -File tools/test.ps1 -Suite Narrative -StoryDebug -Visual
 powershell -ExecutionPolicy Bypass -File tools/test.ps1 -Suite Mood -Visual -FixedFps 30
+powershell -ExecutionPolicy Bypass -File tools/test.ps1 -Suite Audio -Visual -FixedFps 30
 ```
 
-The helper isolates all test saves in `.godot-test/`. **Do not run the test scenes against your normal user profile**: their corruption and new-game cases deliberately replace the test save. The default `-Suite All` runs story, practice, input, narrative, and mood sequentially; use `-Suite Story`, `Practice`, `Input`, `Narrative`, or `Mood` to select one. `-StoryDebug` enables additional viewer checks in the narrative suite. Headless `-FixedFps` changes simulated render cadence; with `-Visual`, it sets the actual native FPS cap. Physics remains at 60 ticks per second. The helper fails on script errors or a missing success summary, even if the engine exits with code zero.
+The helper isolates all test saves in `.godot-test/`. **Do not run the test scenes against your normal user profile**: their corruption and new-game cases deliberately replace the test save. The default `-Suite All` runs story, practice, input, narrative, mood, and audio sequentially; use `-Suite Story`, `Practice`, `Input`, `Narrative`, `Mood`, or `Audio` to select one. `-StoryDebug` enables additional viewer checks in the narrative suite. Headless `-FixedFps` changes simulated render cadence; with `-Visual`, it sets the actual native FPS cap. Physics remains at 60 ticks per second. The helper fails on script errors or a missing success summary, even if the engine exits with code zero.
 
 The story suite exercises content references, conditions, schema validation, corrupt-save fallback, opening/skip handoff, physical throttle/brake/steering, ground contact, pause, every stop, multitouch action handling, journal persistence, and Continue. The practice suite drives the full track under physics, checks solid-obstacle response, recovery, metrics, save isolation, and real title/practice scene transitions. `-Visual` also captures rendered screenshots under `tests/screenshots/` (ignored by Git). See [Validation record](docs/test/VALIDATION.md) for results and outstanding platform work.
 

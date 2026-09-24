@@ -28,8 +28,9 @@ func _ready() -> void:
 	ui.sections = world.definition.sections
 	ui.weather_profiles = world.profiles
 	ui.action_requested.connect(_on_action)
-	start_section("straight")
+	AudioManager.reset_scene_audio()
 	AudioManager.unlock()
+	start_section("straight")
 
 func start_section(id: String) -> void:
 	for section in world.definition.sections:
@@ -75,8 +76,9 @@ func _on_action(action: String) -> void:
 			world.set_weather(not world.wet)
 			_resume()
 		"interact":
-			if -bike.position.z >= 673 and bike.speed_mps < 2.2:
+			if not resting and -bike.position.z >= 673 and bike.speed_mps < 2.2:
 				bike.stop()
+				AudioManager.vehicle_event("stop")
 				resting = true
 				ui.show_rest()
 		"report":
@@ -102,6 +104,8 @@ func _resume() -> void:
 	if resting:
 		ui.show_rest()
 		return
+	if not bike.enabled:
+		AudioManager.vehicle_event("start")
 	bike.enabled = true
 	bike.engine_on = true
 	bike.camera.make_current()
@@ -131,6 +135,7 @@ func _physics_process(delta: float) -> void:
 func _process(delta: float) -> void:
 	if not is_instance_valid(ui):
 		return
+	AudioManager.set_context("fields", resting)
 	ui.weather_name = world.profiles[world.current_profile].display_name
 	ui.weather.intensity = world.rain_amount
 	ui.weather.rain = world.rain_amount > 0.01 and not resting and not get_tree().paused
@@ -148,6 +153,7 @@ func _notification(what: int) -> void:
 			_pause()
 
 func _exit_tree() -> void:
+	AudioManager.reset_scene_audio()
 	InputModeManager.release_riding()
 	AudioManager.engine_active = false
 	AudioManager.rain_target = 0

@@ -2,7 +2,7 @@ extends Node
 
 signal flag_changed(id: String, value: Variant)
 signal journey_changed
-const DEFAULT_SETTINGS := {"reduced_motion": true, "riding_assist": true, "fov": 70.0, "master": 0.75, "vehicle": 0.55, "ambience": 0.65, "quality": 1, "fps_limit": 60, "text_size": 22, "touch": false, "key_bindings": {}}
+const DEFAULT_SETTINGS := {"reduced_motion": true, "riding_assist": true, "fov": 70.0, "master": 0.75, "vehicle": 0.55, "ambience": 0.65, "music": 0.55, "sfx": 0.7, "quality": 1, "fps_limit": 60, "text_size": 22, "touch": false, "key_bindings": {}}
 var settings: Dictionary = DEFAULT_SETTINGS.duplicate(true)
 var chapter: String = "prologue"
 var checkpoint: String = "morning"

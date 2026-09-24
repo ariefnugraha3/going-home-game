@@ -1,0 +1,19 @@
+{
+  "zones": {
+    "menu": {"traffic": 0.0, "warung": 0.0, "birds": 0.15, "insects": 0.15, "outside": 0.2},
+    "city": {"traffic": 1.0, "warung": 0.0, "birds": 0.15, "insects": 0.15, "outside": 1.0},
+    "roadside": {"traffic": 0.45, "warung": 0.0, "birds": 0.8, "insects": 0.8, "outside": 1.0},
+    "fields": {"traffic": 0.15, "warung": 0.0, "birds": 1.0, "insects": 1.0, "outside": 1.0},
+    "warung": {"traffic": 0.25, "warung": 1.0, "birds": 0.45, "insects": 0.5, "outside": 0.65},
+    "indoors": {"traffic": 0.08, "warung": 0.0, "birds": 0.1, "insects": 0.35, "outside": 0.25}
+  },
+  "karawang_regions": [
+    {"from": 0, "to": 300, "zone": "city"},
+    {"from": 300, "to": 620, "zone": "roadside"},
+    {"from": 1080, "to": 1180, "zone": "warung"},
+    {"from": 1600, "to": 1800, "zone": "roadside"}
+  ],
+  "music": {
+    "first_night": {"path": "res://assets/audio/first_night.wav", "gain_db": -22.0}
+  }
+}

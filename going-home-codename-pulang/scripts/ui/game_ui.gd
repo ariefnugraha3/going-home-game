@@ -317,7 +317,7 @@ func show_settings() -> void:
 		toggle.toggled.connect(func(value: bool):
 			GameState.settings[entry[1]] = value
 			SaveManager.save_settings())
-	for entry in [["Field of view", "fov", 55.0, 85.0, 1.0], ["Master volume", "master", 0.0, 1.0, 0.05], ["Motorcycle volume", "vehicle", 0.0, 1.0, 0.05], ["Ambience volume", "ambience", 0.0, 1.0, 0.05]]:
+	for entry in [["Field of view", "fov", 55.0, 85.0, 1.0], ["Master volume", "master", 0.0, 1.0, 0.05], ["Motorcycle volume", "vehicle", 0.0, 1.0, 0.05], ["Ambience volume", "ambience", 0.0, 1.0, 0.05], ["Music volume", "music", 0.0, 1.0, 0.05], ["Sound effects volume", "sfx", 0.0, 1.0, 0.05]]:
 		var row := HBoxContainer.new()
 		box.add_child(row)
 		_label(row, entry[0], 18).custom_minimum_size.x = 215
