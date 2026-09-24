@@ -6,8 +6,8 @@ var props: Dictionary = {}
 var screen: Label3D
 
 func build(location: String, night: bool) -> void:
-	if location == "parking":
-		_parking()
+	if location in ["parking", "memory"]:
+		_parking(location == "memory")
 	else:
 		_interior(location, night)
 	var lamp := OmniLight3D.new()
@@ -16,6 +16,7 @@ func build(location: String, night: bool) -> void:
 	lamp.light_energy = 1.1 if night else 1.8
 	lamp.omni_range = 14
 	lamp.light_cull_mask = 2
+	lamp.layers = 2
 	add_child(lamp)
 	for child in find_children("*", "GeometryInstance3D", true, false):
 		child.layers = 2
@@ -30,6 +31,7 @@ func _interior(location: String, night: bool) -> void:
 	LowPoly.box(self, Vector3(0, -0.1, 0), Vector3(10, 0.2, 10), Color("9c9279"))
 	LowPoly.box(self, Vector3(0, 2, -3), Vector3(10, 4, 0.2), Color("c7c6ae"))
 	LowPoly.box(self, Vector3(-4, 2, 0), Vector3(0.2, 4, 6), Color("929f93"))
+	LowPoly.box(self, Vector3(4, 2, 0), Vector3(0.2, 4, 6), Color("929f93"))
 	LowPoly.box(self, Vector3(-1.9, 2.15, -2.86), Vector3(2.4, 1.8, 0.08), Color("263f50") if night else Color("86aeb6"))
 	for x in [-3.1, -1.9, -0.7]:
 		LowPoly.box(self, Vector3(x, 2.15, -2.8), Vector3(0.06, 1.8, 0.1), Color("ded2b7"))
@@ -42,8 +44,8 @@ func _interior(location: String, night: bool) -> void:
 	LowPoly.cylinder(self, Vector3(-0.95, 1, -0.7), 0.09, 0.22, Color("eee0b5"))
 	LowPoly.cylinder(self, Vector3(-1.2, 1.08, -0.8), 0.14, 0.35, Color("819591"))
 	LowPoly.beam(self, Vector3(-1.2, 1.1, -0.8), Vector3(-1.0, 1.22, -0.8), 0.04, Color("819591"))
-	LowPoly.box(self, Vector3(0.86, 0.925, -0.45), Vector3(0.18, 0.025, 0.33), Color("253a3b"))
-	LowPoly.box(self, Vector3(0.86, 0.941, -0.45), Vector3(0.155, 0.008, 0.29), Color("54716a"))
+	props.phone_body = LowPoly.box(self, Vector3(0.86, 0.925, -0.45), Vector3(0.18, 0.025, 0.33), Color("253a3b"))
+	props.phone_face = LowPoly.box(self, Vector3(0.86, 0.941, -0.45), Vector3(0.155, 0.008, 0.29), Color("54716a"))
 	var phone := _text("06:40", Vector3(0.86, 0.947, -0.45), 0.00065)
 	phone.rotation.x = -PI / 2
 	props.phone = phone
@@ -81,6 +83,7 @@ func _interior(location: String, night: bool) -> void:
 		practical.light_energy = 1.4
 		practical.omni_range = 4
 		practical.light_cull_mask = 2
+		practical.layers = 2
 		add_child(practical)
 
 func _chair(pos: Vector3, facing: float) -> void:
@@ -94,35 +97,42 @@ func _chair(pos: Vector3, facing: float) -> void:
 		for z in [-0.18, 0.18]:
 			LowPoly.box(chair, Vector3(x, 0.3, z), Vector3(0.06, 0.6, 0.06), Color("665b47"))
 
-func _seated(pos: Vector3, facing: float, shirt: Color) -> Node3D:
-	var actor := Node3D.new()
+func _seated(pos: Vector3, facing: float, shirt: Color) -> CinematicActor:
+	var actor := CinematicActor.new()
 	add_child(actor)
 	actor.position = pos
 	actor.rotation.y = facing
-	LowPoly.box(actor, Vector3(0, 0.95, 0), Vector3(0.43, 0.58, 0.28), shirt)
-	LowPoly.sphere(actor, Vector3(0, 1.43, -0.025), Vector3(0.37, 0.28, 0.36), Color("b87f55"))
-	LowPoly.sphere(actor, Vector3(0, 1.54, 0), Vector3(0.4, 0.1, 0.37), Color("29312e"))
-	for side in [-1, 1]:
-		LowPoly.beam(actor, Vector3(side * 0.13, 0.7, 0), Vector3(side * 0.18, 0.6, -0.42), 0.105, Color("394653"))
-		LowPoly.beam(actor, Vector3(side * 0.18, 0.6, -0.42), Vector3(side * 0.18, 0.12, -0.4), 0.09, Color("394653"))
-		LowPoly.beam(actor, Vector3(side * 0.24, 1.15, 0), Vector3(side * 0.3, 0.89, -0.3), 0.075, shirt)
-		LowPoly.beam(actor, Vector3(side * 0.3, 0.89, -0.3), Vector3(side * 0.25, 0.94, -0.5), 0.06, Color("b87f55"))
+	actor.build(shirt)
 	return actor
 
-func _parking() -> void:
-	LowPoly.box(self, Vector3(0, -0.12, 0), Vector3(24, 0.2, 20), Color("64716c"))
-	LowPoly.box(self, Vector3(0, 1.8, -4), Vector3(18, 3.6, 0.3), Color("b6baa5"))
-	for x in [-6, -3, 3, 6]:
-		LowPoly.box(self, Vector3(x, 1.65, -3.8), Vector3(1.8, 2.7, 0.15), Color("637d76"))
-	for x in [-3, 0, 3]:
-		LowPoly.box(self, Vector3(x, 0, 0), Vector3(0.07, 0.02, 4), Color("c9c6a9"))
-	_text("RESIDENT PARKING", Vector3(-1, 3, -3.75), 0.007)
+func _parking(memory: bool = false) -> void:
+	LowPoly.box(self, Vector3(0, -0.12, 0), Vector3(24, 0.2, 20), Color("a59570") if memory else Color("64716c"))
+	if memory:
+		LowPoly.box(self, Vector3(0, -0.13, -5), Vector3(35, 0.2, 12), Color("8b9d6a"))
+		for x in [-5, 4]:
+			LowPoly.cylinder(self, Vector3(x, 1.5, -2.8), 0.18, 3, Color("796548"))
+			LowPoly.sphere(self, Vector3(x, 3.4, -2.8), Vector3(3.5, 2.4, 3), Color("758c64"))
+		for x in range(-8, 9, 2):
+			LowPoly.box(self, Vector3(x, 0.45, -3.5), Vector3(0.09, 0.9, 0.09), Color("96866a"))
+		LowPoly.box(self, Vector3(0, 0.6, -3.5), Vector3(17, 0.1, 0.08), Color("96866a"))
+	else:
+		LowPoly.box(self, Vector3(0, 1.8, -4), Vector3(18, 3.6, 0.3), Color("b6baa5"))
+		for x in [-6, -3, 3, 6]:
+			LowPoly.box(self, Vector3(x, 1.65, -3.8), Vector3(1.8, 2.7, 0.15), Color("637d76"))
+		for x in [-3, 0, 3]:
+			LowPoly.box(self, Vector3(x, 0, 0), Vector3(0.07, 0.02, 4), Color("c9c6a9"))
+		_text("RESIDENT PARKING", Vector3(-1, 3, -3.75), 0.007)
 	var bike := BikeVisual.new()
+	bike.show_rider_arms = false
 	add_child(bike)
 	bike.rotation.y = -PI / 2
 	props.bike = bike
-	var rider := _seated(Vector3(0, 0.22, 0), -PI / 2, Color("65715d"))
+	var rider := _seated(Vector3(0, 0.22, 0), -PI / 2, Color("916c4e") if memory else Color("65715d"))
 	props.rider = rider
+	if memory:
+		var child := _seated(Vector3(-0.57, 0.48, 0), -PI / 2, Color("b39864"))
+		child.scale = Vector3.ONE * 0.65
+		props.young_raka = child
 	var luggage := LowPoly.box(bike, Vector3(0, 0.98, 0.65), Vector3(0.65, 0.28, 0.42), Color("66735b"))
 	props.luggage = luggage
 
@@ -142,7 +152,25 @@ func configure(shot: Dictionary) -> void:
 		props.luggage.visible = shot.get("luggage", false)
 
 func pose(shot: Dictionary, weight: float) -> void:
+	if props.has("raka"):
+		props.raka.sample(shot.get("performance", "rest"), weight)
+		var on_table: bool = not props.raka.handset.visible
+		for key in ["phone", "phone_body", "phone_face"]:
+			props[key].visible = on_table
+	if props.has("nadia"):
+		props.nadia.sample(shot.get("npc_performance", "listen"), weight)
+	if props.has("rider"):
+		props.rider.sample("ride", weight)
+	if props.has("young_raka"):
+		props.young_raka.sample("passenger", weight)
 	if props.has("bike"):
 		var travel: float = shot.get("travel", 0.0) * weight
 		props.bike.position.x = travel
 		props.rider.position.x = travel
+
+func actor_snapshot() -> Dictionary:
+	var result := {}
+	for key in ["raka", "nadia", "rider", "young_raka"]:
+		if props.has(key):
+			result[key] = [props[key].transform, props[key].pose_snapshot()]
+	return result

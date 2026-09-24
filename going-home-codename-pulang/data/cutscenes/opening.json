@@ -27,7 +27,8 @@
         "framing": "insert",
         "movement": "static",
         "transition": "cut",
-        "actor": false
+        "actor": false,
+        "performance": "rest"
       },
       {
         "shot_id": "room",
@@ -51,7 +52,8 @@
           3.3,
           2.2,
           3.6
-        ]
+        ],
+        "performance": "rest"
       },
       {
         "shot_id": "coffee",
@@ -71,7 +73,8 @@
         "framing": "insert",
         "movement": "static",
         "transition": "cut",
-        "actor": false
+        "actor": false,
+        "performance": "rest"
       },
       {
         "shot_id": "badge",
@@ -91,7 +94,8 @@
         "framing": "insert",
         "movement": "static",
         "transition": "cut",
-        "actor": false
+        "actor": false,
+        "performance": "rest"
       },
       {
         "shot_id": "parking",
@@ -116,7 +120,8 @@
           3.2,
           1.8,
           4.3
-        ]
+        ],
+        "performance": "rest"
       },
       {
         "shot_id": "cluster",
@@ -136,7 +141,8 @@
         "framing": "insert",
         "movement": "static",
         "transition": "cut",
-        "location": "parking"
+        "location": "parking",
+        "performance": "rest"
       }
     ],
     "flags": {}
@@ -171,7 +177,9 @@
         "movement": "static",
         "transition": "cut",
         "screen": "PEOPLE TEAM\nMeeting room 03\nWhen you have a moment.",
-        "actor": false
+        "actor": false,
+        "performance": "listen",
+        "npc_performance": "listen"
       },
       {
         "shot_id": "meeting_room",
@@ -195,7 +203,9 @@
           2.6,
           1.9,
           3.1
-        ]
+        ],
+        "performance": "listen",
+        "npc_performance": "listen"
       },
       {
         "shot_id": "meeting",
@@ -214,7 +224,9 @@
         "fov": 45,
         "framing": "two shot",
         "movement": "static",
-        "transition": "cut"
+        "transition": "cut",
+        "performance": "listen",
+        "npc_performance": "listen"
       }
     ],
     "flags": {}
@@ -247,7 +259,8 @@
         "framing": "insert",
         "movement": "static",
         "transition": "cut",
-        "actor": false
+        "actor": false,
+        "performance": "rest"
       },
       {
         "shot_id": "signing_out",
@@ -268,7 +281,8 @@
         "movement": "static",
         "transition": "cut",
         "screen": "Signing out...",
-        "actor": false
+        "actor": false,
+        "performance": "rest"
       },
       {
         "shot_id": "empty_desk",
@@ -289,7 +303,8 @@
         "movement": "static",
         "transition": "cut",
         "screen": "Session ended",
-        "actor": false
+        "actor": false,
+        "performance": "rest"
       }
     ],
     "flags": {}
@@ -322,7 +337,8 @@
         "framing": "wide",
         "movement": "static",
         "transition": "cut",
-        "phone": "20:16"
+        "phone": "20:16",
+        "performance": "rest"
       },
       {
         "shot_id": "recruiters",
@@ -344,7 +360,8 @@
         "transition": "cut",
         "screen": "New opportunities\nCan we talk this week?\nYour experience would fit.",
         "actor": false,
-        "phone": "20:16"
+        "phone": "20:16",
+        "performance": "rest"
       },
       {
         "shot_id": "apply",
@@ -366,7 +383,8 @@
         "transition": "cut",
         "screen": "Senior operations role\n\nApply",
         "actor": false,
-        "phone": "20:16"
+        "phone": "20:16",
+        "performance": "rest"
       },
       {
         "shot_id": "mom_calls",
@@ -387,12 +405,13 @@
         "movement": "static",
         "transition": "cut",
         "phone": "Mom",
-        "actor": false
+        "actor": false,
+        "performance": "rest"
       },
       {
         "shot_id": "call_profile",
         "camera": [
-          2.4,
+          -2.4,
           1.7,
           1.4
         ],
@@ -407,7 +426,8 @@
         "framing": "medium profile",
         "movement": "static",
         "transition": "cut",
-        "phone": "Mom"
+        "phone": "Mom",
+        "performance": "phone"
       }
     ],
     "flags": {}
@@ -440,7 +460,8 @@
         "framing": "wide",
         "movement": "static",
         "transition": "cut",
-        "phone": "08:10"
+        "phone": "08:10",
+        "performance": "rest"
       },
       {
         "shot_id": "packing",
@@ -461,7 +482,8 @@
         "movement": "static",
         "transition": "cut",
         "packing": true,
-        "actor": false
+        "actor": true,
+        "performance": "pack"
       },
       {
         "shot_id": "route",
@@ -483,7 +505,8 @@
         "transition": "cut",
         "screen": "JAKARTA\nKarawang ... Banyuwangi\nA long way home",
         "packing": true,
-        "actor": false
+        "actor": false,
+        "performance": "rest"
       },
       {
         "shot_id": "straps",
@@ -504,7 +527,35 @@
         "movement": "static",
         "transition": "cut",
         "location": "parking",
-        "luggage": true
+        "luggage": true,
+        "performance": "rest"
+      },
+      {
+        "shot_id": "father_memory",
+        "camera": [
+          2.8,
+          1.9,
+          4.2
+        ],
+        "target": [
+          -0.25,
+          1,
+          0
+        ],
+        "duration": 2,
+        "text": "Behind Dad, the road always felt wide.",
+        "fov": 45,
+        "framing": "medium wide",
+        "movement": "static",
+        "transition": "cut",
+        "location": "memory",
+        "performance": "ride",
+        "characters": [
+          "Father",
+          "Young Raka"
+        ],
+        "title": "A MEMORY",
+        "subtitle": "With Dad"
       },
       {
         "shot_id": "departure",
@@ -532,7 +583,8 @@
           1.35,
           4.7
         ],
-        "title": "PULANG"
+        "title": "PULANG",
+        "performance": "rest"
       }
     ],
     "flags": {

@@ -48,7 +48,7 @@ func _show_shot() -> void:
 		stage_id = location
 	room.configure(shot)
 	_apply_shot(0)
-	caption_changed.emit(shot.get("title", data.title), data.subtitle, shot.text)
+	caption_changed.emit(shot.get("title", data.title), shot.get("subtitle", data.subtitle), shot.text)
 
 func _apply_shot(progress: float) -> void:
 	var shot: Dictionary = definitions[active_id].shots[shot_index]
@@ -62,6 +62,8 @@ func _apply_shot(progress: float) -> void:
 	room.pose(shot, weight)
 
 func audio_context() -> String:
+	if stage_id == "memory":
+		return "fields"
 	return "city" if stage_id == "parking" else "indoors"
 
 

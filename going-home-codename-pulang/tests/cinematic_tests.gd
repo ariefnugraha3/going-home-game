@@ -23,6 +23,7 @@ func _ready() -> void:
 		for shot in data.shots:
 			valid = valid and not ids.has(shot.shot_id) and shot.duration >= 2 and shot.fov >= 30 and shot.fov <= 60 and shot.camera.size() == 3 and shot.target.size() == 3 and not shot.framing.is_empty()
 			ids.append(shot.shot_id)
+			valid = valid and shot.get("performance", "rest") in CinematicActor.CLIPS and shot.get("npc_performance", "listen") in CinematicActor.CLIPS
 		check(valid, "Authored timing, framing and stable IDs: " + id)
 		var before := completions.size()
 		GameState.set_flag("story.prologue.departed", false)
@@ -36,6 +37,7 @@ func _ready() -> void:
 		var expected_flags := GameState.flags.duplicate(true)
 		var final_stage := director.stage_id
 		var final_camera := director.camera.transform
+		var final_actors := director.room.actor_snapshot()
 		for i in range(data.shots.size()):
 			GameState.set_flag("story.prologue.departed", false)
 			director.play(id)
@@ -46,6 +48,7 @@ func _ready() -> void:
 			director.finish()
 			check(GameState.flags == expected_flags and completions.size() == before + 1, "Skip matches final flags exactly once: " + data.shots[i].shot_id)
 			check(director.stage_id == final_stage and director.camera.transform.is_equal_approx(final_camera), "Skip restores final set and framing: " + data.shots[i].shot_id)
+			check(director.room.actor_snapshot() == final_actors, "Skip restores the final actor poses: " + data.shots[i].shot_id)
 	director.play("morning")
 	director.shot_index = 1
 	director._show_shot()
@@ -65,12 +68,55 @@ func _ready() -> void:
 	get_tree().paused = false
 	director.set_process(false)
 	director.play("departure")
-	director.shot_index = 4
+	director.shot_index = director.definitions.departure.shots.size() - 1
 	director._show_shot()
 	director._process(3)
 	check(director.room.props.bike.position.x > 1 and director.room.props.bike.position.x == director.room.props.rider.position.x, "Departure moves motorcycle and rider together")
 	check(director.room.props.luggage.visible and director.audio_context() == "city", "Departure carries luggage and uses parking ambience")
+	check(not director.room.props.bike.show_rider_arms and director.room.props.rider.helmet.visible, "Cinematic rider wears helmet without duplicate cockpit arms")
 	await capture("cinematic_departure_midpoint")
+	director.play("night")
+	director.shot_index = director.definitions.night.shots.size() - 1
+	director._show_shot()
+	var actor: CinematicActor = director.room.props.raka
+	check(actor.animator.callback_mode_process == AnimationMixer.ANIMATION_CALLBACK_MODE_PROCESS_MANUAL, "Actor AnimationPlayer uses the director's clock")
+	var initial_pose := actor.pose_snapshot()
+	director._process(2)
+	check(actor.pose_snapshot() != initial_pose and actor.handset.visible and not director.room.props.phone_body.visible, "Phone gesture moves joints and transfers visible handset off the desk")
+	await capture("performance_phone")
+	var held_pose := actor.pose_snapshot()
+	await frames(12)
+	check(actor.pose_snapshot() == held_pose, "Actor cannot advance independently of the director")
+	get_tree().paused = true
+	director.set_process(true)
+	await frames(12)
+	check(actor.pose_snapshot() == held_pose, "Pause freezes actor joints and handset state")
+	get_tree().paused = false
+	director.set_process(false)
+	director.finish()
+	check(actor.handset.visible and actor.active_clip == "phone", "Mother dialogue handoff retains the phone pose")
+	for clip in CinematicActor.CLIPS:
+		check(actor.sample(clip, 0.5), "Authored performance can be sampled: " + clip)
+		var middle := actor.pose_snapshot()
+		actor.sample(clip, 1)
+		actor.sample(clip, 0.5)
+		check(actor.pose_snapshot() == middle, "Seeking is deterministic: " + clip)
+	held_pose = actor.pose_snapshot()
+	check(not actor.sample("missing", 0.5) and actor.pose_snapshot() == held_pose, "Unknown clip preserves the current actor pose")
+	director.play("departure")
+	director.shot_index = 1
+	director._show_shot()
+	director._process(2.5)
+	check(director.room.props.raka.active_clip == "pack" and director.room.props.raka.visible, "Packing insert shows its authored hand gesture")
+	await capture("performance_pack")
+	director.shot_index = director.definitions.departure.shots.size() - 2
+	director._show_shot()
+	check(director.stage_id == "memory" and director.room.props.young_raka.scale.x < 1 and director.room.props.young_raka.position.x < director.room.props.rider.position.x, "Memory places young Raka behind father")
+	check(director.room.props.young_raka.active_clip == "passenger" and director.room.props.young_raka.helmet.visible and director.room.props.rider.helmet.visible and not director.room.props.luggage.visible, "Memory uses helmeted father/passenger poses without departure luggage")
+	check(director.audio_context() == "fields", "Memory uses quiet exterior ambience")
+	await capture("performance_memory")
+	director._process(2)
+	check(director.stage_id == "parking" and not director.room.props.has("young_raka") and director.room.props.luggage.visible, "Memory returns cleanly to present-day departure")
 	director.play("night")
 	check(director.audio_context() == "indoors" and director.room.props.raka.visible, "Night restores apartment and seated Raka")
 	var old_room := director.room

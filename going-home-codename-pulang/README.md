@@ -96,15 +96,25 @@ Local validation: **329 combined checks passed** at fixed 30 render cadence (**9
 
 ## Opening cinematics - M5 update
 
-The opening now has **22 authored shots across five sequences**: morning routine and parking, HR notification/meeting, post-meeting sign-out, evening apartment, and packing/departure. Phone and laptop inserts show the alarm, HR message, recruiter opportunities, Apply, Mom, and the route home. The bike appears in the parking set with luggage at departure, followed by a PULANG title reveal and the existing ride into Karawang.
+The opening now has **23 authored shots across five sequences**: morning routine and parking, HR notification/meeting, post-meeting sign-out, evening apartment, and packing/departure. Phone and laptop inserts show the alarm, HR message, recruiter opportunities, Apply, Mom, and the route home. The bike appears in the parking set with luggage at departure, followed by a PULANG title reveal and the existing ride into Karawang.
 
 Shots in `data/cutscenes/opening.json` define stable IDs, purpose, framing, FOV, duration, optional camera endpoint, set, and prop text. `CinematicStage` builds the replaceable interior/parking sets; the director handles framing, restrained camera travel and the shared rider/bike departure movement. **Reduced camera motion** disables camera travel. Pause freezes the timeline; hold Space or select **Skip scene** to finish the current sequence, restore its final set/framing, and commit its flags once.
 
 The restructuring conversation now leads through badge/sign-out before the evening scene. Existing checkpoint IDs remain unchanged: Continue restores the stable checkpoint, not an individual shot. An interruption around the meeting can replay the commute/meeting from its saved checkpoint. Continue at departure restores packing, and finishing/skipping it restores the riding camera and controls.
 
-The authored shot durations total **99 seconds**, excluding dialogue, commute, transitions and player pauses. This remains a compact prototype: actors use seated blocking geometry, and bike departure uses root movement. Final rigs/gestures, waking/walking/packing performances, the father-memory insert, cinematic foley/voice treatment and the planned 30-60 minute slice remain unfinished. Use the [M5 cinematic review guide](docs/test/M5_CINEMATIC_PLAYTEST.md).
+The authored shot durations total **101 seconds**, excluding dialogue, commute, transitions and player pauses. This remains a compact prototype: actors use articulated blocking geometry, and bike departure uses root movement. Final skinned rigs and performances, waking/walking/full packing actions, cinematic foley/voice treatment and the planned 30-60 minute slice remain unfinished. Use the [M5 cinematic review guide](docs/test/M5_CINEMATIC_PLAYTEST.md).
 
-Local validation: **424 combined checks passed** at fixed 30 render cadence, including **92 cinematic checks**. The same 92 cinematic checks also passed with native rendering capped at 30 FPS. Representative phone/laptop, packing, night, cluster and departure/title captures were inspected. Human pacing, final art and Web/Android acceptance remain pending.
+Prior cinematic update validation: **424 combined checks passed** at fixed 30 render cadence, including **92 cinematic checks**. The same 92 cinematic checks also passed with native rendering capped at 30 FPS. Representative phone/laptop, packing, night, cluster and departure/title captures were inspected. Human pacing, final art and Web/Android acceptance remain pending.
+
+## Character performances and memory - M5 update, 2026-09-25
+
+The opening characters now have articulated head, shoulder and elbow joints driven by six original `AnimationPlayer` clips: rest, listening, lifting the phone, reaching during packing, riding and passenger poses. The director samples each clip at the shot's current progress. Pause freezes the pose, and skipping any shot restores the same final pose as normal completion. The phone disappears from the desk when the handheld prop appears; Raka holds it during the mother's dialogue.
+
+A **two-second memory insert** before departure shows young Raka behind his father on the motorcycle, with a distinct roadside set and **A MEMORY / With Dad** caption. Both riders use prototype helmet geometry. It returns to present-day parking with the luggage and title reveal. Cinematic bikes hide the first-person arm meshes to avoid duplicate hands. Interior lighting layers and the room wall behind the phone shot are also corrected.
+
+The opening now totals **23 shots / 101 authored seconds** before dialogue, riding, transitions and pauses. These are reusable animation prototypes, not finished character art: skinning, facial/lip animation, walking, waking, complete packing actions, refined hand contact and cinematic sound remain open. The memory uses continuous ambient crossfades; its final authored sound bridge remains pending.
+
+Local validation: **474 combined checks passed**, including **142 cinematic checks**, at fixed 30 render cadence. The 142 cinematic checks also passed in native Godot at a 30 FPS cap. Phone, packing, father/child and departure poses were inspected in rendered captures. Human animation/comfort review and real Web/Android validation remain pending.
 
 ## Controls (defaults)
 
@@ -135,7 +145,7 @@ Touch controls use the same input actions and track multiple fingers. They appea
 
 ## Development roadmap
 
-Based on the [Development Roadmap v1](../PULANG_Development_Roadmap_v1.md). Status last reviewed: **2026-09-24**.
+Based on the [Development Roadmap v1](../PULANG_Development_Roadmap_v1.md). Status last reviewed: **2026-09-25**.
 
 **Legend:** `[x]` = implemented at the stated scope; `[ ]` = unfinished or awaiting validation. A completed prototype task does not mean its entire milestone has passed acceptance. **M0–M5 are in progress; M6–M14 have not started. No milestone is fully accepted yet.**
 
@@ -195,8 +205,10 @@ Based on the [Development Roadmap v1](../PULANG_Development_Roadmap_v1.md). Stat
 - [x] Connect Jakarta opening → commute → layoff → mother's call → departure → first road segment.
 - [x] Connect optional stops → rain shelter/conversation → guesthouse → journal → chapter ending.
 - [x] Test the compact desktop flow, checkpoint recovery, and Continue through completion.
-- [x] Expand the opening to 22 authored shots with interior/parking sets, readable phone/laptop inserts, post-meeting sign-out, and departure/title reveal.
+- [x] Expand the opening to 23 authored shots with interior/parking sets, readable phone/laptop inserts, post-meeting sign-out, and departure/title reveal.
 - [x] Add per-shot framing/FOV, restrained camera travel, reduced-motion behavior, deterministic skip, pause and stable-checkpoint regression checks.
+- [x] Add articulated prototype actors, six director-sampled AnimationPlayer clips, phone prop handoff, and a father/young-Raka memory insert.
+- [x] Test deterministic actor poses after seeking/skipping, pause, dialogue handoff and memory-to-present restoration.
 - [ ] Expand and playtest pacing toward the planned 30–60 minute slice.
 - [ ] Finish production-quality opening cutscenes, character animation, hero assets, and audio.
 - [ ] Pass browser, Android, performance, riding-comfort, and narrative acceptance gates.

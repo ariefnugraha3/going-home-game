@@ -1,6 +1,7 @@
 class_name BikeVisual
 extends Node3D
 
+var show_rider_arms: bool = true
 var needle: Node3D
 var bars: Node3D
 
@@ -37,8 +38,9 @@ func _ready() -> void:
 		mirror.material_override = LowPoly.material(Color("a9c2ba"), true)
 		# Static sky/road approximation keeps mirrors inexpensive on WebGL.
 		LowPoly.box(bars, Vector3(side * 0.76, 1.507, -0.513), Vector3(0.17, 0.03, 0.004), Color("758b7b"))
-		LowPoly.sphere(bars, Vector3(side * 0.51, 1.165, -0.29), Vector3(0.15, 0.08, 0.21), Color("6d5d47"))
-		LowPoly.beam(bars, Vector3(side * 0.51, 1.13, -0.23), Vector3(side * 0.41, 0.98, 0.2), 0.078, Color("65715d"))
+		if show_rider_arms:
+			LowPoly.sphere(bars, Vector3(side * 0.51, 1.165, -0.29), Vector3(0.15, 0.08, 0.21), Color("6d5d47"))
+			LowPoly.beam(bars, Vector3(side * 0.51, 1.13, -0.23), Vector3(side * 0.41, 0.98, 0.2), 0.078, Color("65715d"))
 	for side in [-1, 1]:
 		var center := Vector3(side * 0.145, 1.16, -0.67)
 		LowPoly.cylinder(bars, center, 0.135, 0.085, steel, -1, 32)

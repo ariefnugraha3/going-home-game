@@ -1,5 +1,25 @@
 # Validation record
 
+## M5 character performance update - 2026-09-25
+
+Godot **4.7.2.stable.official.ed1daf0bf**, Compatibility. Native rendering uses Windows / NVIDIA RTX 3050 Laptop GPU at a 30 FPS cap.
+
+| Check | Result |
+| --- | --- |
+| Combined headless suites, fixed 30 render cadence | **96 Story + 34 Practice + 44 Input + 58 Narrative + 52 Mood + 48 Audio + 142 Cinematic = 474 checks, 0 failures** |
+| Native Cinematic suite, actual 30 FPS cap | **142 checks, 0 failures** |
+| Performance clips | All six clips sample successfully; seeking back to a previous progress restores the same joint transforms and prop state; unknown clips preserve the current pose |
+| Timeline ownership | Manual AnimationPlayer clock does not advance independently; pause freezes joints/props; skipping each of 23 shots restores final actor transforms and poses |
+| Phone/packing | Phone handoff hides desk prop, displays handset and holds call pose through dialogue; packing reach uses the authored clip with Raka visible |
+| Memory/departure | Young Raka sits behind father in passenger pose; both use helmet geometry; no departure luggage in memory; return removes child and restores present-day luggage/set |
+| Native visual review | Phone, packing, memory and departure captures inspected; interior wall closed behind phone camera; cinematic lights assigned to visible layer 2; duplicate cockpit arms removed for cinematic bikes |
+| Resource PCK export and isolated boot | **Pass**, 1,141,584 bytes; actor script and opening JSON included; main scene boots outside the source project and exits 0 after 120 frames |
+| Human animation/comfort acceptance and real Web/Android | **Pending**; use [M5 cinematic review guide](M5_CINEMATIC_PLAYTEST.md) |
+
+Native log: `.godot-test/CinematicTests-performance-native30.log`. Captures: `tests/screenshots/performance_*.png` and `cinematic_departure_midpoint.png` (ignored). Reproduce with the existing All and Cinematic commands. All final suites exit successfully with no game parser/runtime errors; the existing sandbox certificate-store startup error remains.
+
+The opening now has 23 shots and 101 authored seconds. The two-second memory uses the existing ambience crossfade, not a finished cinematic sound bridge. Character tests cover deterministic mechanics, not natural acting or correct production-quality hand contact. Models use an articulated Node3D hierarchy with AnimationPlayer tracks, not skinned Skeleton3D assets. Save schema and stable checkpoints remain unchanged. This PCK is a resource package, not a playable HTML5/APK build; matching export templates and platform acceptance remain pending.
+
 ## M5 opening cinematic update - 2026-09-24
 
 Godot **4.7.2.stable.official.ed1daf0bf**, Compatibility. Native rendering uses Windows / NVIDIA RTX 3050 Laptop GPU at a 30 FPS cap.

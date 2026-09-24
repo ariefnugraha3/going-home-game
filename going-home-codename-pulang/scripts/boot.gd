@@ -290,7 +290,7 @@ func _resume() -> void:
 	elif state == "cutscene":
 		var data: Dictionary = director.definitions[director.active_id]
 		var shot: Dictionary = data.shots[director.shot_index]
-		ui.show_cinematic(shot.get("title", data.title), data.subtitle, shot.text)
+		ui.show_cinematic(shot.get("title", data.title), shot.get("subtitle", data.subtitle), shot.text)
 
 func _return_to_menu() -> void:
 	get_tree().paused = false
@@ -360,7 +360,7 @@ func _road_profile(distance: float) -> String:
 func _update_audio_context() -> void:
 	match state:
 		"menu", "transition": AudioManager.set_context("menu")
-		"cutscene": AudioManager.set_context(director.audio_context(), director.stage_id != "parking")
+		"cutscene": AudioManager.set_context(director.audio_context(), director.stage_id not in ["parking", "memory"])
 		"reflection", "complete": AudioManager.set_context("indoors", true)
 		"dialogue": AudioManager.set_context("warung" if pending_encounter == "warung" else "indoors", true)
 		"scenic": AudioManager.set_context("fields")
