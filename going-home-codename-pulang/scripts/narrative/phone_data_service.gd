@@ -4,11 +4,13 @@ extends Node
 signal inbox_changed
 var messages: Array = []
 var calls: Array = []
+var photos: Array = []
 const CHANNELS := ["Messages", "Email"]
 
 func _ready() -> void:
 	messages = JSON.parse_string(FileAccess.get_file_as_string("res://data/phone/messages.json"))
 	calls = JSON.parse_string(FileAccess.get_file_as_string("res://data/phone/calls.json"))
+	photos = JSON.parse_string(FileAccess.get_file_as_string("res://data/phone/photos.json"))
 	GameState.flag_changed.connect(_flag_changed)
 	GameState.journey_changed.connect(reconcile)
 	reconcile()
@@ -107,6 +109,19 @@ func call_history() -> Array:
 		entry["remembered_line"] = nodes.get(call.remembered_node, {}).get("text", "")
 		result.append(entry)
 	return result
+
+func available_photos() -> Array:
+	var result: Array = []
+	for photo in photos:
+		if photo.condition.is_empty() or GameState.flags.get(photo.condition, false):
+			result.append(photo.duplicate(true))
+	return result
+
+func photo_by_id(id: String) -> Dictionary:
+	for photo in available_photos():
+		if photo.id == id:
+			return photo
+	return {}
 
 func reply(id: String) -> bool:
 	var message := message_by_id(id)

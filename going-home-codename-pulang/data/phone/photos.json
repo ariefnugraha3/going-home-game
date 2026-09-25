@@ -1,0 +1,5 @@
+[
+  {"id": "with_dad", "title": "Dad and me", "when": "From the family album", "condition": "", "image": "res://assets/photos/with_dad.png", "caption": "I used to watch the road from behind his shoulder. He never seemed to be in a hurry."},
+  {"id": "leaving_jakarta", "title": "Packed for the road", "when": "Jakarta / The next morning", "condition": "story.prologue.departed", "image": "res://assets/photos/leaving_jakarta.png", "caption": "Raincoat, toolkit, charger. The laptop came too. One night in Karawang first."},
+  {"id": "saris_warung", "title": "A place out of the rain", "when": "Karawang / Afternoon", "condition": "story.karawang.sheltered", "image": "res://assets/photos/saris_warung.png", "caption": "Sari made room for my bag under the roof. A cup of tea, and time to let the rain pass."}
+]

@@ -28,7 +28,7 @@ There are no editing/reset/save commands in the viewer. Normal launches, practic
 - [ ] Load a pre-queue v1 save. Read/replied conversations remain available; other eligible messages can arrive with their configured delay.
 - [ ] Repeat in Web iframe/fullscreen and physical Android, including suspend/resume, force-stop/relaunch and available storage. Record device/browser/version and results.
 
-Browser/Android and human acceptance remain pending; native automated results do not close those gates. Completed-call history is implemented; outgoing calls, voice playback, Photos and a full localization key table remain open.
+Browser/Android and human acceptance remain pending; native automated results do not close those gates. Completed-call history and the authored photo album are implemented; outgoing calls, voice playback, free-camera Photo Mode and a full localization key table remain open.
 
 ## Phone sections and call history
 
@@ -46,3 +46,30 @@ Browser/Android and human acceptance remain pending; native automated results do
 `powershell -ExecutionPolicy Bypass -File tools/test.ps1 -Suite Phone -Visual -FixedFps 30`
 
 This suite exercises real UI button callbacks, back-key navigation, separate read status, reply/save round trips, both call branches, partial-call gating, read-only history, movement locks and New Game. Native captures are stored under ignored `tests/screenshots/phone_*.png`. Automated checks do not replace touch ergonomics or human narrative review.
+
+## Photo album
+
+`data/phone/photos.json` contains ordered entries with unique `id`, `title`, authored `when`, `condition`, `image` resource path and first-person `caption`. An empty condition makes the family photo available from the start; trip photos use `story.prologue.departed` and `story.karawang.sheltered`. `PhoneDataService.available_photos()` returns independent copies in authored order; `photo_by_id()` exposes only currently available entries. There are no new save fields, timers, notifications or capture permissions. Continue derives the album from restored flags; New Game retains only the family photo. Do not rename condition flags without considering existing saves.
+
+Three original 960×540 PNGs live in `assets/photos/`. `tools/render_phone_photos.gd` renders the cinematic memory/parking sets and roadside warung once, with a native Compatibility renderer. Gameplay loads the resulting textures and does not render extra 3D viewports. To regenerate from the project directory, use isolated storage and restore the previous environment afterward:
+
+```powershell
+$previousAppData = $env:APPDATA
+try {
+    $env:APPDATA = Join-Path (Get-Location) '.godot-test'
+    New-Item -ItemType Directory -Force -Path $env:APPDATA | Out-Null
+    & 'D:\Godot_v4.7.2-stable_win64.exe\Godot_v4.7.2-stable_win64_console.exe' --path . --script res://tools/render_phone_photos.gd
+} finally {
+    $env:APPDATA = $previousAppData
+}
+```
+
+Run Godot's editor import after regeneration. The generator requires native rendering; `--headless` intentionally fails. PNGs and import metadata belong in source control; captures and logs remain ignored. These are prototype story illustrations, not final art or a player-operated camera.
+
+- [ ] Open Photos before departure: only the family photo should appear. Return after departure and after shelter; check each new photo and caption agree with the story.
+- [ ] Use thumbnail title buttons, Previous/Next, Back to album and Escape. Confirm navigation stops at available album edges and riding remains paused until the phone closes.
+- [ ] Browse while messages are unread. Confirm counts remain unchanged and messages can still notify afterward.
+- [ ] Quit at a saved checkpoint and Continue; check album visibility. Start a New Game and confirm only the family photo remains.
+- [ ] Review all photos/captions on a small landscape viewport and physical touch device; verify scrolling and keyboard focus when height is constrained.
+
+The Phone suite covers unlock order, imported textures, content copies, saved-flag round trips, single-photo bounds, stale/locked IDs, empty album, missing-image fallback and unchanged save/message state. It captures the album and all three details in native mode. Platform and human review remain separate acceptance gates.

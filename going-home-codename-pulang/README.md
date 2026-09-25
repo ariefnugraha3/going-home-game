@@ -118,15 +118,25 @@ Local validation: **474 combined checks passed**, including **142 cinematic chec
 
 ## Phone sections and call history - M5 update, 2026-09-25
 
-**Phone** now opens a home screen with **Messages, Email, Calls, Route, and Journal**. Messages and Email show separate unread counts. Opening one section marks all delivered entries in that section read, including those below the scroll fold, while leaving the other section unread. The HUD Phone badge still shows the combined unread total. Replies remain authored and stay in their current section after sending.
+**Phone** opens a home screen with **Messages, Email, Calls, Photos, Route, and Journal**. Messages and Email show separate unread counts. Opening one section marks all delivered entries in that section read, including those below the scroll fold, while leaving the other section unread. The HUD Phone badge still shows the combined unread total. Replies remain authored and stay in their current section after sending.
 
 **Calls** contains Mom's first-evening call only after its dialogue completes. It shows the story time, Raka's short recollection, and a remembered line from the existing dialogue data. Either dialogue branch unlocks the same shared recollection. Reading call history never restarts dialogue or changes flags/checkpoints. It derives availability from the existing saved dialogue-completion state, so old v1 saves remain compatible and New Game clears the history naturally.
 
 **Route** and **Journal** open from the phone with a **Back to phone** button. Escape returns from a section/shortcut to phone home, then closes the phone on the next press. Direct map/journal shortcuts retain their original close behavior. Riding stays paused throughout phone navigation.
 
-This implements a call-history view, not outgoing calls or audio replay. Photos, additional call content, voice playback, and a full localization key table remain future work. The [phone review guide](docs/test/M3_PLAYTEST.md) includes the updated authoring and acceptance checks.
+This implements a call-history view, not outgoing calls or audio replay. Additional call content, voice playback, and a full localization key table remain future work. The [phone review guide](docs/test/M3_PLAYTEST.md) includes the updated authoring and acceptance checks.
 
-Local validation: **511 combined checks passed** at fixed 30 render cadence, including **35 phone checks**. The Phone suite also passed all 35 checks in native Godot capped at 30 FPS; home, Messages, Email and Calls captures were inspected. Real browser/Android and human readability acceptance remain open.
+Prior phone-section validation: **511 combined checks passed** at fixed 30 render cadence, including **35 phone checks**. The Phone suite also passed all 35 checks in native Godot capped at 30 FPS; home, Messages, Email and Calls captures were inspected. Real browser/Android and human readability acceptance remain open.
+
+## Phone photo album - M5 update, 2026-09-25
+
+Open **Phone → Photos** for an authored album with thumbnails, captions, and Previous/Next navigation. **Dad and me** is available from the start; **Packed for the road** unlocks after departure; **A place out of the rain** unlocks after the Karawang shelter encounter. The three 960×540 prototype stills are rendered from this project's original 3D assets and loaded as textures during play.
+
+Escape returns from a photo to the album, then phone home, then riding. Browsing stays paused and leaves message unread counts, story state, and checkpoint files unchanged. Existing saved flags restore unlocked photos on Continue; New Game retains only the family photo. Unknown or locked photo links return to the album, and missing images show a readable fallback.
+
+This is an authored story album. Free-camera Photo Mode, player captures, sharing, and final photo artwork remain unfinished. See the [authoring and playtest guide](docs/test/M3_PLAYTEST.md#photo-album) for data fields and the native render command.
+
+Local validation: **555 combined checks passed** at fixed 30 render cadence, including **79 phone checks**. All 79 phone checks also passed in native Godot capped at 30 FPS; album and all three photo views were inspected at 1280×720. The resource PCK includes all three textures and photo JSON and boots independently. Real Web/Android and human readability acceptance remain open.
 
 ## Controls (defaults)
 
@@ -200,6 +210,8 @@ Based on the [Development Roadmap v1](../PULANG_Development_Roadmap_v1.md). Stat
 - [x] Test delivery locks, queue order, save/reload deduplication, malformed phone state, and the encounter → message/reply → journal sequence.
 - [x] Add phone home, separate Messages/Email unread state, completed-call history, and Route/Journal return navigation.
 - [x] Test channel reads/replies, call completion gates, read-only history, old-schema save/load, New Game, and phone navigation locks.
+- [x] Add Photos with three original rendered stills, thumbnails, captions, story-based unlocks, and bounded Previous/Next navigation.
+- [x] Test album unlock/save/New Game behavior, nested Back navigation, read-only browsing, and empty/missing-image fallbacks.
 - [ ] Validate narrative/save behavior in real Web and Android builds.
 
 ### M4 — Visual & Audio Mood Prototype · In progress

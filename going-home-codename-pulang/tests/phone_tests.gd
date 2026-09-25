@@ -3,6 +3,9 @@ extends "res://tests/test_runner.gd"
 func press_button(prefix: String) -> void:
 	for button in app.ui.screen.find_children("*", "Button", true, false):
 		if button.text.begins_with(prefix):
+			check(not button.disabled, "Phone button is enabled: " + prefix)
+			if button.disabled:
+				return
 			button.pressed.emit()
 			return
 	check(false, "Missing phone button: " + prefix)
@@ -44,6 +47,31 @@ func _ready() -> void:
 	check(SaveManager.load_game() and service.call_history().size() == 1, "Call history derives from the existing saved completion state")
 	GameState.new_journey()
 	check(service.call_history().is_empty(), "New journey clears call history without a schema migration")
+	var photo_ids: Array = []
+	for photo in service.photos:
+		check(photo.id not in photo_ids and photo.condition in ["", "story.prologue.departed", "story.karawang.sheltered"], "Unique photo ID and valid story condition: " + photo.id)
+		photo_ids.append(photo.id)
+		var texture := load(photo.image) as Texture2D
+		check(texture != null and texture.get_size() == Vector2(960, 540), "Authored photo imports at the intended resolution: " + photo.id)
+	check(service.available_photos().size() == 1 and service.available_photos()[0].id == "with_dad", "Family album is available before the journey")
+	check(service.photo_by_id("leaving_jakarta").is_empty() and service.photo_by_id("unknown").is_empty(), "Locked and unknown photo IDs expose no content")
+	GameState.set_flag("story.prologue.departed")
+	check(service.available_photos().size() == 2 and service.photo_by_id("saris_warung").is_empty(), "Departure unlocks only its own photo")
+	GameState.set_flag("story.karawang.sheltered")
+	check(service.available_photos().map(func(photo): return photo.id) == photo_ids, "Shelter completes the album in authored order")
+	var photo_copy := service.photo_by_id("with_dad")
+	photo_copy.caption = "External edit"
+	check(service.photo_by_id("with_dad").caption != photo_copy.caption, "Photo lookup returns independent content copies")
+	SaveManager.save_game(false)
+	snapshot = GameState.snapshot()
+	saved = FileAccess.get_file_as_string(SaveManager.SAVE_PATH)
+	service.available_photos()
+	service.photo_by_id("with_dad")
+	check(GameState.snapshot() == snapshot and FileAccess.get_file_as_string(SaveManager.SAVE_PATH) == saved, "Album queries do not mutate state or checkpoint files")
+	GameState.new_journey()
+	check(service.available_photos().size() == 1, "New journey removes trip photos and retains the family album")
+	check(SaveManager.load_game() and service.available_photos().size() == 3, "Existing saved flags restore the album without a schema migration")
+	GameState.new_journey()
 	service.free()
 	app = preload("res://scenes/boot/Boot.tscn").instantiate()
 	add_child(app)
@@ -63,6 +91,45 @@ func _ready() -> void:
 	check(get_tree().paused and app.ui.phone_section == "Home" and app.phone_service.unread_count() == 3, "Phone home pauses riding without marking unseen messages read")
 	check(FileAccess.get_file_as_string(SaveManager.SAVE_PATH) == saved, "Opening phone home does not write a save")
 	await capture("phone_home")
+	snapshot = GameState.snapshot()
+	press_button("Photos")
+	check(app.ui.phone_section == "Photos" and app.ui.phone_photo_id.is_empty() and get_tree().paused, "Photos opens the album while riding stays paused")
+	press_button("Dad and me")
+	check(app.ui.phone_photo_id == "with_dad", "Album thumbnail button opens the selected photo")
+	check(photo_button_disabled("Previous") and not photo_button_disabled("Next"), "First photo has only a forward step")
+	await capture("phone_photo_family")
+	press_button("Next")
+	check(app.ui.phone_photo_id == "leaving_jakarta" and photo_button_disabled("Next"), "Next cannot reach the locked shelter photo")
+	await capture("phone_photo_departure")
+	press_button("Previous")
+	check(app.ui.phone_photo_id == "with_dad", "Previous returns to the preceding unlocked photo")
+	back()
+	check(app.ui.phone_section == "Photos" and app.ui.phone_photo_id.is_empty() and get_tree().paused, "Escape from photo returns to album without resuming")
+	back()
+	check(app.ui.phone_section == "Home" and get_tree().paused, "Escape from album returns to phone home")
+	app.ui.show_phone("Photos", "saris_warung")
+	check(app.ui.phone_photo_id.is_empty(), "Direct locked photo request returns to album")
+	app.ui.show_phone("Photos", "unknown")
+	check(app.ui.phone_photo_id.is_empty(), "Unknown photo request returns to album")
+	var authored_photos: Array = app.phone_service.photos
+	app.phone_service.photos = []
+	app.ui.show_phone("Photos")
+	check(has_photo_label("No photos yet."), "Empty photo data shows an explanatory message")
+	app.phone_service.photos = authored_photos.duplicate(true)
+	app.phone_service.photos[0].image = "res://assets/photos/missing.png"
+	app.ui.show_phone("Photos", "with_dad")
+	check(has_photo_label("Photo unavailable.") and not photo_button_disabled("Next"), "Missing image retains readable detail and navigation")
+	app.phone_service.photos = authored_photos
+	check(GameState.snapshot() == snapshot and FileAccess.get_file_as_string(SaveManager.SAVE_PATH) == saved and app.phone_service.unread_count() == 3, "Photo browsing preserves unread messages, story state and save bytes")
+	GameState.set_flag("story.karawang.sheltered")
+	app.ui.show_phone("Photos")
+	await capture("phone_photos")
+	press_button("A place out of the rain")
+	check(app.ui.phone_photo_id == "saris_warung" and photo_button_disabled("Next"), "Shelter photo becomes available through its story condition")
+	await capture("phone_photo_warung")
+	press_button("Back to album")
+	check(app.ui.phone_photo_id.is_empty() and app.ui.phone_section == "Photos", "Back to album button clears the detail selection")
+	press_button("Back to phone")
 	press_button("Messages")
 	check(app.ui.phone_section == "Messages" and app.phone_service.unread_count() == 1 and app.phone_service.unread_count("Email") == 1, "Messages button marks only its own section read")
 	check(SaveManager.read_save().phone.read.size() == 2, "Channel read status saves immediately")
@@ -111,6 +178,10 @@ func _ready() -> void:
 	app.ui.show_phone("invalid")
 	check(app.ui.phone_section == "Home", "Unknown phone page returns safely to home")
 	GameState.new_journey()
+	app.ui.show_phone("Photos", "saris_warung")
+	check(app.ui.phone_photo_id.is_empty() and app.phone_service.available_photos().size() == 1, "New journey cannot reopen a stale trip photo")
+	app.ui.show_phone("Photos", "with_dad")
+	check(photo_button_disabled("Previous") and photo_button_disabled("Next"), "Single-photo album disables both navigation edges")
 	app.ui.show_phone()
 	check(app.phone_service.call_history().is_empty() and app.phone_service.unread_count() == 0, "New journey removes old calls and badges from live phone")
 	get_tree().paused = false
@@ -118,3 +189,16 @@ func _ready() -> void:
 	await frames(4)
 	print("PHONE TEST RESULT: %d checks, %d failures" % [checks, failures])
 	get_tree().quit(1 if failures else 0)
+
+func photo_button_disabled(title: String) -> bool:
+	for button in app.ui.screen.find_children("*", "Button", true, false):
+		if button.text == title:
+			return button.disabled
+	check(false, "Missing photo navigation: " + title)
+	return false
+
+func has_photo_label(text: String) -> bool:
+	for label in app.ui.screen.find_children("*", "Label", true, false):
+		if label.text == text:
+			return true
+	return false

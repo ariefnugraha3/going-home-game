@@ -23,6 +23,7 @@ var dialogue_label: Label
 var dialogue_box: VBoxContainer
 var chapter_data: Dictionary
 var phone_section: String = "Home"
+var phone_photo_id: String = ""
 var phone_origin: bool = false
 var phone_service: PhoneDataService
 var phone_button: Button
@@ -416,20 +417,34 @@ func show_credits() -> void:
 	_paragraph(box, "Based on the PULANG GDD v2, TDD v1, and Development Roadmap v1.\n\nBuilt with Godot Engine 4.7.2.\nOriginal low-poly geometry and synthesized placeholder audio created for this project.\nGodot's bundled font: Noto Sans.\n\nMotorcycle design reference: Suzuki Thunder 250 (2000). No affiliation or endorsement.\n\nThis playable development slice follows Raka from Jakarta to his first night in Karawang. The remaining journey is still in development.", 22)
 	_button(box, "Back", func(): action_requested.emit("back"))
 
-func show_phone(section: String = "Home") -> void:
-	if section not in ["Home", "Messages", "Email", "Calls"]:
+func show_phone(section: String = "Home", photo_id: String = "") -> void:
+	if section not in ["Home", "Messages", "Email", "Calls", "Photos"]:
 		section = "Home"
 	_clear("phone")
 	phone_section = section
-	var box := _panel("Your phone", "Read when you're ready.")
+	phone_photo_id = ""
+	if section == "Photos" and is_instance_valid(phone_service) and not phone_service.photo_by_id(photo_id).is_empty():
+		phone_photo_id = photo_id
+	var subtitle := "Read when you're ready."
+	if section == "Photos":
+		subtitle = "A few moments to keep." if phone_photo_id.is_empty() else ""
+	var box := _panel("Photos" if section == "Photos" else "Your phone", subtitle)
 	if section == "Home":
 		for channel in PhoneDataService.CHANNELS:
 			var count: int = phone_service.unread_count(channel) if is_instance_valid(phone_service) else 0
 			_button(box, "%s (%d unread)" % [channel, count], func(): show_phone(channel))
 		var call_count: int = phone_service.call_history().size() if is_instance_valid(phone_service) else 0
 		_button(box, "Calls (%d)" % call_count, func(): show_phone("Calls"))
+		var photo_count: int = phone_service.available_photos().size() if is_instance_valid(phone_service) else 0
+		_button(box, "Photos (%d)" % photo_count, func(): show_phone("Photos"))
 		_button(box, "Route", func(): show_map(true))
 		_button(box, "Journal", func(): show_journal(false, true))
+	elif section == "Photos":
+		if phone_photo_id.is_empty():
+			_button(box, "Back to phone", func(): show_phone()).grab_focus()
+		else:
+			_button(box, "Back to album", func(): show_phone("Photos")).grab_focus()
+		_show_photos(box)
 	else:
 		_button(box, "Back to phone", func(): show_phone()).grab_focus()
 		_label(box, section, 27, GOLD)
@@ -438,6 +453,50 @@ func show_phone(section: String = "Home") -> void:
 		else:
 			_show_inbox(box, section)
 	_button(box, "Put the phone away", func(): action_requested.emit("resume"))
+
+func _photo_image(parent: Control, path: String, minimum: Vector2) -> void:
+	if not ResourceLoader.exists(path):
+		_paragraph(parent, "Photo unavailable.", 18, MUTED)
+		return
+	var picture := TextureRect.new()
+	picture.texture = load(path) as Texture2D
+	picture.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	picture.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	picture.custom_minimum_size = minimum
+	picture.size_flags_horizontal = Control.SIZE_EXPAND_FILL if minimum.x == 0 else Control.SIZE_SHRINK_CENTER
+	parent.add_child(picture)
+
+func _show_photos(box: VBoxContainer) -> void:
+	var album: Array = phone_service.available_photos() if is_instance_valid(phone_service) else []
+	if album.is_empty():
+		_paragraph(box, "No photos yet.", 22, MUTED)
+		return
+	if phone_photo_id.is_empty():
+		for photo in album:
+			var row := HBoxContainer.new()
+			box.add_child(row)
+			_photo_image(row, photo.image, Vector2(160, 90))
+			var details := VBoxContainer.new()
+			details.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+			row.add_child(details)
+			_button(details, photo.title, func(): show_phone("Photos", photo.id))
+			_paragraph(details, photo.when, 18, MUTED)
+		return
+	for index in album.size():
+		var photo: Dictionary = album[index]
+		if photo.id != phone_photo_id:
+			continue
+		_paragraph(box, photo.title + " / " + photo.when, 20, GOLD)
+		_photo_image(box, photo.image, Vector2(0, 230))
+		_paragraph(box, photo.caption, 20)
+		var navigation := HBoxContainer.new()
+		box.add_child(navigation)
+		var previous := _button(navigation, "Previous", func(): show_phone("Photos", album[index - 1].id))
+		previous.disabled = index == 0
+		_label(navigation, "%d / %d" % [index + 1, album.size()], 18, MUTED)
+		var next := _button(navigation, "Next", func(): show_phone("Photos", album[index + 1].id))
+		next.disabled = index == album.size() - 1
+		return
 
 func _show_inbox(box: VBoxContainer, channel: String) -> void:
 	var inbox: Array = phone_service.received_messages(channel) if is_instance_valid(phone_service) else []
@@ -469,6 +528,9 @@ func _show_calls(box: VBoxContainer) -> void:
 		box.add_child(HSeparator.new())
 
 func phone_back() -> bool:
+	if mode == "phone" and phone_section == "Photos" and not phone_photo_id.is_empty():
+		show_phone("Photos")
+		return true
 	if phone_origin or (mode == "phone" and phone_section != "Home"):
 		show_phone()
 		return true
