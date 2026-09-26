@@ -1,5 +1,25 @@
 # Validation record
 
+## M2/M5 touch button sizes - 2026-09-27
+
+Godot **4.7.2.stable.official.ed1daf0bf**, Compatibility. Native Windows checks use the NVIDIA RTX 3050 Laptop GPU with an actual 30 FPS cap.
+
+| Check | Result |
+| --- | --- |
+| Combined headless suites, fixed 30 render cadence | **96 Story + 34 Practice + 79 Input + 60 Narrative + 52 Mood + 48 Audio + 142 Cinematic + 79 Phone = 590 checks, 0 failures** |
+| Native Input suite, actual 30 FPS cap | **79 checks, 0 failures** |
+| Settings and preview | Selecting Largest updates the paused riding controls and preview; preview touch cannot accelerate; separate settings reload and New Game retain size; checkpoint bytes unchanged |
+| Legacy/invalid settings | Missing key and invalid type return to Standard; out-of-range, nonfinite and intermediate values normalize before persistence |
+| Layout and input | All three sizes at 1280×720, 1600×720 and 960×540 windows with simulated insets: zones contained and disjoint, interaction clear, simultaneous throttle/steering via screen coordinates |
+| Constrained logical bounds | Explicit 640×400 safe rectangle limits effective size while retaining 150% preference; resizing/changing size clears ownership; unrelated SFX setting change preserves held input |
+| Native visual inspection | Scrollable settings preview and 150% riding layouts inspected; riding labels readable, interaction above touch zones; preview extends below the initial scroll fold |
+| Resource PCK export and independent boot | **Pass**, 1,251,548 bytes; packed main scene boots outside the source project and exits 0 after 120 frames |
+| Physical Android comfort and Web acceptance | **Pending**; use the [M2 touch-size checklist](M2_PLAYTEST.md#touch-size-preference) |
+
+Reproduce with `powershell -ExecutionPolicy Bypass -File tools/test.ps1 -Suite All -FixedFps 30` and `powershell -ExecutionPolicy Bypass -File tools/test.ps1 -Suite Input -Visual -FixedFps 30`. Native log: `.godot-test/InputTests-touch-size-native30.log`; export/boot logs: `.godot-test/touch-size-export.log` and `touch-size-pack-boot.log`. Captures are ignored under `tests/screenshots/input_touch_size_settings.png` and `input_touch_largest_*.png`.
+
+The initial constrained-layout assertion assumed shrinking the native window also reduced logical UI bounds. Godot's canvas stretching retains a baseline logical size; the final test explicitly constrains the logical safe rectangle. Final runs contain no game parser/runtime errors. The pre-existing sandbox certificate-store startup error remains. Native automation, synthetic touch and resource-PCK export do not replace physical thumb ergonomics, real Web/APK builds or platform lifecycle acceptance. This update covers riding buttons and labels; full menu/HUD scaling remains open.
+
 ## M5 photo album update - 2026-09-25
 
 Godot **4.7.2.stable.official.ed1daf0bf**, Compatibility; native Windows / NVIDIA RTX 3050 Laptop GPU at a 30 FPS cap.

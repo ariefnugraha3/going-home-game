@@ -280,6 +280,7 @@ func _build_hud() -> void:
 	touch = TouchControls.new()
 	hud.add_child(touch)
 	touch.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	touch.layout_changed.connect(_position_interaction)
 
 func riding() -> void:
 	_clear("riding")
@@ -292,10 +293,16 @@ func update_hud(kph: float, distance: float, context: String, can_interact: bool
 	prompt.visible = not context.is_empty()
 	prompt.disabled = not can_interact
 	touch.visible = InputModeManager.touch_mode or GameState.settings.touch
-	prompt.offset_top = -208 if touch.visible else -97
-	prompt.offset_bottom = -154 if touch.visible else -43
+	_position_interaction()
 	speed_label.visible = not touch.visible
 	status_label.visible = not touch.visible
+
+func _position_interaction() -> void:
+	if not is_instance_valid(touch) or not is_instance_valid(prompt):
+		return
+	var bottom := touch.top_edge() - touch.size.y - 30 if touch.visible else -43.0
+	prompt.offset_top = bottom - 54
+	prompt.offset_bottom = bottom
 
 func show_pause() -> void:
 	_clear("pause")
@@ -321,6 +328,23 @@ func show_settings() -> void:
 		toggle.toggled.connect(func(value: bool):
 			GameState.settings[entry[1]] = value
 			SaveManager.save_settings())
+	_label(box, "Touch button size", 22, GOLD)
+	var touch_size := OptionButton.new()
+	touch_size.name = "TouchSize"
+	for title in ["Standard · 100%", "Larger · 125%", "Largest · 150%"]:
+		touch_size.add_item(title)
+	touch_size.selected = roundi((GameState.settings.touch_scale - 1.0) / 0.25)
+	touch_size.custom_minimum_size.y = 48
+	box.add_child(touch_size)
+	touch_size.item_selected.connect(func(index: int):
+		GameState.settings.touch_scale = 1.0 + index * 0.25
+		SaveManager.save_settings())
+	_paragraph(box, "Preview only. Buttons fit the available safe area; smaller screens may limit their size.", 18, MUTED)
+	var touch_preview := TouchControls.new()
+	touch_preview.name = "TouchPreview"
+	touch_preview.interactive = false
+	touch_preview.custom_minimum_size.y = 204
+	box.add_child(touch_preview)
 	for entry in [["Field of view", "fov", 55.0, 85.0, 1.0], ["Master volume", "master", 0.0, 1.0, 0.05], ["Motorcycle volume", "vehicle", 0.0, 1.0, 0.05], ["Ambience volume", "ambience", 0.0, 1.0, 0.05], ["Music volume", "music", 0.0, 1.0, 0.05], ["Sound effects volume", "sfx", 0.0, 1.0, 0.05]]:
 		var row := HBoxContainer.new()
 		box.add_child(row)

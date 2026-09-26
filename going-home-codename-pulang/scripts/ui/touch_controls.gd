@@ -1,6 +1,10 @@
 class_name TouchControls
 extends Control
 
+signal layout_changed
+var interactive: bool = true
+var requested_scale: float = 1.0
+var effective_scale: float = 1.0
 var fingers: Dictionary = {}
 var zones: Dictionary = {}
 var owned_actions: Array[String] = []
@@ -9,25 +13,43 @@ var labels := {"steer_left": "LEFT", "steer_right": "RIGHT", "brake": "BRAKE", "
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	resized.connect(_layout_zones)
+	SaveManager.settings_applied.connect(_apply_settings)
+	requested_scale = GameState.settings.touch_scale
 	_layout_zones()
 	visibility_changed.connect(func():
 		if not is_visible_in_tree() and not fingers.is_empty():
 			release_all())
 
+func _apply_settings() -> void:
+	var scale_value: float = GameState.settings.touch_scale
+	if not is_equal_approx(requested_scale, scale_value):
+		requested_scale = scale_value
+		_layout_zones()
+
 func _layout_zones() -> void:
 	# Anchored to the safe UI rectangle; resizing invalidates finger positions.
 	release_all()
-	var width := minf(108, (size.x - 72) / 4.0)
-	var height := minf(100, size.y * 0.2)
+	# Uniformly shrink only when the available safe rectangle cannot fit the
+	# preference. Preview has no riding HUD, so it needs only the outer margins.
+	var height_limit := size.y * 0.25 if interactive else size.y - 48
+	effective_scale = maxf(0, minf(requested_scale, minf((size.x - 72) / 432.0, height_limit / 100.0)))
+	var width := 108 * effective_scale
+	var height := 100 * effective_scale
 	var y := size.y - height - 24
 	zones = {"steer_left": Rect2(18, y, width, height), "steer_right": Rect2(30 + width, y, width, height), "brake": Rect2(size.x - 30 - width * 2, y, width, height), "accelerate": Rect2(size.x - 18 - width, y, width, height)}
 	queue_redraw()
+	layout_changed.emit()
+
+func top_edge() -> float:
+	return zones.steer_left.position.y if not zones.is_empty() else size.y
 
 func _draw() -> void:
 	for action in zones:
 		var rect: Rect2 = zones[action]
-		draw_style_box(_style(Input.is_action_pressed(action)), rect)
-		draw_string(ThemeDB.fallback_font, rect.position + Vector2(0, rect.size.y / 2 + 7), labels[action], HORIZONTAL_ALIGNMENT_CENTER, rect.size.x, 18, Color("f2e7ce"))
+		draw_style_box(_style(interactive and Input.is_action_pressed(action)), rect)
+		var font_size := roundi(18 * minf(requested_scale, effective_scale))
+		if font_size > 0:
+			draw_string(ThemeDB.fallback_font, rect.position + Vector2(0, rect.size.y / 2 + font_size * 0.38), labels[action], HORIZONTAL_ALIGNMENT_CENTER, rect.size.x, font_size, Color("f2e7ce"))
 
 func _style(pressed: bool) -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
@@ -38,7 +60,7 @@ func _style(pressed: bool) -> StyleBoxFlat:
 	return style
 
 func _input(event: InputEvent) -> void:
-	if not is_visible_in_tree():
+	if not interactive or not is_visible_in_tree():
 		return
 	if event is InputEventScreenTouch:
 		if event.pressed:

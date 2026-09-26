@@ -170,6 +170,7 @@ func _ready() -> void:
 		check(not app.ui.prompt.get_rect().intersects(touch.zones.accelerate), "Interaction stays above riding controls at %s" % dimensions)
 		if dimensions == Vector2(1600, 720):
 			await capture("input_touch_safe_area")
+	await touch_size_checks(save_before)
 	InputModeManager.reset_bindings()
 	GameState.settings.touch = false
 	SaveManager.save_settings()
@@ -178,3 +179,91 @@ func _ready() -> void:
 	await frames(3)
 	print("INPUT TEST RESULT: %d checks, %d failures" % [checks, failures])
 	get_tree().quit(1 if failures else 0)
+
+func touch_size_checks(save_before: String) -> void:
+	get_viewport().size = Vector2i(1280, 720)
+	await frames(3)
+	app._pause()
+	app.ui.show_settings()
+	await frames(3)
+	var picker: OptionButton = app.ui.screen.find_child("TouchSize", true, false)
+	var preview: TouchControls = app.ui.screen.find_child("TouchPreview", true, false)
+	check(picker != null and preview != null and not preview.interactive, "Settings exposes three touch sizes with a noninteractive preview")
+	picker.select(2)
+	picker.item_selected.emit(2)
+	await frames(3)
+	check(is_equal_approx(GameState.settings.touch_scale, 1.5) and is_equal_approx(app.ui.touch.requested_scale, 1.5), "Selecting Largest applies to the paused riding controls immediately")
+	check(is_equal_approx(preview.zones.accelerate.size.y, 150), "Settings preview reflects selected button height")
+	Input.parse_input_event(touch_event(51, preview.get_global_transform_with_canvas() * preview.zones.accelerate.get_center()))
+	await frames(2)
+	check(not Input.is_action_pressed("accelerate") and preview.fingers.is_empty(), "Preview touches cannot accelerate the paused motorcycle")
+	Input.parse_input_event(touch_event(51, Vector2.ZERO, false))
+	await capture("input_touch_size_settings")
+	GameState.settings.touch_scale = 1.0
+	SaveManager.load_settings()
+	check(is_equal_approx(GameState.settings.touch_scale, 1.5), "Touch size survives settings reload")
+	GameState.new_journey()
+	check(is_equal_approx(GameState.settings.touch_scale, 1.5), "New journey preserves the preferred touch size")
+	var config := ConfigFile.new()
+	config.load(SaveManager.SETTINGS_PATH)
+	config.erase_section_key("settings", "touch_scale")
+	config.save(SaveManager.SETTINGS_PATH)
+	SaveManager.load_settings()
+	check(is_equal_approx(GameState.settings.touch_scale, 1.0), "Older settings without touch size restore the standard layout")
+	config.set_value("settings", "touch_scale", "bad value")
+	config.save(SaveManager.SETTINGS_PATH)
+	GameState.settings.touch_scale = 1.5
+	SaveManager.load_settings()
+	check(is_equal_approx(GameState.settings.touch_scale, 1.0), "Malformed saved touch size falls back instead of retaining stale preference")
+	for entry in [[-4.0, 1.0], [9.0, 1.5], [NAN, 1.0], [INF, 1.0], [1.28, 1.25]]:
+		GameState.settings.touch_scale = entry[0]
+		SaveManager.save_settings()
+		GameState.settings.touch_scale = 1.0
+		SaveManager.load_settings()
+		check(is_equal_approx(GameState.settings.touch_scale, entry[1]), "Touch size normalizes before persistence: " + str(entry[0]))
+	app._resume()
+	app.bike.stop()
+	var touch: TouchControls = app.ui.touch
+	for dimensions in [Vector2(1280, 720), Vector2(1600, 720), Vector2(960, 540)]:
+		get_viewport().size = Vector2i(dimensions)
+		await frames(3)
+		app.ui.apply_safe_area(Rect2(Vector2(64, 24), get_viewport().get_visible_rect().size - Vector2(96, 48)))
+		for scale_value in [1.0, 1.25, 1.5]:
+			GameState.settings.touch_scale = scale_value
+			SaveManager.save_settings()
+			await frames(3)
+			var contained := true
+			var disjoint := true
+			var prompt_clear := true
+			for action in touch.zones:
+				var rect: Rect2 = touch.zones[action]
+				contained = contained and Rect2(Vector2.ZERO, touch.size).encloses(rect)
+				prompt_clear = prompt_clear and not app.ui.prompt.get_rect().intersects(rect)
+				for other in touch.zones:
+					if other != action:
+						disjoint = disjoint and not rect.intersects(touch.zones[other])
+			check(contained and disjoint and prompt_clear, "Scaled controls fit safe area and leave interaction clear: %s / %.0f%%" % [dimensions, scale_value * 100])
+			var throttle: Vector2 = touch.get_global_transform_with_canvas() * touch.zones.accelerate.get_center()
+			var left: Vector2 = touch.get_global_transform_with_canvas() * touch.zones.steer_left.get_center()
+			Input.parse_input_event(touch_event(61, throttle))
+			Input.parse_input_event(touch_event(62, left))
+			await frames(2)
+			check(Input.is_action_pressed("accelerate") and Input.is_action_pressed("steer_left"), "Scaled screen coordinates retain simultaneous throttle/steering: %s / %.0f%%" % [dimensions, scale_value * 100])
+			touch.release_all()
+			app.bike.stop()
+			if scale_value == 1.5:
+				await capture("input_touch_largest_%d" % dimensions.x)
+	# canvas_items keeps logical coordinates at the project's baseline even
+	# when the native window is smaller. Constrain logical bounds explicitly.
+	app.ui.apply_safe_area(Rect2(Vector2(64, 24), Vector2(640, 400)))
+	await frames(3)
+	check(touch.effective_scale < touch.requested_scale and is_equal_approx(GameState.settings.touch_scale, 1.5) and Rect2(Vector2.ZERO, touch.size).encloses(touch.zones.accelerate), "Constrained logical safe area fits controls without overwriting size preference")
+	touch._update_finger(71, touch.zones.accelerate.get_center())
+	GameState.settings.sfx = 0.4
+	SaveManager.save_settings()
+	check(Input.is_action_pressed("accelerate"), "Unrelated settings changes do not drop held touch input")
+	GameState.settings.touch_scale = 1.0
+	SaveManager.save_settings()
+	check(touch.fingers.is_empty() and not Input.is_action_pressed("accelerate"), "Changing touch size releases stale finger ownership")
+	check(FileAccess.get_file_as_string(SaveManager.SAVE_PATH) == save_before, "Touch preferences and preview never modify the story checkpoint")
+	GameState.settings.sfx = GameState.DEFAULT_SETTINGS.sfx

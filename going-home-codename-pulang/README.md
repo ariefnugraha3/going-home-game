@@ -54,6 +54,16 @@ Interaction and phone notification hints follow the selected controls or switch 
 
 M2 validation covered **93 story + 34 practice + 44 input checks (171 total)**. See the [validation record](docs/test/VALIDATION.md) and [M2 platform checklist](docs/test/M2_PLAYTEST.md). M2 remains in progress until browser and physical Android gates pass.
 
+## Touch button sizes · M2/M5 update, 2026-09-27
+
+Open **Settings & accessibility → Touch button size** to choose **Standard (100%)**, **Larger (125%)**, or **Largest (150%)**. The scrollable settings page includes a live, noninteractive preview. The same preference applies to story and practice riding; **Show touch controls** lets you inspect it on desktop too.
+
+The four riding buttons and their labels scale together. Their layout fits the safe area, reducing the effective size when necessary while retaining your chosen preference. The interaction button moves above the riding controls. Resizing or changing button size releases existing touches so old finger positions cannot keep accelerating or steering. Volume changes leave held controls alone.
+
+The preference persists in `settings.cfg`, survives New Game, and never modifies the journey checkpoint. Older settings use Standard; invalid values fall back or normalize to the supported sizes. This update scales riding touch buttons; full menu/HUD scaling and customizable button positions remain future work. Physical Android ergonomics and browser acceptance remain pending in the [M2 checklist](docs/test/M2_PLAYTEST.md).
+
+Local validation: **590 combined checks passed** at fixed 30 render cadence, including **79 input checks**. The same 79 input checks passed in native Godot capped at 30 FPS, with the settings preview and large-button layouts inspected at 1280×720, 1600×720 and 960×540 window sizes. Automated touch input and desktop captures do not establish physical-device comfort.
+
 ## Phone and story inspection · M3 update
 
 Messages now arrive through a separate `PhoneDataService`, using story conditions and `delay_seconds` in `data/phone/messages.json`. Delivery time advances during riding, scenic stops, and the chapter ending; cutscenes, dialogue, transitions, pause, and open menus freeze it. Delivered messages wait for a free banner slot and appear in delivery order. The Phone button shows an unread count; opening Messages or Email marks the delivered entries in that section read and suppresses their queued banners. Phone home leaves both sections unread.
@@ -196,6 +206,8 @@ Based on the [Development Roadmap v1](../PULANG_Development_Roadmap_v1.md). Stat
 - [x] Add persistent keyboard remapping, conflict validation, cancel/reset controls, and input-aware interaction/phone hints.
 - [x] Add safe-area UI insets, responsive touch-zone layout, and cleanup on hiding, resizing, focus loss, and backgrounding.
 - [x] Test remapped physical keys in the shared bike controller, settings persistence, touch event routing, and simulated 16:9, 20:9, and 4:3 safe rectangles.
+- [x] Add persistent 100%/125%/150% riding touch-button sizes, a noninteractive settings preview, safe-area fitting, and interaction-button repositioning.
+- [x] Test all sizes with simultaneous touch steering/throttle, settings reload and New Game, legacy/invalid values, constrained layouts, and held-input cleanup.
 - [ ] Validate browser keyboard focus, fullscreen, audio activation, and save persistence in an iframe.
 - [ ] Validate touch ergonomics, safe areas, and the same gameplay loop on physical Android devices.
 
