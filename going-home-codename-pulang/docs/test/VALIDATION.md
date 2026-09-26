@@ -1,5 +1,25 @@
 # Validation record
 
+## M4/M5 interface sound set - 2026-09-27
+
+Godot **4.7.2.stable.official.ed1daf0bf**, Compatibility; native Windows / NVIDIA RTX 3050 Laptop GPU with a 30 FPS cap preserved through settings save/load.
+
+| Check | Result |
+| --- | --- |
+| Combined headless suites, fixed 30 render cadence | **96 Story + 34 Practice + 79 Input + 60 Narrative + 52 Mood + 71 Audio + 142 Cinematic + 79 Phone = 613 checks, 0 failures** |
+| Native Audio suite, actual 30 FPS cap | **76 checks, 0 failures**; includes live playback, pause state, loop retention, UI playback clock and SFX bus sample meter |
+| UI resources and routing | Three nonlooping 100–180 ms WAVs; one UI playback voice; UI sends to the earlier SFX bus, then Master |
+| Activation and callbacks | Keyboard Enter activates Settings and unlocks audio; selector/back/confirmation callbacks emit their intended cue and original action; programmatic screen construction/focus stays silent |
+| Pause, repetition and lifecycle | Feedback plays and advances while paused; 80 ms repeat interval; muted/unknown/background requests discarded; focus loss stops UI audio; returning never replays it |
+| Story/input isolation | Story Escape pause/return emits correct cues; rate limiting never suppresses button callbacks; UI feedback/settings leave checkpoint bytes unchanged; existing narrative/input/phone suites pass |
+| Source WAV checks | Mono 22,050 Hz PCM; measured peaks 0.2210–0.2435 full scale, RMS 0.0794–0.0923; first samples zero and final samples within 2 PCM units of zero; no clipping |
+| Resource PCK export and independent boot | **Pass**, 1,273,528 bytes; all three imported UI samples included; packed main scene boots outside the source project and exits 0 after 120 frames |
+| Human listening and actual Web/Android audio | **Pending**, see [interface feedback review](M4_PLAYTEST.md#interface-feedback-review) |
+
+Reproduce with `powershell -ExecutionPolicy Bypass -File tools/test.ps1 -Suite All -FixedFps 30` and `powershell -ExecutionPolicy Bypass -File tools/test.ps1 -Suite Audio -Visual -FixedFps 30`. Native log: `.godot-test/AudioTests-ui-native30.log`; export/boot logs: `.godot-test/ui-audio-export.log` and `ui-audio-pack-boot.log` (ignored).
+
+The native Audio runner now retains the requested FPS in settings so preference reloads cannot silently restore 60 FPS during a 30 FPS test. Bus order explicitly places SFX before UI; native meter coverage verifies samples reach SFX rather than only checking the send's name. Final runs have no game parser/runtime errors; the pre-existing sandbox certificate-store startup error remains. Waveform inspection and native playback validate technical behavior, not perceived timbre, balance, browser gesture policy, physical phone speakers or final mix acceptance. The PCK is not an HTML5/APK build.
+
 ## M2/M5 touch button sizes - 2026-09-27
 
 Godot **4.7.2.stable.official.ed1daf0bf**, Compatibility. Native Windows checks use the NVIDIA RTX 3050 Laptop GPU with an actual 30 FPS cap.

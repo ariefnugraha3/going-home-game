@@ -124,13 +124,19 @@ func _paragraph(parent: Node, text: String, font_size: int = 22, color: Color = 
 	label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	return label
 
-func _button(parent: Node, title: String, callback: Callable) -> Button:
+func play_ui_feedback(cue: String = "select") -> void:
+	AudioManager.unlock()
+	AudioManager.ui_event(cue)
+
+func _button(parent: Node, title: String, callback: Callable, cue: String = "select") -> Button:
 	var button := Button.new()
 	button.text = title
 	button.custom_minimum_size.y = 48
 	button.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 	parent.add_child(button)
-	button.pressed.connect(callback)
+	button.pressed.connect(func():
+		play_ui_feedback(cue)
+		callback.call())
 	return button
 
 func _clear(next_mode: String) -> void:
@@ -228,8 +234,8 @@ func main_menu() -> void:
 func confirm_new() -> void:
 	_clear("confirm_new")
 	var box := _panel("Start again?", "Your current journey checkpoint will be replaced. Your settings will stay the same.")
-	_button(box, "Begin a new journey", func(): action_requested.emit("new_confirmed"))
-	_button(box, "Keep my journey", main_menu).grab_focus()
+	_button(box, "Begin a new journey", func(): action_requested.emit("new_confirmed"), "confirm")
+	_button(box, "Keep my journey", main_menu, "back").grab_focus()
 
 func _build_hud() -> void:
 	hud = Control.new()
@@ -307,7 +313,7 @@ func _position_interaction() -> void:
 func show_pause() -> void:
 	_clear("pause")
 	var box := _panel("A moment by the road", "Your journey waits for you.")
-	_button(box, "Continue riding", func(): action_requested.emit("resume")).grab_focus()
+	_button(box, "Continue riding", func(): action_requested.emit("resume"), "back").grab_focus()
 	_button(box, "Settings & accessibility", show_settings)
 	_button(box, "Controls", show_controls)
 	if story_debug_available():
@@ -326,6 +332,7 @@ func show_settings() -> void:
 		toggle.button_pressed = GameState.settings[entry[1]]
 		box.add_child(toggle)
 		toggle.toggled.connect(func(value: bool):
+			play_ui_feedback()
 			GameState.settings[entry[1]] = value
 			SaveManager.save_settings())
 	_label(box, "Touch button size", 22, GOLD)
@@ -337,6 +344,7 @@ func show_settings() -> void:
 	touch_size.custom_minimum_size.y = 48
 	box.add_child(touch_size)
 	touch_size.item_selected.connect(func(index: int):
+		play_ui_feedback()
 		GameState.settings.touch_scale = 1.0 + index * 0.25
 		SaveManager.save_settings())
 	_paragraph(box, "Preview only. Buttons fit the available safe area; smaller screens may limit their size.", 18, MUTED)
@@ -370,6 +378,7 @@ func show_settings() -> void:
 	quality.custom_minimum_size.y = 44
 	box.add_child(quality)
 	quality.item_selected.connect(func(index: int):
+		play_ui_feedback()
 		GameState.settings.quality = index
 		SaveManager.save_settings())
 	var limit := CheckButton.new()
@@ -377,6 +386,7 @@ func show_settings() -> void:
 	limit.button_pressed = GameState.settings.fps_limit == 30
 	box.add_child(limit)
 	limit.toggled.connect(func(value: bool):
+		play_ui_feedback()
 		GameState.settings.fps_limit = 30 if value else 60
 		SaveManager.save_settings())
 	var text_size := CheckButton.new()
@@ -384,10 +394,11 @@ func show_settings() -> void:
 	text_size.button_pressed = GameState.settings.text_size > 22
 	box.add_child(text_size)
 	text_size.toggled.connect(func(value: bool):
+		play_ui_feedback()
 		GameState.settings.text_size = 28 if value else 22
 		SaveManager.save_settings())
 	_button(box, "Keyboard controls", show_controls)
-	_button(box, "Back", func(): action_requested.emit("back"))
+	_button(box, "Back", func(): action_requested.emit("back"), "back")
 
 func show_controls() -> void:
 	_clear("controls")
@@ -404,7 +415,7 @@ func show_controls() -> void:
 		var saved := InputModeManager.reset_bindings()
 		show_controls()
 		toast("Default keyboard controls restored." if saved else "Defaults applied for this session, but settings could not be saved."))
-	_button(box, "Back", func(): action_requested.emit("back"))
+	_button(box, "Back", func(): action_requested.emit("back"), "back")
 
 func _begin_binding(action: String, button: Button) -> void:
 	if is_instance_valid(capture_button) and not capture_action.is_empty():
@@ -439,7 +450,7 @@ func show_credits() -> void:
 	_clear("credits")
 	var box := _panel("PULANG", "A long ride home across Java.")
 	_paragraph(box, "Based on the PULANG GDD v2, TDD v1, and Development Roadmap v1.\n\nBuilt with Godot Engine 4.7.2.\nOriginal low-poly geometry and synthesized placeholder audio created for this project.\nGodot's bundled font: Noto Sans.\n\nMotorcycle design reference: Suzuki Thunder 250 (2000). No affiliation or endorsement.\n\nThis playable development slice follows Raka from Jakarta to his first night in Karawang. The remaining journey is still in development.", 22)
-	_button(box, "Back", func(): action_requested.emit("back"))
+	_button(box, "Back", func(): action_requested.emit("back"), "back")
 
 func show_phone(section: String = "Home", photo_id: String = "") -> void:
 	if section not in ["Home", "Messages", "Email", "Calls", "Photos"]:
@@ -465,18 +476,18 @@ func show_phone(section: String = "Home", photo_id: String = "") -> void:
 		_button(box, "Journal", func(): show_journal(false, true))
 	elif section == "Photos":
 		if phone_photo_id.is_empty():
-			_button(box, "Back to phone", func(): show_phone()).grab_focus()
+			_button(box, "Back to phone", func(): show_phone(), "back").grab_focus()
 		else:
-			_button(box, "Back to album", func(): show_phone("Photos")).grab_focus()
+			_button(box, "Back to album", func(): show_phone("Photos"), "back").grab_focus()
 		_show_photos(box)
 	else:
-		_button(box, "Back to phone", func(): show_phone()).grab_focus()
+		_button(box, "Back to phone", func(): show_phone(), "back").grab_focus()
 		_label(box, section, 27, GOLD)
 		if section == "Calls":
 			_show_calls(box)
 		else:
 			_show_inbox(box, section)
-	_button(box, "Put the phone away", func(): action_requested.emit("resume"))
+	_button(box, "Put the phone away", func(): action_requested.emit("resume"), "back")
 
 func _photo_image(parent: Control, path: String, minimum: Vector2) -> void:
 	if not ResourceLoader.exists(path):
@@ -534,7 +545,7 @@ func _show_inbox(box: VBoxContainer, channel: String) -> void:
 		else:
 			_button(box, "Reply: " + message.reply, func():
 				phone_service.reply(message.id)
-				show_phone(channel))
+				show_phone(channel), "confirm")
 		box.add_child(HSeparator.new())
 	if is_instance_valid(phone_service):
 		phone_service.mark_inbox_read(channel)
@@ -575,7 +586,7 @@ func show_story_debug() -> void:
 	toast_timer = 0
 	var box := _panel("Story debug", "Read-only session state. Refresh to inspect changes; nothing here edits or saves the journey.")
 	_button(box, "Refresh", show_story_debug).grab_focus()
-	_button(box, "Back", func(): action_requested.emit("back"))
+	_button(box, "Back", func(): action_requested.emit("back"), "back")
 	_paragraph(box, "Chapter: %s   /   Checkpoint: %s\nActive dialogue: %s" % [GameState.chapter, GameState.checkpoint, DialogueManager.active_id], 18, GOLD)
 	var filter := LineEdit.new()
 	filter.placeholder_text = "Filter flag names or values"
@@ -605,9 +616,9 @@ func show_map(from_phone: bool = false) -> void:
 	_paragraph(box, "Fuel station  ·  Rice-field turnout  ·  Sari's warung  ·  Guesthouse\n\nStop by the warung when the rain comes. The guesthouse is just beyond the fields.", 22)
 	_paragraph(box, "Beyond this chapter\n" + "  →  ".join(chapter_data.route.slice(2)), 18, MUTED)
 	if from_phone:
-		_button(box, "Back to phone", func(): show_phone())
+		_button(box, "Back to phone", func(): show_phone(), "back")
 	else:
-		_button(box, "Fold the map", func(): action_requested.emit("resume"))
+		_button(box, "Fold the map", func(): action_requested.emit("resume"), "back")
 
 func show_journal(write: bool = false, from_phone: bool = false) -> void:
 	_clear("reflection" if write else "journal")
@@ -617,7 +628,7 @@ func show_journal(write: bool = false, from_phone: bool = false) -> void:
 	if write:
 		_paragraph(box, data.prompt, 27, GOLD)
 		for option in data.options:
-			_button(box, option.text, func(): journal_selected.emit(option.id, option.text))
+			_button(box, option.text, func(): journal_selected.emit(option.id, option.text), "confirm")
 	elif GameState.journal.has(data.id):
 		_paragraph(box, data.prompt, 24, GOLD)
 		_paragraph(box, GameState.journal[data.id].text, 26)
@@ -625,9 +636,9 @@ func show_journal(write: bool = false, from_phone: bool = false) -> void:
 		_paragraph(box, "An empty page. I'll write something when I stop for the night.", 25, MUTED)
 	if not write:
 		if from_phone:
-			_button(box, "Back to phone", func(): show_phone())
+			_button(box, "Back to phone", func(): show_phone(), "back")
 		else:
-			_button(box, "Close the journal", func(): action_requested.emit("resume"))
+			_button(box, "Close the journal", func(): action_requested.emit("resume"), "back")
 
 func show_cinematic(title: String, subtitle: String, text: String) -> void:
 	_clear("cinematic")
@@ -680,7 +691,7 @@ func show_dialogue(line: Dictionary) -> void:
 		_button(dialogue_box, "Continue  →", func(): DialogueManager.advance()).grab_focus()
 	else:
 		for i in range(line.choices.size()):
-			var button := _button(dialogue_box, line.choices[i].text, func(): DialogueManager.advance(i))
+			var button := _button(dialogue_box, line.choices[i].text, func(): DialogueManager.advance(i), "confirm")
 			button.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 			if i == 0:
 				button.grab_focus()

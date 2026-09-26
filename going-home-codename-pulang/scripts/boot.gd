@@ -309,17 +309,23 @@ func _unhandled_input(event: InputEvent) -> void:
 		return
 	if event.is_action_pressed("pause"):
 		if ui.phone_back():
-			pass
+			ui.play_ui_feedback("back")
 		elif ui.mode in ["settings", "controls", "credits", "confirm_new", "story_debug"]:
+			ui.play_ui_feedback("back")
 			_on_action("back")
 		elif get_tree().paused:
+			ui.play_ui_feedback("back")
 			_resume()
 		else:
 			_pause()
+			if get_tree().paused:
+				ui.play_ui_feedback()
 		get_viewport().set_input_as_handled()
 	elif state == "riding" and not get_tree().paused:
 		for pair in [["open_phone", "phone"], ["open_journal", "journal"], ["open_map", "map"], ["interact", "interact"], ["recover", "recover"]]:
 			if event.is_action_pressed(pair[0]):
+				if pair[1] in ["phone", "journal", "map"]:
+					ui.play_ui_feedback()
 				_on_action(pair[1])
 				get_viewport().set_input_as_handled()
 

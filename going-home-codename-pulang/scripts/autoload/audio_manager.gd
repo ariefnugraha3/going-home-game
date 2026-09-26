@@ -17,6 +17,9 @@ var roof: AudioStreamPlayer
 var music: AudioStreamPlayer
 var ignition: AudioStreamPlayer
 var cooldown: AudioStreamPlayer
+var ui_player: AudioStreamPlayer
+var ui_streams: Dictionary = {}
+var ui_cooldown: float = 0
 var soundscape: Dictionary
 var context: String = "menu"
 var sheltered: bool = false
@@ -24,13 +27,22 @@ var focus_suspended: bool = false
 var current_cue: String = ""
 var cue_remaining: float = 0
 signal vehicle_cue_played(id: String)
+signal ui_cue_played(id: String)
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
-	for bus in ["Music", "Ambience", "Vehicle", "Dialogue", "UI", "SFX"]:
+	# Sends flow to an earlier bus in Godot's mixer order.
+	for bus in ["Music", "Ambience", "Vehicle", "Dialogue", "SFX", "UI"]:
 		AudioServer.add_bus()
 		AudioServer.set_bus_name(AudioServer.bus_count - 1, bus)
 	soundscape = JSON.parse_string(FileAccess.get_file_as_string("res://data/audio/soundscape.json"))
+	# UI feedback remains available in paused menus and shares the SFX slider.
+	AudioServer.set_bus_send(AudioServer.get_bus_index("UI"), "SFX")
+	ui_player = AudioStreamPlayer.new()
+	ui_player.bus = "UI"
+	add_child(ui_player)
+	for id in soundscape.ui:
+		ui_streams[id] = load(soundscape.ui[id].path)
 	idle = _player("res://assets/audio/bike_idle.wav", "Vehicle")
 	load_loop = _player("res://assets/audio/bike_load.wav", "Vehicle")
 	wind = _player("res://assets/audio/wind.wav", "Ambience")
@@ -116,6 +128,21 @@ func vehicle_event(id: String) -> bool:
 	vehicle_cue_played.emit(id)
 	return true
 
+func ui_event(id: String) -> bool:
+	if not unlocked or focus_suspended or ui_cooldown > 0 or not ui_streams.has(id):
+		return false
+	_set_bus_level("Master", GameState.settings.master)
+	_set_bus_level("SFX", GameState.settings.sfx)
+	if GameState.settings.master <= 0 or GameState.settings.sfx <= 0:
+		return false
+	ui_player.stream = ui_streams[id]
+	ui_player.volume_db = soundscape.ui[id].gain_db
+	ui_cooldown = 0.08
+	if DisplayServer.get_name() != "headless":
+		ui_player.play()
+	ui_cue_played.emit(id)
+	return true
+
 func reset_scene_audio() -> void:
 	stop_music()
 	ignition.stop()
@@ -133,6 +160,7 @@ func _process(delta: float) -> void:
 	update_mix(delta)
 
 func update_mix(delta: float) -> void:
+	ui_cooldown = maxf(0, ui_cooldown - maxf(0, delta))
 	_set_bus_level("Master", GameState.settings.master)
 	_set_bus_level("Vehicle", GameState.settings.vehicle)
 	_set_bus_level("Ambience", GameState.settings.ambience)
@@ -167,12 +195,15 @@ func rain_volume_target() -> float:
 	return -60.0 if rain_target <= 0 else -20.0 + linear_to_db(clampf(rain_target, 0.001, 1))
 
 func _exit_tree() -> void:
-	for player in ambient_players() + [music, ignition, cooldown]:
+	for player in ambient_players() + [music, ignition, cooldown, ui_player]:
 		player.stop()
 		player.stream = null
 
 func _notification(what: int) -> void:
 	if what in [NOTIFICATION_APPLICATION_FOCUS_OUT, NOTIFICATION_APPLICATION_PAUSED]:
 		focus_suspended = true
+		if is_instance_valid(ui_player):
+			ui_player.stop()
+		ui_cooldown = 0
 	elif what in [NOTIFICATION_APPLICATION_FOCUS_IN, NOTIFICATION_APPLICATION_RESUMED]:
 		focus_suspended = false

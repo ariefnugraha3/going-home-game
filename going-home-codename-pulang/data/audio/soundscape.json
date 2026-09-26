@@ -13,6 +13,11 @@
     {"from": 1080, "to": 1180, "zone": "warung"},
     {"from": 1600, "to": 1800, "zone": "roadside"}
   ],
+  "ui": {
+    "select": {"path": "res://assets/audio/ui_select.wav", "gain_db": -15.0},
+    "confirm": {"path": "res://assets/audio/ui_confirm.wav", "gain_db": -15.0},
+    "back": {"path": "res://assets/audio/ui_back.wav", "gain_db": -15.0}
+  },
   "music": {
     "first_night": {"path": "res://assets/audio/first_night.wav", "gain_db": -22.0}
   }

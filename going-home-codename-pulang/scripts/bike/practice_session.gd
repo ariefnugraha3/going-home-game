@@ -115,6 +115,7 @@ func _unhandled_input(event: InputEvent) -> void:
 	if event.is_echo() or leaving:
 		return
 	if event.is_action_pressed("pause"):
+		ui.play_ui_feedback("back" if get_tree().paused else "select")
 		if ui.mode in ["settings", "sections", "controls", "atmosphere"]:
 			_pause()
 		elif get_tree().paused:

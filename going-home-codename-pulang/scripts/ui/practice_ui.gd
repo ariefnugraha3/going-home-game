@@ -36,7 +36,7 @@ func show_pause() -> void:
 	_clear("pause")
 	var box := _panel("A little riding practice", "Explore at your own pace. Your story progress stays where you left it.")
 	_paragraph(box, session_summary, 20, GOLD)
-	_button(box, "Continue practicing", func(): action_requested.emit("resume")).grab_focus()
+	_button(box, "Continue practicing", func(): action_requested.emit("resume"), "back").grab_focus()
 	_button(box, "Choose a road section", func(): action_requested.emit("sections"))
 	_button(box, "Settings & accessibility", show_settings)
 	_button(box, "Controls", show_controls)
@@ -51,7 +51,7 @@ func show_sections() -> void:
 	var box := _panel("Find your rhythm", "Try a section again, or ride the full road from the start.")
 	for section in sections:
 		_button(box, section.name, func(): action_requested.emit("section:" + section.id))
-	_button(box, "Back", func(): action_requested.emit("back"))
+	_button(box, "Back", func(): action_requested.emit("back"), "back")
 
 func show_atmosphere() -> void:
 	_clear("atmosphere")
@@ -59,7 +59,7 @@ func show_atmosphere() -> void:
 	for id in WeatherProfile.IDS:
 		var profile: WeatherProfile = weather_profiles[id]
 		_button(box, profile.display_name, func(): action_requested.emit("atmosphere:" + id))
-	_button(box, "Back", func(): action_requested.emit("back"))
+	_button(box, "Back", func(): action_requested.emit("back"), "back")
 
 func show_rest() -> void:
 	_clear("practice_rest")

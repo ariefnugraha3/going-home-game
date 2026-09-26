@@ -32,10 +32,26 @@ The test helper isolates player storage. Mood tests check resource references, e
 - [ ] Start from a fresh title: silence before the first user gesture. Ride from city to fields, then stop at the warung: traffic should blend down, crockery appear without restarting ambience, and rain sound sheltered. No roof rain in dry weather.
 - [ ] Compare idle, acceleration, braking, actual stop and restart. Wind should fade out at rest. Check ignition/cooldown balance; pause/resume must not replay ignition. Recorded brake/mechanical detail remains future work.
 - [ ] Finish the guesthouse conversation: the sparse 24-second phrase should support reflection and then leave silence. Choose a journal entry mid-phrase; it should continue. Return to title or start practice; music must stop. Continue at rest/completion must not restart it.
-- [ ] Adjust all five audio sliders, including zero, and restart the game. Check independent Music/SFX settings persist without changing the journey checkpoint.
+- [ ] Adjust all six audio sliders, including zero, and restart the game. Check independent Music/SFX settings persist without changing the journey checkpoint.
 - [ ] Pause and background during music or ignition: no cue progression while suspended, no output while backgrounded, and no new cue on resume. Repeat in a browser iframe and on physical Android after exports are available.
 - [ ] Listen on headphones and phone speakers at comfortable volume: assess melody audibility, harshness, loop seams/repetition, traffic masking, indoor leakage and rain balance. Record findings; numerical/native playback tests cannot approve this mix.
 
 `powershell -ExecutionPolicy Bypass -File tools/test.ps1 -Suite Audio -Visual -FixedFps 30`
 
 Audio tests cover activation, regional crossfades, shelter/weather mixing, bus mute and settings/save isolation, non-looping music, pause/focus suspension, scene cleanup, actual stop/restart and Continue deduplication. Headless tests check state and gains; native tests additionally check live stream playback, pause state and retained loop position. Settings capture: `tests/screenshots/audio_settings.png` (ignored).
+
+## Interface feedback review
+
+`data/audio/soundscape.json` defines three UI cues and gains. `tools/generate_ui_audio.py` generates original mono 22,050 Hz PCM WAVs with short attack/release envelopes: select (100 ms), confirm (180 ms), back (120 ms). Run `python tools/generate_ui_audio.py`, then reimport in Godot. Existing import metadata/UIDs are retained. No external audio library or recording is used.
+
+`GameUI._button` plays the assigned cue before invoking its original callback; selectors/toggles and explicit keyboard navigation also trigger feedback. Showing a panel, focus movement, hover, slider dragging, and notifications do not trigger tones. `AudioManager.ui_event` requires activation, accepts paused menus, rejects background/muted/unknown events, and uses a single UI player with an 80 ms minimum interval. Rejected sounds never block the UI action or enter a queue. The UI bus sends to SFX, then Master. Focus loss stops the short UI tone; scene transitions can let its remaining tail finish. These tones indicate input/selection, not successful checkpoint writes.
+
+- [ ] Start with a fresh title and activate Settings using keyboard, mouse and touch. Confirm silence beforehand and exactly one subtle cue after activation.
+- [ ] Compare select, confirm and back on menus, phone album, replies, dialogue choices and journal options. Review volume relative to the engine, rain and quiet interior scenes.
+- [ ] Open and close pause by Escape in story and practice; browse while paused. UI feedback should remain available without restarting the engine.
+- [ ] Set SFX and Master to zero separately. Menu interactions must remain functional and quiet; raising the slider must not replay missed sounds.
+- [ ] Navigate rapidly, hold a key, hover and drag volume sliders. No layered tones or continuous chatter; all intended menu actions still work.
+- [ ] Background/return during feedback. No continuing UI tone or replay when focus returns. Repeat browser user-gesture activation in an iframe/fullscreen and on Android.
+- [ ] Listen on headphones and phone speakers. Record harshness, distraction, audibility and desired gain changes; prototype tones and numerical waveform checks are not final mix acceptance.
+
+The Audio suite covers imported nonlooping streams, routing, repeat limiting, zero-volume/background suppression, paused native playback, keyboard menu activation, real button/selector callbacks, Escape navigation and checkpoint isolation. The native test preserves its requested FPS setting through settings save/load. Human listening and actual platform acceptance remain pending.
