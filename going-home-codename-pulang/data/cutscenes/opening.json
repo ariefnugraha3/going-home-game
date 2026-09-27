@@ -7,7 +7,7 @@
     "characters": [
       "Raka"
     ],
-    "audio_priority": "location ambience; no underscore",
+    "audio_priority": "location ambience and sparse diegetic cues; no underscore",
     "shots": [
       {
         "shot_id": "alarm",
@@ -28,7 +28,13 @@
         "movement": "static",
         "transition": "cut",
         "actor": false,
-        "performance": "rest"
+        "performance": "rest",
+        "audio": [
+          {
+            "cue": "alarm",
+            "at": 0.15
+          }
+        ]
       },
       {
         "shot_id": "room",
@@ -156,7 +162,7 @@
       "Raka",
       "Nadia"
     ],
-    "audio_priority": "location ambience; no underscore",
+    "audio_priority": "location ambience and sparse diegetic cues; no underscore",
     "shots": [
       {
         "shot_id": "hr_message",
@@ -179,7 +185,13 @@
         "screen": "PEOPLE TEAM\nMeeting room 03\nWhen you have a moment.",
         "actor": false,
         "performance": "listen",
-        "npc_performance": "listen"
+        "npc_performance": "listen",
+        "audio": [
+          {
+            "cue": "message",
+            "at": 0.25
+          }
+        ]
       },
       {
         "shot_id": "meeting_room",
@@ -239,7 +251,7 @@
     "characters": [
       "Raka"
     ],
-    "audio_priority": "location ambience; no underscore",
+    "audio_priority": "location ambience and sparse diegetic cues; no underscore",
     "shots": [
       {
         "shot_id": "badge_return",
@@ -317,7 +329,7 @@
     "characters": [
       "Raka"
     ],
-    "audio_priority": "location ambience; no underscore",
+    "audio_priority": "location ambience and sparse diegetic cues; no underscore",
     "shots": [
       {
         "shot_id": "evening_wide",
@@ -406,7 +418,13 @@
         "transition": "cut",
         "phone": "Mom",
         "actor": false,
-        "performance": "rest"
+        "performance": "rest",
+        "audio": [
+          {
+            "cue": "phone",
+            "at": 0.2
+          }
+        ]
       },
       {
         "shot_id": "call_profile",
@@ -440,7 +458,7 @@
     "characters": [
       "Raka"
     ],
-    "audio_priority": "location ambience; no underscore",
+    "audio_priority": "location ambience and sparse diegetic cues; no underscore",
     "shots": [
       {
         "shot_id": "morning_light",
@@ -483,7 +501,17 @@
         "transition": "cut",
         "packing": true,
         "actor": true,
-        "performance": "pack"
+        "performance": "pack",
+        "audio": [
+          {
+            "cue": "fabric",
+            "at": 1.6
+          },
+          {
+            "cue": "fabric",
+            "at": 3.3
+          }
+        ]
       },
       {
         "shot_id": "route",
@@ -528,7 +556,13 @@
         "transition": "cut",
         "location": "parking",
         "luggage": true,
-        "performance": "rest"
+        "performance": "rest",
+        "audio": [
+          {
+            "cue": "memory_motor",
+            "at": 4.4
+          }
+        ]
       },
       {
         "shot_id": "father_memory",

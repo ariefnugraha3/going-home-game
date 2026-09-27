@@ -136,13 +136,23 @@ The authored shot durations total **101 seconds**, excluding dialogue, commute, 
 
 Prior cinematic update validation: **424 combined checks passed** at fixed 30 render cadence, including **92 cinematic checks**. The same 92 cinematic checks also passed with native rendering capped at 30 FPS. Representative phone/laptop, packing, night, cluster and departure/title captures were inspected. Human pacing, final art and Web/Android acceptance remain pending.
 
+## Cinematic sound cues · M5 update, 2026-09-27
+
+The opening now has five original synthesized sound sketches: a morning alarm, HR notification, Mom's ringtone, packing fabric, and a soft motorcycle/air memory bridge. Six events are timed in the authored shots. The four-second motorcycle cue begins 0.6 seconds before the father/child insert, continues through its two seconds, and fades over the first 1.4 seconds of the present-day title shot. Location ambience continues underneath; no new music or voice acting is added.
+
+Cinematic sound follows **Sound effects** and **Master** volume. Pause and backgrounding freeze picture and sound together. Skip, sequence replacement, cancellation and completion clear active sounds; muted or expired events never replay when volume returns. A two-voice pool keeps overlapping tails bounded. Continue uses the existing stable checkpoint and can replay its sequence normally; sound adds no save fields.
+
+Cue timing lives in `data/cutscenes/opening.json`, with asset paths/gains in `data/audio/cinematic.json`. Regenerate the five nonlooping WAVs with `python tools/generate_cinematic_audio.py`. These are prototype synthesis, with final recordings, contact timing and human listening review still pending in the [M5 cinematic guide](docs/test/M5_CINEMATIC_PLAYTEST.md#cinematic-sound-pass).
+
+Local validation: **693 combined checks passed** at fixed 30 render cadence, including **39 cinematic audio checks**. The native cinematic audio suite passed **45 checks** at a 30 FPS cap, including actual SFX output and playback pause/resume. The resource PCK exports and boots independently. Human listening and real Web/Android acceptance remain pending.
+
 ## Character performances and memory - M5 update, 2026-09-25
 
 The opening characters now have articulated head, shoulder and elbow joints driven by six original `AnimationPlayer` clips: rest, listening, lifting the phone, reaching during packing, riding and passenger poses. The director samples each clip at the shot's current progress. Pause freezes the pose, and skipping any shot restores the same final pose as normal completion. The phone disappears from the desk when the handheld prop appears; Raka holds it during the mother's dialogue.
 
 A **two-second memory insert** before departure shows young Raka behind his father on the motorcycle, with a distinct roadside set and **A MEMORY / With Dad** caption. Both riders use prototype helmet geometry. It returns to present-day parking with the luggage and title reveal. Cinematic bikes hide the first-person arm meshes to avoid duplicate hands. Interior lighting layers and the room wall behind the phone shot are also corrected.
 
-The opening now totals **23 shots / 101 authored seconds** before dialogue, riding, transitions and pauses. These are reusable animation prototypes, not finished character art: skinning, facial/lip animation, walking, waking, complete packing actions, refined hand contact and cinematic sound remain open. The memory uses continuous ambient crossfades; its final authored sound bridge remains pending.
+The opening now totals **23 shots / 101 authored seconds** before dialogue, riding, transitions and pauses. These are reusable animation prototypes, not finished character art: skinning, facial/lip animation, walking, waking, complete packing actions, refined hand contact and final cinematic sound remain open. The memory keeps continuous ambient crossfades and now has the synthesized sound bridge described above; final recorded sound and listening acceptance remain pending.
 
 Local validation: **474 combined checks passed**, including **142 cinematic checks**, at fixed 30 render cadence. The 142 cinematic checks also passed in native Godot at a 30 FPS cap. Phone, packing, father/child and departure poses were inspected in rendered captures. Human animation/comfort review and real Web/Android validation remain pending.
 
@@ -272,6 +282,9 @@ Based on the [Development Roadmap v1](../PULANG_Development_Roadmap_v1.md). Stat
 - [x] Add articulated prototype actors, six director-sampled AnimationPlayer clips, phone prop handoff, and a father/young-Raka memory insert.
 - [x] Test deterministic actor poses after seeking/skipping, pause, dialogue handoff and memory-to-present restoration.
 - [x] Connect the prototype UI sound set across story/practice menus, phone sections, authored choices and keyboard navigation.
+- [x] Add five original cinematic sound prototypes and six timed events, including a motorcycle sound bridge through the father memory.
+- [x] Test sound timing/tails, activation, SFX/Master mute, pause/background, skip/replacement cleanup and save isolation, including native playback.
+- [ ] Review cinematic sound/contact timing on headphones and phone speakers; replace prototypes with final recordings.
 - [ ] Expand and playtest pacing toward the planned 30–60 minute slice.
 - [ ] Finish production-quality opening cutscenes, character animation, hero assets, and audio.
 - [ ] Pass browser, Android, performance, riding-comfort, and narrative acceptance gates.
@@ -356,11 +369,12 @@ powershell -ExecutionPolicy Bypass -File tools/test.ps1 -Suite Narrative -StoryD
 powershell -ExecutionPolicy Bypass -File tools/test.ps1 -Suite Mood -Visual -FixedFps 30
 powershell -ExecutionPolicy Bypass -File tools/test.ps1 -Suite Audio -Visual -FixedFps 30
 powershell -ExecutionPolicy Bypass -File tools/test.ps1 -Suite Cinematic -Visual -FixedFps 30
+powershell -ExecutionPolicy Bypass -File tools/test.ps1 -Suite CinematicAudio -Visual -FixedFps 30
 powershell -ExecutionPolicy Bypass -File tools/test.ps1 -Suite Phone -Visual -FixedFps 30
 powershell -ExecutionPolicy Bypass -File tools/test.ps1 -Suite Interface -Visual -FixedFps 30
 ```
 
-The helper isolates all test saves in `.godot-test/`. **Do not run the test scenes against your normal user profile**: their corruption and new-game cases deliberately replace the test save. The default `-Suite All` runs story, practice, input, narrative, mood, audio, cinematic, phone, and interface sequentially; use `-Suite Story`, `Practice`, `Input`, `Narrative`, `Mood`, `Audio`, `Cinematic`, `Phone`, or `Interface` to select one. `-StoryDebug` enables additional viewer checks in the narrative suite. Headless `-FixedFps` changes simulated render cadence; with `-Visual`, it sets the actual native FPS cap. Physics remains at 60 ticks per second. The helper fails on script errors or a missing success summary, even if the engine exits with code zero.
+The helper isolates all test saves in `.godot-test/`. **Do not run the test scenes against your normal user profile**: their corruption and new-game cases deliberately replace the test save. The default `-Suite All` runs story, practice, input, narrative, mood, audio, cinematic, cinematic audio, phone, and interface sequentially; use `-Suite Story`, `Practice`, `Input`, `Narrative`, `Mood`, `Audio`, `Cinematic`, `CinematicAudio`, `Phone`, or `Interface` to select one. `-StoryDebug` enables additional viewer checks in the narrative suite. Headless `-FixedFps` changes simulated render cadence; with `-Visual`, it sets the actual native FPS cap. Physics remains at 60 ticks per second. The helper fails on script errors or a missing success summary, even if the engine exits with code zero.
 
 The story suite exercises content references, conditions, schema validation, corrupt-save fallback, opening/skip handoff, physical throttle/brake/steering, ground contact, pause, every stop, multitouch action handling, journal persistence, and Continue. The practice suite drives the full track under physics, checks solid-obstacle response, recovery, metrics, save isolation, and real title/practice scene transitions. `-Visual` also captures rendered screenshots under `tests/screenshots/` (ignored by Git). See [Validation record](docs/test/VALIDATION.md) for results and outstanding platform work.
 

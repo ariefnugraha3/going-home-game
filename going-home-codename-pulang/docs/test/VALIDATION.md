@@ -1,5 +1,23 @@
 # Validation record
 
+## M5 cinematic sound timeline - 2026-09-27
+
+Godot **4.7.2.stable.official.ed1daf0bf**, Compatibility; native Windows / NVIDIA RTX 3050 Laptop GPU at a 30 FPS cap.
+
+| Check | Result |
+| --- | --- |
+| Combined headless suites, fixed 30 render cadence | **96 Story + 34 Practice + 79 Input + 60 Narrative + 52 Mood + 71 Audio + 142 Cinematic + 39 CinematicAudio + 79 Phone + 41 Interface = 693 checks, 0 failures** |
+| Native CinematicAudio suite, actual 30 FPS cap | **45 checks, 0 failures**, including SFX sample meter, playback advancement, pause position and resume |
+| Authored data/assets | Five short nonlooping assets, six ordered in-shot events with valid bank references; two SFX voices maximum |
+| Timeline | Offset crossing starts once at the elapsed sample position; stale events discarded; packing gestures both fire; motor bridges straps to memory to present and ends during title |
+| Lifecycle | Activation, mute/unmute, skip, replacement, cancellation, natural completion and director disposal clear or preserve sound as appropriate; background/pause freeze shot and cue clocks |
+| Isolation | No new save fields; snapshot and checkpoint bytes unchanged by sound; existing story/cinematic checkpoint tests pass |
+| Source WAV checks | Mono 22,050 Hz PCM, 0.45–4.0 seconds; peak 0.2200–0.3801 full scale, RMS 0.0604–0.1159, first/last samples zero, no clipping; regeneration byte-identical for all five assets |
+| Resource PCK export / independent boot | **Pass**, 1,720,804 bytes; five imported samples, bank and audio script included; main scene boots outside source project and exits 0 after 120 frames |
+| Human listening, final recording/contact timing, physical Android and real Web | **Pending**, see [cinematic sound review](M5_CINEMATIC_PLAYTEST.md#cinematic-sound-pass) |
+
+Reproduce with `powershell -ExecutionPolicy Bypass -File tools/test.ps1 -Suite All -FixedFps 30` and `powershell -ExecutionPolicy Bypass -File tools/test.ps1 -Suite CinematicAudio -Visual -FixedFps 30`. Native log: `.godot-test/CinematicAudioTests-native30.log`; export/boot logs: `.godot-test/cinematic-audio-export.log` and `cinematic-audio-pack-boot.log` (ignored). All final runs have no game parser/runtime errors; the existing sandbox certificate-store startup error remains. Mixer measurements verify signal flow, not subjective sound quality; native/PCK checks do not certify browser or Android behavior.
+
 ## M2/M5 interface scaling - 2026-09-27
 
 Godot **4.7.2.stable.official.ed1daf0bf**, Compatibility; native Windows / NVIDIA RTX 3050 Laptop GPU at a 30 FPS cap.

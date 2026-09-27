@@ -1,7 +1,7 @@
 param(
     [string]$Godot = 'D:\Godot_v4.7.2-stable_win64.exe\Godot_v4.7.2-stable_win64_console.exe',
     [switch]$Visual,
-    [ValidateSet('Story', 'Practice', 'Input', 'Narrative', 'Mood', 'Audio', 'Cinematic', 'Phone', 'Interface', 'All')][string]$Suite = 'All',
+    [ValidateSet('Story', 'Practice', 'Input', 'Narrative', 'Mood', 'Audio', 'Cinematic', 'CinematicAudio', 'Phone', 'Interface', 'All')][string]$Suite = 'All',
     [switch]$StoryDebug,
     [ValidateSet(30, 60)][int]$FixedFps = 60
 )
@@ -24,6 +24,7 @@ try {
     if ($Suite -in @('Mood', 'All')) { $scenes += 'MoodTests' }
     if ($Suite -in @('Audio', 'All')) { $scenes += 'AudioTests' }
     if ($Suite -in @('Cinematic', 'All')) { $scenes += 'CinematicTests' }
+    if ($Suite -in @('CinematicAudio', 'All')) { $scenes += 'CinematicAudioTests' }
     if ($Suite -in @('Phone', 'All')) { $scenes += 'PhoneTests' }
     if ($Suite -in @('Interface', 'All')) { $scenes += 'InterfaceTests' }
     foreach ($scene in $scenes) {

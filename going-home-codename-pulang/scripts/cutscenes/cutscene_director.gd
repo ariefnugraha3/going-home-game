@@ -5,6 +5,7 @@ signal caption_changed(title: String, subtitle: String, text: String)
 signal finished(id: String)
 var definitions: Dictionary = {}
 var camera: Camera3D
+var sound: CinematicAudio
 var room: CinematicStage
 var active_id: String = ""
 var shot_index: int = 0
@@ -15,6 +16,8 @@ var origin := Vector3(3000, 0, 0)
 
 func _ready() -> void:
 	definitions = JSON.parse_string(FileAccess.get_file_as_string("res://data/cutscenes/opening.json"))
+	sound = CinematicAudio.new()
+	add_child(sound)
 	camera = Camera3D.new()
 	camera.fov = 52
 	camera.cull_mask = 2
@@ -23,6 +26,7 @@ func _ready() -> void:
 func play(id: String) -> void:
 	if not definitions.has(id):
 		return
+	sound.stop()
 	active_id = id
 	shot_index = 0
 	skip_held = 0
@@ -38,10 +42,12 @@ func _build_room(location: String) -> void:
 	add_child(room)
 	room.build(location, active_id == "night")
 
-func _show_shot() -> void:
+func _show_shot(with_audio: bool = true) -> void:
 	elapsed = 0
 	var data: Dictionary = definitions[active_id]
 	var shot: Dictionary = data.shots[shot_index]
+	if with_audio:
+		sound.begin_shot(shot.get("audio", []))
 	var location: String = shot.get("location", data.location)
 	if stage_id != location:
 		_build_room(location)
@@ -71,9 +77,8 @@ func _vector(values: Array) -> Vector3:
 	return Vector3(values[0], values[1], values[2])
 
 func _process(delta: float) -> void:
-	if active_id.is_empty():
+	if active_id.is_empty() or get_tree().paused or AudioManager.focus_suspended:
 		return
-	elapsed += maxf(delta, 0)
 	if Input.is_action_pressed("skip_cutscene"):
 		skip_held += delta
 		if skip_held > 0.8:
@@ -82,6 +87,9 @@ func _process(delta: float) -> void:
 	else:
 		skip_held = 0
 	var shots: Array = definitions[active_id].shots
+	var step := minf(maxf(delta, 0), maxf(0, shots[shot_index].duration - elapsed))
+	elapsed += step
+	sound.advance(step)
 	_apply_shot(clampf(elapsed / shots[shot_index].duration, 0, 1))
 	if elapsed >= shots[shot_index].duration:
 		shot_index += 1
@@ -94,9 +102,10 @@ func finish() -> void:
 	if active_id.is_empty():
 		return
 	var id := active_id
+	sound.stop()
 	# Dialogue handoffs keep this stage visible, including when skipped early.
 	shot_index = definitions[id].shots.size() - 1
-	_show_shot()
+	_show_shot(false)
 	_apply_shot(1.0)
 	for flag in definitions[id].flags:
 		GameState.set_flag(flag, definitions[id].flags[flag])
@@ -104,6 +113,7 @@ func finish() -> void:
 	finished.emit(id)
 
 func clear_room() -> void:
+	sound.stop()
 	if is_instance_valid(room):
 		room.free()
 	room = null

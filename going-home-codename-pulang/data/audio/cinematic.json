@@ -1,0 +1,7 @@
+{
+  "alarm": {"path": "res://assets/audio/cin_alarm.wav", "gain_db": -18.0},
+  "message": {"path": "res://assets/audio/cin_message.wav", "gain_db": -18.0},
+  "phone": {"path": "res://assets/audio/cin_phone.wav", "gain_db": -20.0},
+  "fabric": {"path": "res://assets/audio/cin_fabric.wav", "gain_db": -16.0},
+  "memory_motor": {"path": "res://assets/audio/cin_memory_motor.wav", "gain_db": -18.0}
+}
