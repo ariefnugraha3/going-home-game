@@ -393,6 +393,7 @@ func show_settings() -> void:
 	touch_preview.interactive = false
 	touch_preview.custom_minimum_size.y = 204
 	box.add_child(touch_preview)
+	_touch_position_settings(box)
 	for entry in [["Field of view", "fov", 55.0, 85.0, 1.0], ["Master volume", "master", 0.0, 1.0, 0.05], ["Motorcycle volume", "vehicle", 0.0, 1.0, 0.05], ["Ambience volume", "ambience", 0.0, 1.0, 0.05], ["Music volume", "music", 0.0, 1.0, 0.05], ["Sound effects volume", "sfx", 0.0, 1.0, 0.05]]:
 		var row := HBoxContainer.new()
 		box.add_child(row)
@@ -439,6 +440,39 @@ func show_settings() -> void:
 		SaveManager.save_settings())
 	_button(box, "Keyboard controls", show_controls)
 	_button(box, "Back", func(): action_requested.emit("back"), "back")
+
+func _touch_position_settings(box: VBoxContainer) -> void:
+	_label(box, "Touch button positions", 22, GOLD)
+	_paragraph(box, "Move each pair inward or upward. 100% uses the available room on this screen. The preview updates above; positions stay within the safe area.", 18, MUTED)
+	var sliders: Dictionary = {}
+	var readouts: Dictionary = {}
+	for entry in [["Left controls inward", "left_inset"], ["Left controls upward", "left_height"], ["Right controls inward", "right_inset"], ["Right controls upward", "right_height"]]:
+		var row := HBoxContainer.new()
+		box.add_child(row)
+		_label(row, entry[0], 18).custom_minimum_size.x = 215
+		var slider := HSlider.new()
+		slider.name = "TouchPosition_" + entry[1]
+		slider.max_value = 100
+		slider.step = 5
+		slider.value = GameState.settings.touch_layout[entry[1]] * 100
+		slider.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		slider.custom_minimum_size.y = 42
+		row.add_child(slider)
+		var readout := _label(row, "%.0f%%" % slider.value, 18)
+		readout.custom_minimum_size.x = 52
+		sliders[entry[1]] = slider
+		readouts[entry[1]] = readout
+		slider.value_changed.connect(func(value: float):
+			GameState.settings.touch_layout[entry[1]] = value / 100
+			readout.text = "%.0f%%" % value
+			SaveManager.save_settings())
+	var reset := _button(box, "Reset touch positions", func():
+		GameState.settings.touch_layout = GameState.DEFAULT_SETTINGS.touch_layout.duplicate()
+		SaveManager.save_settings()
+		for key in sliders:
+			sliders[key].set_value_no_signal(0)
+			readouts[key].text = "0%", "confirm")
+	reset.name = "ResetTouchPositions"
 
 func show_controls() -> void:
 	_clear("controls")

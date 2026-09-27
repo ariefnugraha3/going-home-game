@@ -1,5 +1,26 @@
 # Validation record
 
+## M2 paired touch placement - 2026-09-27
+
+Godot **4.7.2.stable.official.ed1daf0bf**, Compatibility; native Windows / NVIDIA RTX 3050 Laptop GPU at a 30 FPS cap.
+
+| Check | Result |
+| --- | --- |
+| Combined headless suites, fixed 30 render cadence | **96 Story + 34 Practice + 30 Cockpit + 57 TouchLayout + 79 Input + 60 Narrative + 52 Mood + 71 Audio + 142 Cinematic + 39 CinematicAudio + 79 Phone + 41 Interface = 780 checks, 0 failures** |
+| Native TouchLayout suite, actual 30 FPS cap | **57 checks, 0 failures** |
+| Settings and migration | Four positions persist, survive New Game, normalize bounds/nonfinite/partial/malformed values and preserve original defaults for older settings |
+| UI | Real slider callbacks save/apply and update the noninteractive preview; Reset restores positions and readouts without changing size |
+| Layout | 27 combinations across 1280x720, 1600x720 and 960x540 windows, three button sizes and three placements at requested 125% UI with simulated insets; controls and interaction remain disjoint and inside bounds |
+| Input | Nine two-finger steering/throttle cases hit moved/scaled buttons; layout/resize releases ownership, unrelated SFX volume changes preserve it |
+| Isolation | Preview cannot drive; preference/reset leaves checkpoint bytes unchanged; story and practice share the chosen placement |
+| Native visual inspection | Settings preview and asymmetric layouts at standard/small window sizes inspected; larger controls remain within safe bounds |
+| Resource PCK export / independent boot | **Pass**, 1,726,048 bytes; packed main scene boots outside source project and exits 0 after 120 frames |
+| Physical thumb comfort, real Web/Android | **Pending**, see [touch-position review](M2_PLAYTEST.md#touch-position-preference) |
+
+Reproduce with `powershell -ExecutionPolicy Bypass -File tools/test.ps1 -Suite All -FixedFps 30` and `powershell -ExecutionPolicy Bypass -File tools/test.ps1 -Suite TouchLayout -Visual -FixedFps 30`. Native log: `.godot-test/TouchLayoutTests-native30.log`; captures: `tests/screenshots/touch_layout_*.png`; export/boot logs: `.godot-test/touch-layout-export.log` and `touch-layout-pack-boot.log` (ignored).
+
+The native test initially injected viewport-local positions as window input, applying the native stretch twice at 960x540. It now uses `Viewport.push_input(event, true)` consistently with the coordinate space produced by the control transform. An initial indentation error in the new test was corrected before final runs. Final runs have no game parser/runtime errors; the existing sandbox certificate-store startup error remains. Desktop input injection and PCK boot do not certify real browser/Android behavior or thumb ergonomics.
+
 ## M1/M4 analog cockpit - 2026-09-27
 
 Godot **4.7.2.stable.official.ed1daf0bf**, Compatibility; native Windows / NVIDIA RTX 3050 Laptop GPU at a 30 FPS cap.

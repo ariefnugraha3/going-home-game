@@ -72,9 +72,21 @@ Open **Settings & accessibility → Touch button size** to choose **Standard (10
 
 The four riding buttons and their labels scale together. Their layout fits the safe area, reducing the effective size when necessary while retaining your chosen preference. The interaction button moves above the riding controls. Resizing or changing button size releases existing touches so old finger positions cannot keep accelerating or steering. Volume changes leave held controls alone.
 
-The preference persists in `settings.cfg`, survives New Game, and never modifies the journey checkpoint. Older settings use Standard; invalid values fall back or normalize to the supported sizes. Touch size further adjusts riding buttons within the interface scale described below; customizable button positions remain future work. Physical Android ergonomics and browser acceptance remain pending in the [M2 checklist](docs/test/M2_PLAYTEST.md).
+The preference persists in `settings.cfg`, survives New Game, and never modifies the journey checkpoint. Older settings use Standard; invalid values fall back or normalize to the supported sizes. Touch size further adjusts riding buttons within the interface scale described below; paired button positions can now be adjusted as described below. Physical Android ergonomics and browser acceptance remain pending in the [M2 checklist](docs/test/M2_PLAYTEST.md).
 
 Local validation: **590 combined checks passed** at fixed 30 render cadence, including **79 input checks**. The same 79 input checks passed in native Godot capped at 30 FPS, with the settings preview and large-button layouts inspected at 1280×720, 1600×720 and 960×540 window sizes. Automated touch input and desktop captures do not establish physical-device comfort.
+
+## Touch button positions · M2 update, 2026-09-27
+
+Open **Settings & accessibility → Touch button positions**. Four sliders move the left steering pair and right brake/ride pair **inward** or **upward**, independently, in 5% steps. The preview updates immediately. **Reset touch positions** restores the original edge layout while keeping your chosen button and interface sizes. Scroll to reach all four sliders and Reset.
+
+100% means the available travel on the current safe layout, not a fixed pixel distance. Each pair stays in its own half with a central gap; riding controls stay in the lower portion of the screen. The interaction button follows the higher pair. Small screens or large buttons may leave little inward travel, while your saved preference is retained for larger screens. The preview demonstrates the same relative placement within its own available space.
+
+Positions persist in `settings.cfg`, apply to story and Practice ride, and survive New Game. Older settings retain the original layout; malformed/partial values normalize safely. Changing placement, safe area or size releases held touches. Unrelated volume changes preserve held input, and the preview never controls the motorcycle. Individual button dragging and swapping steering/throttle sides are not implemented.
+
+Physical thumb comfort and actual browser/Android acceptance remain open in the [touch-position review guide](docs/test/M2_PLAYTEST.md#touch-position-preference).
+
+Local validation: **780 combined checks passed** at fixed 30 render cadence, including **57 touch-layout checks**. The same 57 checks passed in native Godot capped at 30 FPS, with settings preview and adjusted layouts inspected. The resource PCK exports and boots independently; real Web/Android ergonomics remain pending.
 
 ## Interface size · M2/M5 update, 2026-09-27
 
@@ -252,6 +264,8 @@ Based on the [Development Roadmap v1](../PULANG_Development_Roadmap_v1.md). Stat
 - [x] Test all sizes with simultaneous touch steering/throttle, settings reload and New Game, legacy/invalid values, constrained layouts, and held-input cleanup.
 - [x] Add persistent 100%/110%/125% menu/HUD scaling with safe-area limits, a scrollable title menu, wrapping menu buttons and adaptive cinematic captions.
 - [x] Test scaled settings/save isolation, three aspect ratios, ten screen layouts, focus scrolling, caption readability and combined interface/touch scaling.
+- [x] Add independent inward/upward placement for left/right touch pairs, persistent preferences, live preview and reset.
+- [x] Test placement with button/UI scaling, safe-area limits, multitouch, input release, legacy settings and save isolation.
 - [ ] Validate browser keyboard focus, fullscreen, audio activation, and save persistence in an iframe.
 - [ ] Validate touch ergonomics, safe areas, and the same gameplay loop on physical Android devices.
 
@@ -380,6 +394,7 @@ powershell -ExecutionPolicy Bypass -File tools/test.ps1
 powershell -ExecutionPolicy Bypass -File tools/test.ps1 -Suite Practice -FixedFps 30
 powershell -ExecutionPolicy Bypass -File tools/test.ps1 -Suite Practice -Visual -FixedFps 30
 powershell -ExecutionPolicy Bypass -File tools/test.ps1 -Suite Cockpit -Visual -FixedFps 30
+powershell -ExecutionPolicy Bypass -File tools/test.ps1 -Suite TouchLayout -Visual -FixedFps 30
 powershell -ExecutionPolicy Bypass -File tools/test.ps1 -Suite Input -Visual
 powershell -ExecutionPolicy Bypass -File tools/test.ps1 -Suite Narrative -StoryDebug -Visual
 powershell -ExecutionPolicy Bypass -File tools/test.ps1 -Suite Mood -Visual -FixedFps 30
@@ -390,7 +405,7 @@ powershell -ExecutionPolicy Bypass -File tools/test.ps1 -Suite Phone -Visual -Fi
 powershell -ExecutionPolicy Bypass -File tools/test.ps1 -Suite Interface -Visual -FixedFps 30
 ```
 
-The helper isolates all test saves in `.godot-test/`. **Do not run the test scenes against your normal user profile**: their corruption and new-game cases deliberately replace the test save. The default `-Suite All` runs story, practice, cockpit, input, narrative, mood, audio, cinematic, cinematic audio, phone, and interface sequentially; use `-Suite Story`, `Practice`, `Cockpit`, `Input`, `Narrative`, `Mood`, `Audio`, `Cinematic`, `CinematicAudio`, `Phone`, or `Interface` to select one. `-StoryDebug` enables additional viewer checks in the narrative suite. Headless `-FixedFps` changes simulated render cadence; with `-Visual`, it sets the actual native FPS cap. Physics remains at 60 ticks per second. The helper fails on script errors or a missing success summary, even if the engine exits with code zero.
+The helper isolates all test saves in `.godot-test/`. **Do not run the test scenes against your normal user profile**: their corruption and new-game cases deliberately replace the test save. The default `-Suite All` runs story, practice, cockpit, touch layout, input, narrative, mood, audio, cinematic, cinematic audio, phone, and interface sequentially; use `-Suite Story`, `Practice`, `Cockpit`, `TouchLayout`, `Input`, `Narrative`, `Mood`, `Audio`, `Cinematic`, `CinematicAudio`, `Phone`, or `Interface` to select one. `-StoryDebug` enables additional viewer checks in the narrative suite. Headless `-FixedFps` changes simulated render cadence; with `-Visual`, it sets the actual native FPS cap. Physics remains at 60 ticks per second. The helper fails on script errors or a missing success summary, even if the engine exits with code zero.
 
 The story suite exercises content references, conditions, schema validation, corrupt-save fallback, opening/skip handoff, physical throttle/brake/steering, ground contact, pause, every stop, multitouch action handling, journal persistence, and Continue. The practice suite drives the full track under physics, checks solid-obstacle response, recovery, metrics, save isolation, and real title/practice scene transitions. `-Visual` also captures rendered screenshots under `tests/screenshots/` (ignored by Git). See [Validation record](docs/test/VALIDATION.md) for results and outstanding platform work.
 

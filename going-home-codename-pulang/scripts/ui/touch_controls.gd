@@ -5,6 +5,7 @@ signal layout_changed
 var interactive: bool = true
 var requested_scale: float = 1.0
 var effective_scale: float = 1.0
+var placement: Dictionary = {}
 var fingers: Dictionary = {}
 var zones: Dictionary = {}
 var owned_actions: Array[String] = []
@@ -15,6 +16,7 @@ func _ready() -> void:
 	resized.connect(_layout_zones)
 	SaveManager.settings_applied.connect(_apply_settings)
 	requested_scale = GameState.settings.touch_scale
+	placement = GameState.settings.touch_layout.duplicate()
 	_layout_zones()
 	visibility_changed.connect(func():
 		if not is_visible_in_tree() and not fingers.is_empty():
@@ -22,8 +24,9 @@ func _ready() -> void:
 
 func _apply_settings() -> void:
 	var scale_value: float = GameState.settings.touch_scale
-	if not is_equal_approx(requested_scale, scale_value):
+	if not is_equal_approx(requested_scale, scale_value) or placement != GameState.settings.touch_layout:
 		requested_scale = scale_value
+		placement = GameState.settings.touch_layout.duplicate()
 		_layout_zones()
 
 func _layout_zones() -> void:
@@ -37,11 +40,17 @@ func _layout_zones() -> void:
 	var height := 100 * effective_scale
 	var y := size.y - height - 24
 	zones = {"steer_left": Rect2(18, y, width, height), "steer_right": Rect2(30 + width, y, width, height), "brake": Rect2(size.x - 30 - width * 2, y, width, height), "accelerate": Rect2(size.x - 18 - width, y, width, height)}
+	# Each pair stays in its own half, retaining a 12-pixel central gap.
+	var inward_room := maxf(0, size.x / 2 - 36 - width * 2)
+	var upward_room := maxf(0, y - maxf(24, size.y * .6 if interactive else 24))
+	for action in zones:
+		var side := "left" if action in ["steer_left", "steer_right"] else "right"
+		zones[action].position += Vector2(inward_room * placement.get(side + "_inset", 0.0) * (1 if side == "left" else -1), -upward_room * placement.get(side + "_height", 0.0))
 	queue_redraw()
 	layout_changed.emit()
 
 func top_edge() -> float:
-	return zones.steer_left.position.y if not zones.is_empty() else size.y
+	return minf(zones.steer_left.position.y, zones.brake.position.y) if not zones.is_empty() else size.y
 
 func _draw() -> void:
 	for action in zones:

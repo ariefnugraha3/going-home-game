@@ -77,3 +77,19 @@ Requires matching Android templates, configured SDK/JDK, and a debug APK. Test a
 | Pending | Pending | Pending | Real Web and Android acceptance | Not tested |
 
 Keep failures and limitations explicit. Native desktop rendering and injected touch events do not satisfy browser or physical-device acceptance.
+
+## Touch-position preference
+
+Four sliders under **Settings & accessibility → Touch button positions** adjust the steering pair and brake/ride pair independently inward and upward. Values are percentages of the available travel, in 5% steps. The preview is noninteractive and uses its own available space. Reset restores positions only; touch size, interface scale and key bindings remain unchanged. Settings apply immediately and persist across restarts/New Game without writing the journey checkpoint.
+
+The `touch_layout` settings dictionary contains `left_inset`, `right_inset`, `left_height`, `right_height` in [0, 1]. Unknown keys are discarded, finite numeric values clamp/snap to 0.05, missing or invalid fields become zero. Older/malformed dictionaries default to the original edge layout. Each control caches its own copy so applying unchanged or unrelated settings cannot release held fingers.
+
+Geometry keeps pairs on their original sides, with a central gap of at least 12 logical pixels. Upward travel stays within the bottom 40% of the safe layout; interaction rises above the higher pair. Actual travel is reduced when larger buttons or small bounds leave less room, without rewriting preferences. Button size and interface scale compose with placement, and touch hit-testing follows the resulting transform. Changing placement/size/safe bounds releases all tracked fingers. This is paired adjustment, not per-button dragging or a mirrored layout.
+
+- [ ] On a physical Android device, adjust both pairs for a relaxed grip. Compare all three button sizes and UI scales while preserving a clear road view.
+- [ ] Compare safe-area/notch and system gesture zones. Check inward/upward limits and interaction reach at the most extreme settings.
+- [ ] Hold throttle plus steering, change settings, and resume. Confirm no held action remains at its old position.
+- [ ] Scroll to each slider and Reset; use touch and keyboard focus. Verify preview changes and Reset affects positions only.
+- [ ] Restart and begin a new journey; confirm position preference is retained. Repeat in a real browser once export templates are available.
+
+Run `powershell -ExecutionPolicy Bypass -File tools/test.ps1 -Suite TouchLayout -Visual -FixedFps 30`. Tests cover defaults/migration/normalization/persistence, real slider/reset callbacks, inert preview, 27 layout combinations (three native window sizes × three button sizes × three placements, at requested 125% UI), nine simultaneous steering/throttle cases, constrained logical bounds, held-input cleanup, unrelated-settings stability and story/practice/save isolation. Input is injected through `Viewport.push_input(event, true)` using viewport coordinates; this avoids applying native window stretch twice. Captures under `tests/screenshots/touch_layout_*.png` and the isolated logs are ignored by Git. These checks do not establish physical-device ergonomics or real browser acceptance.
