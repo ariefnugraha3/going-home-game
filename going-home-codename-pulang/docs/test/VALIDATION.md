@@ -1,5 +1,25 @@
 # Validation record
 
+## M1/M4 analog cockpit - 2026-09-27
+
+Godot **4.7.2.stable.official.ed1daf0bf**, Compatibility; native Windows / NVIDIA RTX 3050 Laptop GPU at a 30 FPS cap.
+
+| Check | Result |
+| --- | --- |
+| Combined headless suites, fixed 30 render cadence | **96 Story + 34 Practice + 30 Cockpit + 79 Input + 60 Narrative + 52 Mood + 71 Audio + 142 Cinematic + 39 CinematicAudio + 79 Phone + 41 Interface = 723 checks, 0 failures** |
+| Native Cockpit suite, actual 30 FPS cap | **30 checks, 0 failures** |
+| Dial calibration | Both needles align at zero/midpoint/full scale; bounds and nonfinite values remain safe; numbered major/minor marks and units use depth testing |
+| Controller | Powered idle, throttle response, cruise range, engine-off coasting, immediate stop/recovery, equal 30/60-update easing, real physics input and pause verified |
+| Lighting/resources | Morning/night follow active headlight; parked bike stays unlit; three materials are per-cluster, geometry/material counts stay fixed during updates |
+| Isolation/lifecycle | Practice leaves story memory and save bytes intact; story Continue restores powered instruments; story stop clears readings |
+| Native visual inspection | Forward and downward glance at Morning/Night plus unpowered panel at 1280x720; numbers enlarged after initial inspection; numeric speed HUD retained |
+| Resource PCK export and independent boot | **Pass**, 1,723,744 bytes; packed main scene boots outside source project and exits 0 after 120 frames |
+| Human/device readability, final reference-reviewed bike art, real Web/Android | **Pending**, see [analog cockpit review](M4_PLAYTEST.md#analog-cockpit-review) |
+
+Reproduce with `powershell -ExecutionPolicy Bypass -File tools/test.ps1 -Suite All -FixedFps 30` and `powershell -ExecutionPolicy Bypass -File tools/test.ps1 -Suite Cockpit -Visual -FixedFps 30`. Native log: `.godot-test/CockpitTests-native30.log`; captures: `tests/screenshots/cockpit_*.png`; export/boot logs: `.godot-test/cockpit-export.log` and `cockpit-pack-boot.log` (ignored).
+
+The native test initially read the headlight before its render-frame update. It now waits for a complete `_process` cycle after changing weather rather than assuming three physics ticks imply a rendered frame at 30 FPS. Angle comparisons allow normal floating-point conversion. Final runs contain no game parser/runtime errors; the existing sandbox certificate-store startup error remains. Native captures/PCK boot do not establish physical-device readability or real browser/APK acceptance.
+
 ## M5 cinematic sound timeline - 2026-09-27
 
 Godot **4.7.2.stable.official.ed1daf0bf**, Compatibility; native Windows / NVIDIA RTX 3050 Laptop GPU at a 30 FPS cap.

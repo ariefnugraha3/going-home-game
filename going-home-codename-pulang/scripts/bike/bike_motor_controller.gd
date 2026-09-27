@@ -10,6 +10,7 @@ var speed_mps: float = 0.0
 var steering: float = 0.0
 var enabled: bool = false
 var engine_on: bool = true
+var presentation_rpm: float = 0.0
 var route_limit: float = 1760.0
 var camera: Camera3D
 var headlight: SpotLight3D
@@ -66,6 +67,8 @@ func teleport(distance: float, lane: float = -2.5) -> void:
 		visual.rotation = Vector3.ZERO
 		lean.rotation = Vector3.ZERO
 		head.rotation = Vector3.ZERO
+		presentation_rpm = 1300.0 if enabled and engine_on else 0.0
+		_update_cockpit(0)
 
 func recover_to_road() -> void:
 	teleport(clampf(-position.z, 10.0, route_limit - 20.0))
@@ -77,6 +80,7 @@ func _physics_process(delta: float) -> void:
 	if not enabled:
 		AudioManager.bike_speed = 0
 		AudioManager.engine_active = false
+		_update_cockpit(delta)
 		return
 	var throttle := Input.get_action_strength("accelerate")
 	var brake := Input.get_action_strength("brake")
@@ -132,7 +136,7 @@ func _physics_process(delta: float) -> void:
 	lean.rotation.z = 0 if GameState.settings.reduced_motion else visual.rotation.z * 0.16
 	head.rotation.y = lerpf(head.rotation.y, Input.get_axis("look_right", "look_left") * 0.65, 1.0 - exp(-delta * 5))
 	head.rotation.x = lerpf(head.rotation.x, Input.get_axis("look_down", "look_up") * 0.25, 1.0 - exp(-delta * 5))
-	visual.update_instruments(speed_mps * 3.6, steering)
+	_update_cockpit(delta)
 	if record_journey:
 		var travelled := position.distance_to(previous_position)
 		GameState.bike.distance += travelled / 1000.0
@@ -145,4 +149,13 @@ func stop() -> void:
 	enabled = false
 	speed_mps = 0
 	velocity = Vector3.ZERO
+	presentation_rpm = 0
+	_update_cockpit(0)
 	InputModeManager.release_riding()
+
+func _update_cockpit(delta: float) -> void:
+	var powered := enabled and engine_on
+	# Calm automatic-drive approximation, intentionally independent of physics/audio.
+	var target := 1300.0 + clampf(speed_mps / 26.0, 0, 1) * 3900.0 + Input.get_action_strength("accelerate") * 900.0
+	presentation_rpm = move_toward(presentation_rpm, target, maxf(delta, 0) * 3600.0) if powered else 0.0
+	visual.update_instruments(speed_mps * 3.6 if enabled else 0, steering, presentation_rpm, powered, headlight.light_energy / 2.5)

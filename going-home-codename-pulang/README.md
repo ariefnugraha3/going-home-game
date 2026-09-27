@@ -44,6 +44,18 @@ Use the [M1 playtest guide](docs/test/M1_PLAYTEST.md) for the remaining human co
 
 Local validation for this update: **93 story checks + 34 practice checks passed** at both 60 and 30 fixed render cadences. The **34 practice checks also passed in a native rendered run capped at 30 FPS**. The updated resource PCK exports and boots the practice scene; this does not replace a Web/Android export test.
 
+## Working analog cockpit · M1/M4 update, 2026-09-27
+
+The motorcycle now has two working analog dials: **speed in km/h** and **RPM ×1000**, with larger numbers, major/minor ticks, needle hubs and a cluster tilted toward the rider. The existing camera/FOV and numeric speed HUD remain available. Use the downward-glance control to inspect the instruments; this is still a prototype cluster rather than a reference-approved Thunder model.
+
+Speed follows the riding controller. RPM eases between idle, throttle and cruising values for the game's relaxed automatic riding model; it does not introduce gear shifting or affect handling/audio. Stopping clears both needles immediately, recovery returns to zero speed and powered idle, and Pause holds the current readings. The same behavior applies in story and Practice ride, including Continue.
+
+At night the dial markings and needles illuminate with the active motorcycle headlight. Turning the engine off or stopping extinguishes the panel. Each motorcycle owns its instrument materials, so riding lights cannot illuminate parked/cinematic bikes. No extra light, viewport, shader, texture download or save field is required.
+
+Compare **Practice ride → Pause → Light & weather → Morning / Night**. Human readability across phone sizes/FOV settings and final motorcycle art remain open in the [cockpit review guide](docs/test/M4_PLAYTEST.md#analog-cockpit-review).
+
+Local validation: **723 combined checks passed** at fixed 30 render cadence, including **30 cockpit checks**. The same 30 checks passed in native Godot capped at 30 FPS; forward/downward day and night views and the unpowered panel were inspected. The resource PCK exports and boots independently. Physical readability, final bike art and real Web/Android acceptance remain pending.
+
 ## Input and layout · M2 update
 
 Open **Controls** from the title or either pause menu, or **Settings & accessibility → Keyboard controls**. Select an action and press a single key to replace its shortcuts. Escape cancels capture; **Restore default keyboard controls** brings back every default. Preferences survive restarts and new journeys in the separate settings file.
@@ -269,6 +281,9 @@ Based on the [Development Roadmap v1](../PULANG_Development_Roadmap_v1.md). Stat
 - [x] Add persistent Music/SFX controls, true zero-volume mute, and audio pause/background/Continue regression checks.
 - [x] Add three original UI tones with SFX/Master routing, paused-menu playback, repeat limiting and focus-loss cleanup.
 - [x] Test real menu callbacks and keyboard activation, cue routing, muted/background request suppression, and unchanged journey saves.
+- [x] Replace the static tachometer with a live RPM needle; refine analog dial numbers, units, ticks and rider-facing tilt.
+- [x] Add per-bike night instrument illumination and immediate stop/recovery updates; test calibration, pause, Continue and save isolation.
+- [ ] Review cockpit readability on physical devices and reference-check the final hero motorcycle.
 - [ ] Refine hero bike and character art; replace synthesized placeholders with recorded motorcycle/regional ambience and review the final mix.
 - [ ] Review visual identity and sound quality, and profile actual target-platform builds.
 
@@ -364,6 +379,7 @@ From this project directory:
 powershell -ExecutionPolicy Bypass -File tools/test.ps1
 powershell -ExecutionPolicy Bypass -File tools/test.ps1 -Suite Practice -FixedFps 30
 powershell -ExecutionPolicy Bypass -File tools/test.ps1 -Suite Practice -Visual -FixedFps 30
+powershell -ExecutionPolicy Bypass -File tools/test.ps1 -Suite Cockpit -Visual -FixedFps 30
 powershell -ExecutionPolicy Bypass -File tools/test.ps1 -Suite Input -Visual
 powershell -ExecutionPolicy Bypass -File tools/test.ps1 -Suite Narrative -StoryDebug -Visual
 powershell -ExecutionPolicy Bypass -File tools/test.ps1 -Suite Mood -Visual -FixedFps 30
@@ -374,7 +390,7 @@ powershell -ExecutionPolicy Bypass -File tools/test.ps1 -Suite Phone -Visual -Fi
 powershell -ExecutionPolicy Bypass -File tools/test.ps1 -Suite Interface -Visual -FixedFps 30
 ```
 
-The helper isolates all test saves in `.godot-test/`. **Do not run the test scenes against your normal user profile**: their corruption and new-game cases deliberately replace the test save. The default `-Suite All` runs story, practice, input, narrative, mood, audio, cinematic, cinematic audio, phone, and interface sequentially; use `-Suite Story`, `Practice`, `Input`, `Narrative`, `Mood`, `Audio`, `Cinematic`, `CinematicAudio`, `Phone`, or `Interface` to select one. `-StoryDebug` enables additional viewer checks in the narrative suite. Headless `-FixedFps` changes simulated render cadence; with `-Visual`, it sets the actual native FPS cap. Physics remains at 60 ticks per second. The helper fails on script errors or a missing success summary, even if the engine exits with code zero.
+The helper isolates all test saves in `.godot-test/`. **Do not run the test scenes against your normal user profile**: their corruption and new-game cases deliberately replace the test save. The default `-Suite All` runs story, practice, cockpit, input, narrative, mood, audio, cinematic, cinematic audio, phone, and interface sequentially; use `-Suite Story`, `Practice`, `Cockpit`, `Input`, `Narrative`, `Mood`, `Audio`, `Cinematic`, `CinematicAudio`, `Phone`, or `Interface` to select one. `-StoryDebug` enables additional viewer checks in the narrative suite. Headless `-FixedFps` changes simulated render cadence; with `-Visual`, it sets the actual native FPS cap. Physics remains at 60 ticks per second. The helper fails on script errors or a missing success summary, even if the engine exits with code zero.
 
 The story suite exercises content references, conditions, schema validation, corrupt-save fallback, opening/skip handoff, physical throttle/brake/steering, ground contact, pause, every stop, multitouch action handling, journal persistence, and Continue. The practice suite drives the full track under physics, checks solid-obstacle response, recovery, metrics, save isolation, and real title/practice scene transitions. `-Visual` also captures rendered screenshots under `tests/screenshots/` (ignored by Git). See [Validation record](docs/test/VALIDATION.md) for results and outstanding platform work.
 

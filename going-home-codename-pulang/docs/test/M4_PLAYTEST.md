@@ -55,3 +55,19 @@ Audio tests cover activation, regional crossfades, shelter/weather mixing, bus m
 - [ ] Listen on headphones and phone speakers. Record harshness, distraction, audibility and desired gain changes; prototype tones and numerical waveform checks are not final mix acceptance.
 
 The Audio suite covers imported nonlooping streams, routing, repeat limiting, zero-volume/background suppression, paused native playback, keyboard menu activation, real button/selector callbacks, Escape navigation and checkpoint isolation. The native test preserves its requested FPS setting through settings save/load. Human listening and actual platform acceptance remain pending.
+
+## Analog cockpit review
+
+`BikeInstruments` builds two analog dials with a 4.5-radian sweep: 0–100 km/h and 0–10,000 RPM. Needles start at zero. Dial units, larger numbers and major/minor ticks use the same geometry in riding and cinematic bikes. The cluster tilts 22 degrees toward the rider. The current camera, glance input and FOV remain unchanged; the numerical speed HUD is still the easiest reading on small displays.
+
+The controller supplies real controller speed and a deliberately simplified RPM presentation: 1,300 idle + up to 3,900 from speed + up to 900 from throttle, approached at 3,600 RPM/second. This does not change acceleration, steering, fuel, sound or introduce gears. Pause freezes the readings. Stop clears both needles immediately; recovery/teleport shows zero speed and powered idle when appropriate. An engine-off moving bike can retain speed while the tachometer reads zero.
+
+Headlight/night intensity drives low-cost emission on three per-cluster materials; lit labels become unshaded above a small night threshold. No extra lights or subviewports are used. Unpowered/parked/cinematic bikes remain unlit and do not share those materials. No journey or settings schema changes are involved.
+
+- [ ] Compare Morning and Night in Practice ride, both straight ahead and looking down. Check that speed and RPM are distinct, labels remain legible and the panel does not distract from the road.
+- [ ] Test actual phone sizes, Low/Medium quality and supported FOV values. Record the smallest comfortable instrument reading; retain the numeric HUD as the primary fallback.
+- [ ] Idle, accelerate, release throttle, brake, recover and stop at the shelter. Check that needles settle calmly and stop/recovery cannot leave stale speed.
+- [ ] Pause, open settings, resume, background the app and Continue a story checkpoint. Confirm readings follow the same motorcycle state.
+- [ ] Review the final cluster against supplied motorcycle references when available. This code-authored assembly is not an approved manufacturer-accurate model.
+
+Run `powershell -ExecutionPolicy Bypass -File tools/test.ps1 -Suite Cockpit -Visual -FixedFps 30`. The suite covers both dial calibrations, bounds/nonfinite input, idle/throttle/coasting, 30/60-update agreement, per-bike material isolation, no per-update geometry allocation, physical riding, stop/recovery, pause, day/night lighting, Continue and unchanged practice story/save bytes. Native captures are `tests/screenshots/cockpit_morning.png`, `cockpit_morning_glance.png`, `cockpit_night.png`, `cockpit_night_glance.png` and `cockpit_night_off.png` (ignored). Automated calibration and desktop captures do not close the human/device acceptance gates.

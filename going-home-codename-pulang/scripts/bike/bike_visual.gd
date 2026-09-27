@@ -2,7 +2,7 @@ class_name BikeVisual
 extends Node3D
 
 var show_rider_arms: bool = true
-var needle: Node3D
+var instruments: BikeInstruments
 var bars: Node3D
 
 func _ready() -> void:
@@ -41,27 +41,12 @@ func _ready() -> void:
 		if show_rider_arms:
 			LowPoly.sphere(bars, Vector3(side * 0.51, 1.165, -0.29), Vector3(0.15, 0.08, 0.21), Color("6d5d47"))
 			LowPoly.beam(bars, Vector3(side * 0.51, 1.13, -0.23), Vector3(side * 0.41, 0.98, 0.2), 0.078, Color("65715d"))
-	for side in [-1, 1]:
-		var center := Vector3(side * 0.145, 1.16, -0.67)
-		LowPoly.cylinder(bars, center, 0.135, 0.085, steel, -1, 32)
-		LowPoly.cylinder(bars, center + Vector3(0, 0.049, 0), 0.12, 0.012, Color("233a36"), -1, 32)
-		for i in range(11):
-			var angle := -2.25 + i * 0.45
-			var tick := LowPoly.box(bars, center + Vector3(sin(angle) * 0.1, 0.059, -cos(angle) * 0.1), Vector3(0.006, 0.004, 0.019), Color("e6dab3"))
-			tick.rotation.y = -angle
-			if i % 2 == 0:
-				var number := LowPoly.label(bars, str(i * 10 if side == -1 else i), center + Vector3(sin(angle) * 0.075, 0.063, -cos(angle) * 0.075), 18)
-				number.pixel_size = 0.0007
-				number.rotation.x = -PI / 2
-		if side == -1:
-			needle = Node3D.new()
-			bars.add_child(needle)
-			needle.position = center + Vector3(0, 0.063, 0)
-			LowPoly.box(needle, Vector3(0, 0, -0.038), Vector3(0.006, 0.004, 0.085), Color("eeaf77"))
-		else:
-			LowPoly.box(bars, center + Vector3(0, 0.063, -0.035), Vector3(0.006, 0.004, 0.08), Color("eeaf77"))
+	instruments = BikeInstruments.new()
+	instruments.position = Vector3(0, 1.16, -.67)
+	instruments.rotation_degrees.x = 22
+	bars.add_child(instruments)
 	LowPoly.label(self, "THUNDER 250", Vector3(0, 0.96, 0.23), 9).rotation_degrees.x = -60
 
-func update_instruments(speed: float, steer: float) -> void:
-	needle.rotation.y = 2.25 - clampf(speed / 100, 0, 1) * 4.5
+func update_instruments(speed: float, steer: float, rpm: float = 0, powered: bool = false, night: float = 0) -> void:
+	instruments.update_readings(speed, rpm, powered, night)
 	bars.rotation.y = -steer * 0.07
