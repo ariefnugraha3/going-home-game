@@ -12,17 +12,17 @@ func build(_is_city: bool = false) -> void:
 	_build_surface(5.0, 0.0, Color("555954"), true)
 	var ground := LowPoly.box(self, Vector3(0, -1.5, -350), Vector3(400, 1, 850), Color("7c9560"))
 	ground.create_trimesh_collision()
+	var center_marks: Array[Transform3D] = []
 	for d in range(0, 720, 8):
 		var pos := route.sample(d)
-		var mark := LowPoly.box(self, pos + Vector3(0, 0.025, -1), Vector3(0.12, 0.02, 2.0), Color("ddd3ad"))
-		mark.rotation.y = route.heading(d)
-		mark.visibility_range_end = 180
+		center_marks.append(Transform3D(Basis(Vector3.UP, route.heading(d)), pos + Vector3(0, .025, -1)))
 		for side in [-1, 1]:
 			if d % 24 == 0:
 				LowPoly.cylinder(self, pos + Vector3(side * 6, 0.28, 0), 0.18, 0.55, Color("c89156"), 0.04).visibility_range_end = 150
 			if d % 48 == 0:
 				LowPoly.cylinder(self, pos + Vector3(side * 17, 2.2, 0), 0.18, 4.4, Color("736b49")).visibility_range_end = 220
 				LowPoly.sphere(self, pos + Vector3(side * 17, 5, 0), Vector3(6, 3, 5), Color("57764e")).visibility_range_end = 230
+	marking_batches.append_array(RoadMarkings.build(self, center_marks, Vector3(.12, .02, 2), Color("ddd3ad"), 180, "CenterMarkings"))
 	for section in definition.sections:
 		var pos := route.sample(section.start)
 		LowPoly.box(self, pos + Vector3(-7, 2.5, 0), Vector3(3.5, 1.1, 0.12), Color("345747"))

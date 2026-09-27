@@ -1,5 +1,24 @@
 # Validation record
 
+## M4/M5 road-marking batches - 2026-09-28
+
+Godot **4.7.2.stable.official.ed1daf0bf**, Compatibility; native Windows / NVIDIA RTX 3050 Laptop GPU at a 30 FPS cap.
+
+| Check | Result |
+| --- | --- |
+| Combined headless suites, fixed 30 render cadence | **96 Story + 34 Practice + 30 Cockpit + 21 RoadRender + 57 TouchLayout + 79 Input + 60 Narrative + 52 Mood + 71 Audio + 142 Cinematic + 39 CinematicAudio + 79 Phone + 41 Interface = 801 checks, 0 failures** |
+| Native RoadRender suite | **37 checks, 0 failures**; includes four GPU-backed transform/culling checks and 12 native draw-call probes omitted from headless |
+| Geometry | All 468 story / 90 practice marks preserved with original transforms and dimensions, shared meshes and no added collision; render nodes reduced to 42 / 8 |
+| Native before/after | All 12 fixed-camera Low/Medium views improved, **6.7–25.7% fewer draw calls**; full counts and measurement constraints in [Road rendering review](ROAD_RENDER.md) |
+| Native visual review | Story road before/after and practice bend inspected; no nearby paint placement discrepancy observed; conservative chunk culling can retain distant marks longer |
+| Lifecycle | Both measured worlds plus four alternating world loads disposed; node count returns to baseline, weak MultiMesh/BoxMesh references expire, save bytes remain unchanged |
+| Resource PCK export / independent boot | **Pass**, 1,728,308 bytes; main scene boots outside source project and exits 0 after 120 frames |
+| Actual Web/Android FPS, GPU/OS memory soak and thermal profiling | **Pending**; desktop counters and resource-reference checks do not establish these gates |
+
+Reproduce with `powershell -ExecutionPolicy Bypass -File tools/test.ps1 -Suite All -FixedFps 30` and `powershell -ExecutionPolicy Bypass -File tools/test.ps1 -Suite RoadRender -Visual -FixedFps 30`. Native logs: `.godot-test/road-render-before.log` and `RoadRenderTests-native30.log`; captures: `tests/screenshots/road_render_*.png`; export/boot logs: `.godot-test/road-render-export.log` and `road-render-pack-boot.log` (ignored).
+
+During validation, the headless Dummy backend returned identity MultiMesh transforms, so actual transform/culling-extents verification remains native-only. The first native stress harness freed freshly built environments before rendering; it emitted GLES texture warnings on shutdown. Letting each world complete a draw before disposal and a frame after disposal removed those warnings in the final run. No production workaround or GPU-memory acceptance is claimed. The existing sandbox certificate-store startup error remains; final tests have no game parser/runtime errors or native texture warnings.
+
 ## M2 paired touch placement - 2026-09-27
 
 Godot **4.7.2.stable.official.ed1daf0bf**, Compatibility; native Windows / NVIDIA RTX 3050 Laptop GPU at a 30 FPS cap.

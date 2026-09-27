@@ -19,6 +19,7 @@ var rain_amount: float = 0
 var night_amount: float = 0
 var weather_tween: Tween
 var practical_lights: Array[OmniLight3D] = []
+var marking_batches: Array[MultiMeshInstance3D] = []
 
 static func center(distance: float) -> Vector3:
 	return RidingRoute.story_center(distance)
@@ -84,17 +85,17 @@ func _build_road() -> void:
 	road.material_override = road_material
 	add_child(road)
 	road.create_trimesh_collision()
+	var center_marks: Array[Transform3D] = []
+	var edge_marks: Array[Transform3D] = []
 	for i in range(-2, 154):
 		var d := i * 12.0
 		var c := center(d)
-		var mark := LowPoly.box(self, c + Vector3(0, 0.026, -2.5), Vector3(0.13, 0.016, 4), Color("ded8b8"))
-		mark.rotation.y = heading(d)
-		mark.visibility_range_end = 220
+		center_marks.append(Transform3D(Basis(Vector3.UP, heading(d)), c + Vector3(0, 0.026, -2.5)))
 		for side in [-1, 1]:
-			var edge := LowPoly.box(self, c + Vector3(side * 4.6, 0.022, -6), Vector3(0.13, 0.014, 12.3), Color("d3d0b3"))
-			edge.rotation.y = heading(d)
-			edge.visibility_range_end = 220
+			edge_marks.append(Transform3D(Basis(Vector3.UP, heading(d)), c + Vector3(side * 4.6, 0.022, -6)))
 			LowPoly.box(self, c + Vector3(side * 7.0, -0.18, -6), Vector3(4.1, 0.25, 12.6), Color("a9a184")).visibility_range_end = 260
+	marking_batches.append_array(RoadMarkings.build(self, center_marks, Vector3(.13, .016, 4), Color("ded8b8"), 220, "CenterMarkings"))
+	marking_batches.append_array(RoadMarkings.build(self, edge_marks, Vector3(.13, .014, 12.3), Color("d3d0b3"), 220, "EdgeMarkings"))
 	var ground := LowPoly.box(self, Vector3(0, -3.8, -850), Vector3(1600, 1, 2300), Color("7c9560"))
 	ground.create_trimesh_collision()
 

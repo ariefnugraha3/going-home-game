@@ -126,6 +126,16 @@ See the [M4 visual/audio review guide](docs/test/M4_PLAYTEST.md). This update do
 
 Local validation: **281 combined checks passed** at a fixed 30 render cadence; **52 mood checks also passed with native rendering capped at 30 FPS**. All eight profiles and the comparison menu were inspected in rendered screenshots. Human listening and real Web/Android profiling remain pending.
 
+## Road marking batching · M4/M5 update, 2026-09-28
+
+Repeated road markings now use small **MultiMesh batches**, grouped into 96-meter stretches. The story road retains all 468 center/edge marks in 42 render nodes; Practice ride retains 90 marks in eight nodes. Positions, rotations, sizes and colors are preserved. The road surface, collision, route and interaction geometry are unchanged.
+
+Batch visibility uses a conservative distance margin so nearby marks remain visible when a chunk center is farther away. Far markings may therefore appear slightly farther out than before. The batches belong to their world and are freed with it; repeated loading/unloading is covered by resource and node-count checks.
+
+Native fixed-camera measurements in Godot Compatibility show fewer draw calls at all 12 sampled views across Low/Medium quality. For example, the story road at 20 m / Medium changed **1,094 → 994**, and the practice bend at 260 m / Medium changed **187 → 139**. These are desktop draw-call measurements without the gameplay HUD or motorcycle; they do not establish FPS, mobile thermals, or real Web/Android performance. See the [render comparison and review guide](docs/test/ROAD_RENDER.md).
+
+Local validation: **801 combined headless checks passed**, including **21 RoadRender checks**. The native RoadRender suite passed **37 checks**, adding transform/culling verification and 12 renderer measurements. Story/practice road views were inspected, resource disposal returned node counts to baseline, and the resource PCK exports and boots independently. Target-platform profiling remains pending.
+
 ## Location audio and music · M4 update
 
 The road now blends between city traffic, roadside, fields, warung, and indoor ambience using `data/audio/soundscape.json`. Loops keep their playback position across zone changes. A sheltered stop adds roof rain only while it is raining; the warung adds sparse crockery sounds. Riding wind fades out when the engine stops.
@@ -299,6 +309,8 @@ Based on the [Development Roadmap v1](../PULANG_Development_Roadmap_v1.md). Stat
 - [x] Add per-bike night instrument illumination and immediate stop/recovery updates; test calibration, pause, Continue and save isolation.
 - [ ] Review cockpit readability on physical devices and reference-check the final hero motorcycle.
 - [ ] Refine hero bike and character art; replace synthesized placeholders with recorded motorcycle/regional ambience and review the final mix.
+- [x] Batch story/practice road markings into bounded MultiMeshes after native before/after draw-call measurement.
+- [x] Test original marking transforms, dimensions, culling margins and resource disposal across repeated world loads.
 - [ ] Review visual identity and sound quality, and profile actual target-platform builds.
 
 ### M5 — Vertical Slice · In progress
@@ -398,6 +410,7 @@ powershell -ExecutionPolicy Bypass -File tools/test.ps1 -Suite TouchLayout -Visu
 powershell -ExecutionPolicy Bypass -File tools/test.ps1 -Suite Input -Visual
 powershell -ExecutionPolicy Bypass -File tools/test.ps1 -Suite Narrative -StoryDebug -Visual
 powershell -ExecutionPolicy Bypass -File tools/test.ps1 -Suite Mood -Visual -FixedFps 30
+powershell -ExecutionPolicy Bypass -File tools/test.ps1 -Suite RoadRender -Visual -FixedFps 30
 powershell -ExecutionPolicy Bypass -File tools/test.ps1 -Suite Audio -Visual -FixedFps 30
 powershell -ExecutionPolicy Bypass -File tools/test.ps1 -Suite Cinematic -Visual -FixedFps 30
 powershell -ExecutionPolicy Bypass -File tools/test.ps1 -Suite CinematicAudio -Visual -FixedFps 30
@@ -405,7 +418,7 @@ powershell -ExecutionPolicy Bypass -File tools/test.ps1 -Suite Phone -Visual -Fi
 powershell -ExecutionPolicy Bypass -File tools/test.ps1 -Suite Interface -Visual -FixedFps 30
 ```
 
-The helper isolates all test saves in `.godot-test/`. **Do not run the test scenes against your normal user profile**: their corruption and new-game cases deliberately replace the test save. The default `-Suite All` runs story, practice, cockpit, touch layout, input, narrative, mood, audio, cinematic, cinematic audio, phone, and interface sequentially; use `-Suite Story`, `Practice`, `Cockpit`, `TouchLayout`, `Input`, `Narrative`, `Mood`, `Audio`, `Cinematic`, `CinematicAudio`, `Phone`, or `Interface` to select one. `-StoryDebug` enables additional viewer checks in the narrative suite. Headless `-FixedFps` changes simulated render cadence; with `-Visual`, it sets the actual native FPS cap. Physics remains at 60 ticks per second. The helper fails on script errors or a missing success summary, even if the engine exits with code zero.
+The helper isolates all test saves in `.godot-test/`. **Do not run the test scenes against your normal user profile**: their corruption and new-game cases deliberately replace the test save. The default `-Suite All` runs story, practice, cockpit, road render, touch layout, input, narrative, mood, audio, cinematic, cinematic audio, phone, and interface sequentially; use `-Suite Story`, `Practice`, `Cockpit`, `RoadRender`, `TouchLayout`, `Input`, `Narrative`, `Mood`, `Audio`, `Cinematic`, `CinematicAudio`, `Phone`, or `Interface` to select one. `-StoryDebug` enables additional viewer checks in the narrative suite. Headless `-FixedFps` changes simulated render cadence; with `-Visual`, it sets the actual native FPS cap. Physics remains at 60 ticks per second. The helper fails on script errors or a missing success summary, even if the engine exits with code zero.
 
 The story suite exercises content references, conditions, schema validation, corrupt-save fallback, opening/skip handoff, physical throttle/brake/steering, ground contact, pause, every stop, multitouch action handling, journal persistence, and Continue. The practice suite drives the full track under physics, checks solid-obstacle response, recovery, metrics, save isolation, and real title/practice scene transitions. `-Visual` also captures rendered screenshots under `tests/screenshots/` (ignored by Git). See [Validation record](docs/test/VALIDATION.md) for results and outstanding platform work.
 

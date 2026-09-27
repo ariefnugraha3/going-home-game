@@ -1,7 +1,7 @@
 param(
     [string]$Godot = 'D:\Godot_v4.7.2-stable_win64.exe\Godot_v4.7.2-stable_win64_console.exe',
     [switch]$Visual,
-    [ValidateSet('Story', 'Practice', 'Cockpit', 'TouchLayout', 'Input', 'Narrative', 'Mood', 'Audio', 'Cinematic', 'CinematicAudio', 'Phone', 'Interface', 'All')][string]$Suite = 'All',
+    [ValidateSet('Story', 'Practice', 'Cockpit', 'RoadRender', 'TouchLayout', 'Input', 'Narrative', 'Mood', 'Audio', 'Cinematic', 'CinematicAudio', 'Phone', 'Interface', 'All')][string]$Suite = 'All',
     [switch]$StoryDebug,
     [ValidateSet(30, 60)][int]$FixedFps = 60
 )
@@ -20,6 +20,7 @@ try {
     if ($Suite -in @('Story', 'All')) { $scenes += 'TestRunner' }
     if ($Suite -in @('Practice', 'All')) { $scenes += 'PracticeTests' }
     if ($Suite -in @('Cockpit', 'All')) { $scenes += 'CockpitTests' }
+    if ($Suite -in @('RoadRender', 'All')) { $scenes += 'RoadRenderTests' }
     if ($Suite -in @('TouchLayout', 'All')) { $scenes += 'TouchLayoutTests' }
     if ($Suite -in @('Input', 'All')) { $scenes += 'InputTests' }
     if ($Suite -in @('Narrative', 'All')) { $scenes += 'NarrativeTests' }
