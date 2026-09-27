@@ -1,5 +1,26 @@
 # Validation record
 
+## M2/M5 interface scaling - 2026-09-27
+
+Godot **4.7.2.stable.official.ed1daf0bf**, Compatibility; native Windows / NVIDIA RTX 3050 Laptop GPU at a 30 FPS cap.
+
+| Check | Result |
+| --- | --- |
+| Combined headless suites, fixed 30 render cadence | **96 Story + 34 Practice + 79 Input + 60 Narrative + 52 Mood + 71 Audio + 142 Cinematic + 79 Phone + 41 Interface = 654 checks, 0 failures** |
+| Native Interface suite, actual 30 FPS cap | **41 checks, 0 failures** |
+| Settings | Three choices persist and apply without rebuilding the current menu; New Game preserves size; legacy/malformed/nonfinite values normalize safely |
+| Safe layout | All sizes at 1280×720, 1600×720 and 1280×960 with simulated insets retain transformed safe bounds; constrained bounds limit enlargement without rewriting the choice |
+| Largest screen layouts | Title, settings, controls, phone, photo detail, map, journal, dialogue, cinematic and completion content remain within horizontal safe bounds |
+| Focus and reading | Title's last action, photo close button and final dialogue choice become reachable by focus scrolling; longest authored cinematic caption fits with 28-point text and 125% UI |
+| Touch and isolation | Two-finger input hits scaled visuals with Largest touch buttons; interaction stays clear; resizing releases fingers; page previews preserve story snapshot, save bytes and camera FOV |
+| Native visual inspection | Enlarged settings, title/menu bottom, photo/caption navigation, dialogue/final choice, cinematic caption and riding HUD inspected at 1280×720 |
+| Resource PCK export and independent boot | **Pass**, 1,275,480 bytes; packed main scene boots outside the project and exits 0 after 120 frames |
+| Human readability, physical Android and real Web | **Pending**, see [interface review guide](M2_PLAYTEST.md#interface-size-preference) |
+
+Reproduce with `powershell -ExecutionPolicy Bypass -File tools/test.ps1 -Suite All -FixedFps 30` and `powershell -ExecutionPolicy Bypass -File tools/test.ps1 -Suite Interface -Visual -FixedFps 30`. Native log: `.godot-test/InterfaceTests-native30.log`; captures: `tests/screenshots/interface_125_*.png`; export/boot logs: `.godot-test/interface-export.log` and `interface-pack-boot.log` (ignored).
+
+Visual inspection caught broken words on compact HUD buttons; wrapping is now limited to vertical menu buttons and the cinematic skip button has adequate width. Focus-scroll checks allow two viewport pixels of border rounding because Godot's integer scroll offset can leave about 1.25 pixels at 125% scale. Content remains readable and focused actions reachable. Final runs contain no game parser/runtime errors; the existing sandbox certificate-store startup error remains. Native checks and PCK boot do not certify real browser/APK behavior or physical readability.
+
 ## M4/M5 interface sound set - 2026-09-27
 
 Godot **4.7.2.stable.official.ed1daf0bf**, Compatibility; native Windows / NVIDIA RTX 3050 Laptop GPU with a 30 FPS cap preserved through settings save/load.

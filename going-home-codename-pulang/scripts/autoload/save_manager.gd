@@ -124,6 +124,7 @@ func _fail(reason: String) -> bool:
 
 func save_settings() -> bool:
 	_normalize_touch_scale()
+	_normalize_ui_scale()
 	var config := ConfigFile.new()
 	for key in GameState.settings:
 		config.set_value("settings", key, GameState.settings[key])
@@ -140,7 +141,7 @@ func load_settings() -> void:
 			var value: Variant = config.get_value("settings", key, GameState.DEFAULT_SETTINGS[key])
 			if typeof(value) == typeof(GameState.DEFAULT_SETTINGS[key]):
 				GameState.settings[key] = value
-			elif key == "touch_scale":
+			elif key in ["touch_scale", "ui_scale"]:
 				GameState.settings[key] = GameState.DEFAULT_SETTINGS[key]
 	apply_settings()
 
@@ -150,8 +151,19 @@ func _normalize_touch_scale() -> void:
 		value = 1.0
 	GameState.settings.touch_scale = clampf(snappedf(float(value), 0.25), 1.0, 1.5)
 
+func _normalize_ui_scale() -> void:
+	var value: Variant = GameState.settings.get("ui_scale", 1.0)
+	if not (value is float or value is int) or not is_finite(float(value)):
+		value = 1.0
+	var nearest := 1.0
+	for option in [1.0, 1.1, 1.25]:
+		if absf(float(value) - option) < absf(float(value) - nearest):
+			nearest = option
+	GameState.settings.ui_scale = nearest
+
 func apply_settings() -> void:
 	_normalize_touch_scale()
+	_normalize_ui_scale()
 	GameState.settings.fov = clampf(GameState.settings.fov, 55.0, 85.0)
 	Engine.max_fps = 30 if GameState.settings.fps_limit == 30 else 60
 	AudioServer.set_bus_volume_db(0, linear_to_db(clampf(GameState.settings.master, 0.001, 1.0)))

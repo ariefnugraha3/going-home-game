@@ -6,7 +6,7 @@ Use both Practice ride and the Jakarta–Karawang slice. Local automation covers
 
 Settings & accessibility offers Standard (100%), Larger (125%) and Largest (150%), plus a scrollable live preview. The preview never sends riding input. `settings.cfg` stores `touch_scale` separately from journey saves; old settings default to 1.0. Finite values normalize to 1.0/1.25/1.5 before saving; invalid types and nonfinite values fall back to Standard. New Game preserves the choice.
 
-`TouchControls` scales both the hit rectangles and their labels. In gameplay, effective scale is limited by safe-area width (four buttons, outside margins and gaps) and one quarter of safe-area height. A narrower logical area can reduce the effective scale without replacing the saved preference. The preview fits its own panel and has no HUD height reservation, so the final screen layout can differ on constrained devices. The interaction prompt stays 30 logical pixels above the buttons. Changing size or bounds clears finger ownership; unrelated settings changes leave input alone. Full menu/HUD scaling and movable controls are not implemented.
+`TouchControls` scales both the hit rectangles and their labels. In gameplay, effective scale is limited by safe-area width (four buttons, outside margins and gaps) and one quarter of safe-area height. A narrower logical area can reduce the effective scale without replacing the saved preference. The preview fits its own panel and has no HUD height reservation, so the final screen layout can differ on constrained devices. The interaction prompt stays 30 logical pixels above the buttons. Changing size or bounds clears finger ownership; unrelated settings changes leave input alone. Interface size also scales the whole UI as described below; movable controls are not implemented.
 
 - [ ] In both story and practice Settings, choose each size using keyboard/mouse/touch. Scroll to inspect the complete preview and the remaining settings/Back button.
 - [ ] Press or drag on the preview. The paused bike must remain stationary, with no stuck inputs when riding resumes.
@@ -18,7 +18,26 @@ Settings & accessibility offers Standard (100%), Larger (125%) and Largest (150%
 
 Automated coverage is in `tools/test.ps1 -Suite Input` (add `-Visual -FixedFps 30` for native captures). It exercises all sizes at 1280×720, 1600×720 and 960×540 window sizes with simulated insets, plus an explicitly constrained 640×400 logical safe area. Godot's canvas stretching keeps a logical baseline when the physical window shrinks; window size alone does not test the logical fit limit. Native captures are stored in ignored `tests/screenshots/input_touch_size_settings.png` and `input_touch_largest_*.png`.
 
+## Interface size preference
+
+Settings & accessibility exposes 100%, 110% and 125%. `ui_scale` lives in `settings.cfg`, defaults to 1.0 for older files, normalizes finite values to the nearest supported choice, and resets invalid/nonfinite values to Standard. New Game preserves it; changing it never writes journey data or restarts the current screen.
+
+`GameUI` caches the viewport's safe rectangle and scales its root while dividing the root's layout size by the same factor. The effective scale is bounded by the requested choice and available width/1024 and height/540, never below 1.0. The root's transformed bounds still match the safe rectangle. Rain remains outside the scaled UI root, and the world camera is unchanged. Touch input uses the full global transform; combined touch/interface enlargement still fits the available layout. Resizing releases old finger ownership immediately.
+
+The title menu and dialogue follow focused controls when scrolling. Vertical menu buttons wrap long labels; compact toolbar/navigation buttons keep whole words. Cinematic captions use a bottom-anchored container that grows with wrapped text instead of a fixed-height label. The existing larger dialogue setting remains independent and composes with UI scale.
+
+- [ ] Change size on title and while paused in story/practice. The settings page and keyboard focus should remain usable; scroll to reach all controls and Back.
+- [ ] At every size, navigate to the last title button and the last dialogue choice by keyboard; verify scrolling exposes the focused action. Repeat with touch scrolling.
+- [ ] Inspect phone Home, messages, photos, route and journal. At Largest, scroll to photo captions/navigation and close controls; no horizontally cut-off text or buttons.
+- [ ] Combine Largest interface, Largest touch buttons and larger dialogue text. Check HUD labels, interaction placement, thumb targets and cinematic captions without losing important road visibility.
+- [ ] Resize/change safe-area bounds during a held touch. The old action must release; touching the new position must work. Confirm no camera FOV or weather-art scaling change.
+- [ ] Quit/relaunch and start New Game: preferences should persist independently of the checkpoint.
+- [ ] Repeat browser iframe/fullscreen and physical Android checks at actual screen sizes. Record readability, scrolling effort, occlusion and effective enlargement.
+
+Run `powershell -ExecutionPolicy Bypass -File tools/test.ps1 -Suite Interface -Visual -FixedFps 30` for the focused native suite. `-Suite All` includes Interface. It checks all three sizes across 1280×720, 1600×720 and 1280×960 windows with simulated safe insets; ten screen layouts at Largest; focus scrolling; the longest authored cinematic caption with larger text; and screen-coordinate two-finger input. Native captures are ignored under `tests/screenshots/interface_125_*.png`. Integer scroll positions allow up to two viewport pixels of border rounding at 125%. Automated bounds/native captures do not establish human readability or platform acceptance.
+
 ## Keyboard and menus
+
 
 - [ ] In title → Controls, change Accelerate to I. W and Up must stop accelerating; I must work in story and practice.
 - [ ] Try an occupied key and Ctrl+I; read the explanation, then Escape to cancel without leaving Controls or resuming a paused ride.

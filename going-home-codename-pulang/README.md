@@ -60,9 +60,19 @@ Open **Settings & accessibility → Touch button size** to choose **Standard (10
 
 The four riding buttons and their labels scale together. Their layout fits the safe area, reducing the effective size when necessary while retaining your chosen preference. The interaction button moves above the riding controls. Resizing or changing button size releases existing touches so old finger positions cannot keep accelerating or steering. Volume changes leave held controls alone.
 
-The preference persists in `settings.cfg`, survives New Game, and never modifies the journey checkpoint. Older settings use Standard; invalid values fall back or normalize to the supported sizes. This update scales riding touch buttons; full menu/HUD scaling and customizable button positions remain future work. Physical Android ergonomics and browser acceptance remain pending in the [M2 checklist](docs/test/M2_PLAYTEST.md).
+The preference persists in `settings.cfg`, survives New Game, and never modifies the journey checkpoint. Older settings use Standard; invalid values fall back or normalize to the supported sizes. Touch size further adjusts riding buttons within the interface scale described below; customizable button positions remain future work. Physical Android ergonomics and browser acceptance remain pending in the [M2 checklist](docs/test/M2_PLAYTEST.md).
 
 Local validation: **590 combined checks passed** at fixed 30 render cadence, including **79 input checks**. The same 79 input checks passed in native Godot capped at 30 FPS, with the settings preview and large-button layouts inspected at 1280×720, 1600×720 and 960×540 window sizes. Automated touch input and desktop captures do not establish physical-device comfort.
+
+## Interface size · M2/M5 update, 2026-09-27
+
+Open **Settings & accessibility → Interface size** for **Standard (100%)**, **Larger (110%)**, or **Largest (125%)**. The preference applies immediately to menus, the HUD, phone, journal, map and dialogue without closing the current page. It persists separately from the journey and survives New Game. Older settings default to Standard; invalid values normalize safely.
+
+Enlargement is limited by the safe area to retain a 1024×540 logical layout where space permits. A constrained display can use less enlargement than requested while keeping your saved choice. **Touch button size** and **Larger dialogue text** work alongside this setting; touch hit areas follow the scaled visuals and changing scale clears held touches. World camera FOV and the rain overlay are unaffected.
+
+The title menu is scrollable, long vertical menu buttons wrap, and dialogue scrolling follows keyboard focus. Cinematic captions now size their background to the wrapped text. At larger sizes, scroll to reach lower menu entries, photo captions/navigation, and dialogue choices. Human readability and physical Android/Web acceptance remain pending in the [interface review guide](docs/test/M2_PLAYTEST.md#interface-size-preference).
+
+Local validation: **654 combined checks passed** at fixed 30 render cadence, including **41 interface checks**. All 41 also passed in native Godot capped at 30 FPS; enlarged settings, menu scrolling, photo captions, dialogue choices, cinematic text and touch HUD were inspected. The resource PCK exports and boots independently. Real device/browser acceptance remains open.
 
 ## Phone and story inspection · M3 update
 
@@ -218,6 +228,8 @@ Based on the [Development Roadmap v1](../PULANG_Development_Roadmap_v1.md). Stat
 - [x] Test remapped physical keys in the shared bike controller, settings persistence, touch event routing, and simulated 16:9, 20:9, and 4:3 safe rectangles.
 - [x] Add persistent 100%/125%/150% riding touch-button sizes, a noninteractive settings preview, safe-area fitting, and interaction-button repositioning.
 - [x] Test all sizes with simultaneous touch steering/throttle, settings reload and New Game, legacy/invalid values, constrained layouts, and held-input cleanup.
+- [x] Add persistent 100%/110%/125% menu/HUD scaling with safe-area limits, a scrollable title menu, wrapping menu buttons and adaptive cinematic captions.
+- [x] Test scaled settings/save isolation, three aspect ratios, ten screen layouts, focus scrolling, caption readability and combined interface/touch scaling.
 - [ ] Validate browser keyboard focus, fullscreen, audio activation, and save persistence in an iframe.
 - [ ] Validate touch ergonomics, safe areas, and the same gameplay loop on physical Android devices.
 
@@ -345,9 +357,10 @@ powershell -ExecutionPolicy Bypass -File tools/test.ps1 -Suite Mood -Visual -Fix
 powershell -ExecutionPolicy Bypass -File tools/test.ps1 -Suite Audio -Visual -FixedFps 30
 powershell -ExecutionPolicy Bypass -File tools/test.ps1 -Suite Cinematic -Visual -FixedFps 30
 powershell -ExecutionPolicy Bypass -File tools/test.ps1 -Suite Phone -Visual -FixedFps 30
+powershell -ExecutionPolicy Bypass -File tools/test.ps1 -Suite Interface -Visual -FixedFps 30
 ```
 
-The helper isolates all test saves in `.godot-test/`. **Do not run the test scenes against your normal user profile**: their corruption and new-game cases deliberately replace the test save. The default `-Suite All` runs story, practice, input, narrative, mood, audio, cinematic, and phone sequentially; use `-Suite Story`, `Practice`, `Input`, `Narrative`, `Mood`, `Audio`, `Cinematic`, or `Phone` to select one. `-StoryDebug` enables additional viewer checks in the narrative suite. Headless `-FixedFps` changes simulated render cadence; with `-Visual`, it sets the actual native FPS cap. Physics remains at 60 ticks per second. The helper fails on script errors or a missing success summary, even if the engine exits with code zero.
+The helper isolates all test saves in `.godot-test/`. **Do not run the test scenes against your normal user profile**: their corruption and new-game cases deliberately replace the test save. The default `-Suite All` runs story, practice, input, narrative, mood, audio, cinematic, phone, and interface sequentially; use `-Suite Story`, `Practice`, `Input`, `Narrative`, `Mood`, `Audio`, `Cinematic`, `Phone`, or `Interface` to select one. `-StoryDebug` enables additional viewer checks in the narrative suite. Headless `-FixedFps` changes simulated render cadence; with `-Visual`, it sets the actual native FPS cap. Physics remains at 60 ticks per second. The helper fails on script errors or a missing success summary, even if the engine exits with code zero.
 
 The story suite exercises content references, conditions, schema validation, corrupt-save fallback, opening/skip handoff, physical throttle/brake/steering, ground contact, pause, every stop, multitouch action handling, journal persistence, and Continue. The practice suite drives the full track under physics, checks solid-obstacle response, recovery, metrics, save isolation, and real title/practice scene transitions. `-Visual` also captures rendered screenshots under `tests/screenshots/` (ignored by Git). See [Validation record](docs/test/VALIDATION.md) for results and outstanding platform work.
 

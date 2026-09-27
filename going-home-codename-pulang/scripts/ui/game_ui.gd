@@ -31,6 +31,9 @@ var phone_toast: bool = false
 var toolbar: HBoxContainer
 var capture_action: String = ""
 var capture_button: Button
+var safe_bounds: Rect2
+var interface_scale: float = 1.0
+var requested_interface_scale: float = 1.0
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
@@ -41,7 +44,8 @@ func _ready() -> void:
 	add_child(root)
 	root.theme = _theme()
 	weather = AtmosphereOverlay.new()
-	root.add_child(weather)
+	add_child(weather)
+	move_child(weather, 0)
 	weather.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	_build_hud()
 	screen = Control.new()
@@ -65,6 +69,7 @@ func _ready() -> void:
 		phone_service.inbox_changed.connect(_update_phone_badge)
 		_update_phone_badge()
 	get_viewport().size_changed.connect(_update_safe_area)
+	SaveManager.settings_applied.connect(_apply_interface_preference)
 	_update_safe_area()
 
 func _update_safe_area() -> void:
@@ -76,11 +81,21 @@ func _update_safe_area() -> void:
 	apply_safe_area(bounds)
 
 func apply_safe_area(bounds: Rect2) -> void:
+	safe_bounds = bounds
+	requested_interface_scale = GameState.settings.ui_scale
+	interface_scale = maxf(1.0, minf(requested_interface_scale, minf(bounds.size.x / 1024.0, bounds.size.y / 540.0)))
 	var viewport_size := get_viewport().get_visible_rect().size
+	root.scale = Vector2.ONE * interface_scale
 	root.offset_left = bounds.position.x
 	root.offset_top = bounds.position.y
-	root.offset_right = bounds.end.x - viewport_size.x
-	root.offset_bottom = bounds.end.y - viewport_size.y
+	root.offset_right = bounds.position.x + bounds.size.x / interface_scale - viewport_size.x
+	root.offset_bottom = bounds.position.y + bounds.size.y / interface_scale - viewport_size.y
+	if is_instance_valid(touch):
+		touch.release_all()
+
+func _apply_interface_preference() -> void:
+	if not is_equal_approx(requested_interface_scale, GameState.settings.ui_scale):
+		apply_safe_area(safe_bounds)
 
 func _theme() -> Theme:
 	var theme := Theme.new()
@@ -132,6 +147,10 @@ func _button(parent: Node, title: String, callback: Callable, cue: String = "sel
 	var button := Button.new()
 	button.text = title
 	button.custom_minimum_size.y = 48
+	if parent is VBoxContainer:
+		button.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	if parent is HBoxContainer:
+		button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	button.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 	parent.add_child(button)
 	button.pressed.connect(func():
@@ -180,7 +199,7 @@ func _panel(title: String, subtitle: String = "") -> VBoxContainer:
 	var box := VBoxContainer.new()
 	box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	scroll.add_child(box)
-	_label(box, title, 36)
+	_paragraph(box, title, 36)
 	if not subtitle.is_empty():
 		_paragraph(box, subtitle, 18, MUTED)
 	var line := HSeparator.new()
@@ -193,14 +212,19 @@ func main_menu() -> void:
 	var tint := ColorRect.new()
 	tint.color = Color(0.06, 0.13, 0.1, 0.82)
 	screen.add_child(tint)
-	tint.anchor_right = 0.43
+	tint.anchor_right = 0.47
 	tint.anchor_bottom = 1.0
+	var menu_scroll := ScrollContainer.new()
+	screen.add_child(menu_scroll)
+	menu_scroll.anchor_left = 0.055
+	menu_scroll.anchor_top = 0.07
+	menu_scroll.anchor_right = 0.44
+	menu_scroll.anchor_bottom = 0.94
+	menu_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	menu_scroll.follow_focus = true
 	var box := VBoxContainer.new()
-	screen.add_child(box)
-	box.anchor_left = 0.055
-	box.anchor_top = 0.11
-	box.anchor_right = 0.375
-	box.anchor_bottom = 0.91
+	menu_scroll.add_child(box)
+	box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_label(box, "A QUIET JOURNEY ACROSS JAVA", 15, GOLD)
 	_label(box, "PULANG", 80)
 	_label(box, "For now, just go home.", 23, MUTED)
@@ -220,15 +244,18 @@ func main_menu() -> void:
 		_button(box, "Story debug", func(): action_requested.emit("story_debug"))
 	if not OS.has_feature("web"):
 		_button(box, "Quit", func(): action_requested.emit("quit"))
-	var place := _label(screen, "01  /  THE FIRST STRETCH", 18, CREAM)
+	var place := _paragraph(screen, "01  /  THE FIRST STRETCH", 18, CREAM)
 	place.anchor_left = 0.53
-	place.anchor_top = 0.80
-	var trip := _label(screen, "JAKARTA  —  KARAWANG", 30, CREAM)
+	place.anchor_right = 0.97
+	place.anchor_top = 0.73
+	var trip := _paragraph(screen, "JAKARTA  —  KARAWANG", 30, CREAM)
 	trip.anchor_left = 0.53
-	trip.anchor_top = 0.845
-	var caption := _label(screen, "A motorcycle. A little rain. A long way home.", 18, CREAM)
+	trip.anchor_right = 0.97
+	trip.anchor_top = 0.80
+	var caption := _paragraph(screen, "A motorcycle. A little rain. A long way home.", 18, CREAM)
 	caption.anchor_left = 0.53
-	caption.anchor_top = 0.905
+	caption.anchor_right = 0.97
+	caption.anchor_top = 0.89
 	(cont if not cont.disabled else box.get_child(5)).grab_focus()
 
 func confirm_new() -> void:
@@ -325,6 +352,19 @@ func show_pause() -> void:
 func show_settings() -> void:
 	_clear("settings")
 	var box := _panel("Make yourself comfortable", "Settings are saved separately from your journey.")
+	_label(box, "Interface size", 22, GOLD)
+	var interface_size := OptionButton.new()
+	interface_size.name = "InterfaceSize"
+	for title in ["Standard · 100%", "Larger · 110%", "Largest · 125%"]:
+		interface_size.add_item(title)
+	interface_size.selected = [1.0, 1.1, 1.25].find(GameState.settings.ui_scale)
+	interface_size.custom_minimum_size.y = 48
+	box.add_child(interface_size)
+	interface_size.item_selected.connect(func(index: int):
+		play_ui_feedback()
+		GameState.settings.ui_scale = [1.0, 1.1, 1.25][index]
+		SaveManager.save_settings())
+	_paragraph(box, "Enlarges menus and the HUD. Available screen space may limit enlargement. Scroll to reach all options.", 18, MUTED)
 	for entry in [["Reduced camera motion", "reduced_motion"], ["Gentle steering assist", "riding_assist"], ["Show touch controls", "touch"]]:
 		var toggle := CheckButton.new()
 		toggle.text = entry[0]
@@ -657,17 +697,22 @@ func show_cinematic(title: String, subtitle: String, text: String) -> void:
 		reveal.anchor_right = 0.8
 		reveal.anchor_top = 0.2
 		reveal.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	subtitle_label = _label(screen, text, GameState.settings.text_size)
-	subtitle_label.anchor_left = 0.1
-	subtitle_label.anchor_right = 0.9
-	subtitle_label.anchor_top = 0.82
-	subtitle_label.anchor_bottom = 0.94
-	subtitle_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	var captions := PanelContainer.new()
+	screen.add_child(captions)
+	captions.anchor_left = 0.08
+	captions.anchor_right = 0.92
+	captions.anchor_top = 1
+	captions.anchor_bottom = 1
+	captions.offset_top = -18
+	captions.offset_bottom = -18
+	captions.grow_vertical = Control.GROW_DIRECTION_BEGIN
+	captions.add_theme_stylebox_override("panel", _style(Color(0.025, 0.05, 0.04, 0.95), Color(0, 0, 0, 0)))
+	subtitle_label = _paragraph(captions, text, GameState.settings.text_size)
 	subtitle_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	var skip := _button(screen, "Skip scene", func(): action_requested.emit("skip"))
 	skip.anchor_left = 1
 	skip.anchor_right = 1
-	skip.offset_left = -170
+	skip.offset_left = -200
 	skip.offset_right = -30
 	skip.offset_top = 22
 
@@ -682,6 +727,8 @@ func show_dialogue(line: Dictionary) -> void:
 	panel.add_theme_stylebox_override("panel", _style(Color(0.055, 0.12, 0.095, 0.97), Color("7d8969")))
 	var scroll := ScrollContainer.new()
 	panel.add_child(scroll)
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	scroll.follow_focus = true
 	dialogue_box = VBoxContainer.new()
 	dialogue_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	scroll.add_child(dialogue_box)
