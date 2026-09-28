@@ -79,6 +79,7 @@ func _ready() -> void:
 	await _test_wake(director)
 	await _test_pack(director)
 	await _test_laptop(director)
+	await _test_straps(director)
 	director.play("departure")
 	director.shot_index = director.definitions.departure.shots.size() - 1
 	director._show_shot()
@@ -463,3 +464,104 @@ func _test_laptop(director: CutsceneDirector) -> void:
 	director._show_shot()
 	director._process(8)
 	check(director.stage_id == "parking" and director.room.props.luggage.visible and not is_instance_valid(laptop), "Laptop packing hands off to parking and frees the interior props")
+
+func _test_straps(director: CutsceneDirector) -> void:
+	var saved := GameState.snapshot()
+	director.play("departure")
+	for i in range(director.definitions.departure.shots.size()):
+		if director.definitions.departure.shots[i].shot_id == "straps":
+			director.shot_index = i
+	director._show_shot()
+	var stage := director.room
+	var shot: Dictionary = director.definitions.departure.shots[director.shot_index]
+	var luggage: CinematicLuggage = stage.props.luggage
+	var actor: CinematicActor = stage.props.walker
+	var bike: Node3D = stage.props.bike
+	var nodes := get_tree().get_node_count()
+	var initial := stage.prop_snapshot()
+	var feet := [actor.walking_legs.get_child(0).global_transform, actor.walking_legs.get_child(1).global_transform]
+	check(actor.visible and actor.walking_legs.visible and not actor.seated_legs.visible and not stage.props.rider.visible, "Strap check shows one standing Raka beside the parked motorcycle")
+	check(not actor.helmet.visible and not actor.handset.visible and luggage.visible and luggage.tensions == [0.0, 0.0], "Strap check begins with two loose prethreaded bands and no phone/helmet props")
+	await capture("straps_ready")
+	stage.pose(shot, 0.24)
+	check(luggage.tensions == [1.0, 0.0] and luggage.grips[0].y > 0.17, "First pull tightens only the first strap")
+	await capture("straps_first_pull")
+	stage.pose(shot, 0.60)
+	check(is_equal_approx(luggage.tensions[1], 1) and luggage.grips[1].y > 0.17, "Second pull tightens the other strap")
+	await capture("straps_second_pull")
+	var held := stage.prop_snapshot()
+	var held_actor := stage.actor_snapshot()
+	var elapsed := director.elapsed
+	get_tree().paused = true
+	director.set_process(true)
+	await frames(8)
+	check(stage.prop_snapshot() == held and stage.actor_snapshot() == held_actor and director.elapsed == elapsed, "Pause freezes strap geometry and both hands")
+	get_tree().paused = false
+	AudioManager.focus_suspended = true
+	await frames(8)
+	check(stage.prop_snapshot() == held and stage.actor_snapshot() == held_actor, "Background freezes luggage tightening")
+	AudioManager.focus_suspended = false
+	director.set_process(false)
+	stage.pose(shot, 1)
+	stage.pose(shot, 0.60)
+	check(stage.prop_snapshot() == held and stage.actor_snapshot() == held_actor, "Backward seeking restores strap shapes, tails and hand contact")
+	var contact := true
+	var torso_clear := true
+	var planted := true
+	var framed := true
+	var anchored := true
+	var size := get_viewport().get_visible_rect().size
+	for step in range(101):
+		var p := float(step) / 100
+		stage.pose(shot, p)
+		for i in range(2):
+			var start := 0.12 if i == 0 else 0.48
+			var forearm := actor.left_forearm if i == 0 else actor.right_forearm
+			if p >= start and p <= start + 0.28:
+				contact = contact and forearm.to_global(Vector3(0, -0.29, 0)).distance_to(luggage.to_global(luggage.grips[i])) < 0.002
+				torso_clear = torso_clear and actor.to_local(luggage.to_global(luggage.grips[i])).z < -0.215
+			planted = planted and actor.walking_legs.get_child(i).global_transform == feet[i]
+			var first: MeshInstance3D = luggage.bands[i][0]
+			var last: MeshInstance3D = luggage.bands[i][6]
+			anchored = anchored and (first.transform * Vector3(0, -0.5, 0)).is_equal_approx(Vector3(-0.245, -0.24, CinematicLuggage.STRAP_Z[i]))
+			anchored = anchored and (last.transform * Vector3(0, 0.5, 0)).is_equal_approx(Vector3(0.245, -0.24, CinematicLuggage.STRAP_Z[i]))
+		var points := [luggage.to_global(luggage.grips[0]), luggage.to_global(luggage.grips[1])]
+		for x in [-0.39, 0.39]:
+			for z in [-0.26, 0.26]:
+				for y in [-0.14, 0.16]:
+					points.append(luggage.to_global(Vector3(x, y, z)))
+		for point in points:
+			var pixel := director.camera.unproject_position(point)
+			framed = framed and not director.camera.is_position_behind(point) and pixel.x > 0 and pixel.x < size.x and pixel.y > size.y * 0.15 and pixel.y < size.y * 0.78
+	check(contact, "Both strap grips retain hand contact within 2 mm through pull and release preparation")
+	check(torso_clear, "Strap grips leave room for the hands in front of the torso")
+	check(planted and bike.position == Vector3.ZERO, "Strap checking keeps both feet and the motorcycle stationary")
+	check(anchored, "Both strap loops retain their frame attachment endpoints throughout tightening")
+	check(framed, "Luggage and strap grips stay between caption bars throughout the shot")
+	check(get_tree().get_node_count() == nodes, "Strap sampling changes transforms without allocating nodes")
+	check(luggage.tensions == [1.0, 1.0] and luggage.grips[0].x < 0.45 and luggage.grips[1].x < 0.45, "Strap check ends with both bands taut and short secured tails")
+	var final_luggage := luggage.pose_snapshot()
+	await capture("straps_secured")
+	stage.pose(shot, 0)
+	check(stage.prop_snapshot() == initial, "Rewinding restores both loose strap shapes")
+	director._apply_shot(0.5)
+	held = stage.prop_snapshot()
+	held_actor = stage.actor_snapshot()
+	GameState.settings.reduced_motion = not GameState.settings.reduced_motion
+	director._apply_shot(0.5)
+	check(stage.prop_snapshot() == held and stage.actor_snapshot() == held_actor, "Reduced camera motion retains strap and actor movement")
+	check(GameState.snapshot() == saved, "Strap action adds no journey fields or checkpoint changes")
+	director._process(5)
+	check(director.stage_id == "memory" and not director.room.props.luggage.visible and not is_instance_valid(luggage), "Memory cut frees checked luggage and omits it from the past")
+	director._process(2)
+	check(director.room.props.luggage.pose_snapshot() == final_luggage and not director.room.props.walker.visible and director.room.props.rider.visible, "Present-day departure restores the same secured luggage and a single mounted rider")
+	var departing: CinematicLuggage = director.room.props.luggage
+	var position_before := departing.global_position
+	director._process(3)
+	check(departing.global_position.x > position_before.x + 1 and departing.pose_snapshot() == final_luggage, "Secured luggage moves rigidly with the departing motorcycle")
+	director.play("morning")
+	for i in range(director.definitions.morning.shots.size()):
+		if director.definitions.morning.shots[i].shot_id == "parking":
+			director.shot_index = i
+	director._show_shot()
+	check(not director.room.props.luggage.visible and director.room.props.walker.visible and not director.room.props.rider.visible, "Morning approach resets to walking without departure luggage")

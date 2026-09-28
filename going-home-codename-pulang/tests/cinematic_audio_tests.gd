@@ -33,7 +33,7 @@ func _ready() -> void:
 				previous = event.at
 				count += 1
 		check(valid, "Authored cues reference bank and ordered in-shot times: " + id)
-	check(count == 9, "Opening contains nine sparse authored sound events")
+	check(count == 11, "Opening contains eleven sparse authored sound events")
 	director.play("morning")
 	director._process(.2)
 	check(events.is_empty() and sound.pending.is_empty(), "Before activation an elapsed cue is consumed silently")
@@ -148,6 +148,15 @@ func _ready() -> void:
 	check(events.slice(before) == ["fabric", "fabric"], "Laptop pickup and final flap closure each trigger one fabric cue")
 	director.finish()
 	check(sound.remaining == [0.0, 0.0] and sound.pending.is_empty(), "Skipping laptop packing clears fabric voices and future events")
+	director.play("departure")
+	director.shot_index = _shot_index(director, "straps")
+	director._show_shot()
+	before = events.size()
+	director._process(1.6)
+	director._process(1.3)
+	check(events.slice(before) == ["fabric", "fabric"], "Two strap pulls trigger their fabric cues once before the memory bridge")
+	director.finish()
+	check(events.size() == before + 2 and sound.pending.is_empty() and sound.remaining == [0.0, 0.0], "Skipping strap checks clears fabric and never starts the pending memory cue")
 	director.clear_room()
 	# The departure flag belongs to the director; the sound component adds no state.
 	GameState.flags = snapshot.flags.duplicate(true)

@@ -140,7 +140,9 @@ func _parking(memory: bool = false) -> void:
 		var child := _seated(Vector3(-0.57, 0.48, 0), -PI / 2, Color("b39864"))
 		child.scale = Vector3.ONE * 0.65
 		props.young_raka = child
-	var luggage := LowPoly.box(bike, Vector3(0, 0.98, 0.65), Vector3(0.65, 0.28, 0.42), Color("66735b"))
+	var luggage := CinematicLuggage.new()
+	bike.add_child(luggage)
+	luggage.build()
 	props.luggage = luggage
 
 func configure(shot: Dictionary) -> void:
@@ -163,7 +165,7 @@ func configure(shot: Dictionary) -> void:
 	if props.has("luggage"):
 		props.luggage.visible = shot.get("luggage", false)
 	if props.has("walker"):
-		props.walker.visible = shot.get("performance", "rest") == "walk"
+		props.walker.visible = shot.get("performance", "rest") == "walk" or shot.get("luggage_check", false)
 		props.rider.visible = not props.walker.visible
 
 func pose(shot: Dictionary, weight: float) -> void:
@@ -196,8 +198,12 @@ func pose(shot: Dictionary, weight: float) -> void:
 		props.nadia.sample(shot.get("npc_performance", "listen"), weight)
 	if props.has("rider"):
 		props.rider.sample("ride", weight)
+	if props.has("luggage"):
+		props.luggage.sample(weight if shot.get("luggage_check", false) else 1.0)
 	if props.has("walker"):
-		if props.walker.visible:
+		if shot.get("luggage_check", false):
+			props.luggage.pose_actor(props.walker, weight)
+		elif props.walker.visible:
 			_pose_walk(props.walker, shot, weight)
 		else:
 			props.walker.position = Vector3.ZERO
@@ -239,5 +245,5 @@ func prop_snapshot() -> Dictionary:
 		for key in ["badge", "badge_text", "lanyard"]:
 			result[key] = props[key].visible
 	if props.has("luggage"):
-		result.luggage = [props.luggage.transform, props.luggage.visible]
+		result.luggage = props.luggage.pose_snapshot()
 	return result

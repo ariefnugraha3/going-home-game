@@ -579,25 +579,28 @@
       {
         "shot_id": "straps",
         "camera": [
-          2,
-          1.5,
-          2.1
+          -1.9,
+          2.9,
+          0.35
         ],
         "target": [
-          -0.4,
-          0.9,
-          0
+          -0.7,
+          1.12,
+          0.22
         ],
         "duration": 5,
         "text": "Dad used to check the straps twice. I check them twice.",
-        "fov": 40,
+        "fov": 48,
         "framing": "insert",
         "movement": "static",
         "transition": "cut",
         "location": "parking",
         "luggage": true,
+        "luggage_check": true,
         "performance": "rest",
         "audio": [
+          {"cue": "fabric", "at": 1.5},
+          {"cue": "fabric", "at": 2.8},
           {
             "cue": "memory_motor",
             "at": 4.4

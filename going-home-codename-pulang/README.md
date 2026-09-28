@@ -180,7 +180,7 @@ Prior cinematic update validation: **424 combined checks passed** at fixed 30 re
 
 ## Cinematic sound cues · M5 update, 2026-09-27
 
-The opening now has five original synthesized sound sketches: a morning alarm, HR notification, Mom's ringtone, fabric, and a soft motorcycle/air memory bridge. Nine events are timed in the authored shots, including waking cloth and the laptop-packing cues added below. The four-second motorcycle cue begins 0.6 seconds before the father/child insert, continues through its two seconds, and fades over the first 1.4 seconds of the present-day title shot. Location ambience continues underneath; no new music or voice acting is added.
+The opening now has five original synthesized sound sketches: a morning alarm, HR notification, Mom's ringtone, fabric, and a soft motorcycle/air memory bridge. Eleven events are timed in the authored shots, including waking cloth, laptop packing and strap tightening described below. The four-second motorcycle cue begins 0.6 seconds before the father/child insert, continues through its two seconds, and fades over the first 1.4 seconds of the present-day title shot. Location ambience continues underneath; no new music or voice acting is added.
 
 Cinematic sound follows **Sound effects** and **Master** volume. Pause and backgrounding freeze picture and sound together. Skip, sequence replacement, cancellation and completion clear active sounds; muted or expired events never replay when volume returns. A two-voice pool keeps overlapping tails bounded. Continue uses the existing stable checkpoint and can replay its sequence normally; sound adds no save fields.
 
@@ -188,13 +188,23 @@ Cue timing lives in `data/cutscenes/opening.json`, with asset paths/gains in `da
 
 Local validation: **693 combined checks passed** at fixed 30 render cadence, including **39 cinematic audio checks**. The native cinematic audio suite passed **45 checks** at a 30 FPS cap, including actual SFX output and playback pause/resume. The resource PCK exports and boots independently. Human listening and real Web/Android acceptance remain pending.
 
+## Luggage strap check · M5 update, 2026-09-28
+
+The existing five-second `straps` shot now shows Raka standing beside the parked motorcycle, tightening two prethreaded straps in turn, and leaving short secured tails. The bag has visible bands and buckles, with dimensions matching the apartment luggage. The seated rider is hidden during this action. The secured bag returns after the father-memory insert and stays attached as the motorcycle departs.
+
+Hands, strap slack and tails follow the director's clock. Pause/background, rewind, reduced camera motion and Skip preserve their state. Two reused fabric cues accompany the pulls; the memory sound bridge keeps its original timing. The opening remains **25 shots / 113 authored seconds**, with **eleven timed sound events**.
+
+This completes a prototype of the final tightening check. Carrying the bag to the bike, initially routing/fastening the straps, the bike-touch gesture, mounting, finger grips, final cloth and recorded buckle/strap sounds remain open in the [strap review checklist](docs/test/M5_CINEMATIC_PLAYTEST.md#luggage-strap-check-pass). No luggage physics or new save state is introduced.
+
+Local validation: **1,090 combined headless checks passed**, including **279 Cinematic and 46 CinematicAudio checks**. Native runs passed **279 Cinematic and 52 CinematicAudio checks** at 30 FPS. Both pulls and secured luggage were inspected; 101 samples verify grip contact, torso clearance, stationary feet, fixed attachment endpoints and framing. Repeated sampling now constructs strap transforms directly to avoid numerical drift. The resource PCK exports and boots independently. Final art/contact review and real Web/Android acceptance remain pending.
+
 ## Laptop packing · M5 update, 2026-09-28
 
-After planning the route, Raka now closes the laptop, lifts it with both hands, places it above the raincoat, and closes the bag. The new eight-second `laptop_packing` insert brings the opening to **25 shots / 113 authored seconds**. Two reused fabric cues accompany pickup and final closure, bringing the opening to nine timed sound events. The bag is wider and deeper to accommodate the laptop.
+After planning the route, Raka now closes the laptop, lifts it with both hands, places it above the raincoat, and closes the bag. The new eight-second `laptop_packing` insert brings the opening to **25 shots / 113 authored seconds**. Two reused fabric cues accompany pickup and final closure. The bag is wider and deeper to accommodate the laptop.
 
 The cut starts with the laptop pulled closer and the bag reopened; those preparation movements are not animated. The same laptop prop supplies the earlier phone-call/job-search and route screens, then follows the director's clock during packing. Pause/background, rewind, reduced camera motion, direct shot entry and Skip retain deterministic prop/hand states. The route screen remains readable before packing, and returning to earlier shots restores the open desk laptop. Checkpoints and save format are unchanged.
 
-This is a blocking performance. Individual clothes/charger/toolkit placement, preparation movements, luggage fastening, production fingers/cloth/posture and recorded foley remain open in the [laptop review checklist](docs/test/M5_CINEMATIC_PLAYTEST.md#laptop-packing-pass).
+This is a blocking performance. Individual clothes/charger/toolkit placement, preparation movements, initial luggage placement/threading, production fingers/cloth/posture and recorded foley remain open in the [laptop review checklist](docs/test/M5_CINEMATIC_PLAYTEST.md#laptop-packing-pass).
 
 Local validation: **1,067 combined headless checks passed**, including **258 Cinematic and 44 CinematicAudio checks**. Native runs passed **258 Cinematic and 50 CinematicAudio checks** at 30 FPS. Open/closed laptop, two-handed transfer and packed-bag views were inspected; 101 samples check contact, bag-wall clearance and framing. The resource PCK exports and boots independently. Final animation review and real Web/Android acceptance remain pending.
 
@@ -204,7 +214,7 @@ The five-second packing insert now shows Raka picking up a folded raincoat, lift
 
 The director samples both props and a two-joint hand reach from the same shot clock. Pause/background freezes the action, backward seeking restores it, and Skip restores the final luggage state. The complete office badge, including its label and lanyard, is hidden during packing. Journey checkpoints and saves are unchanged.
 
-This earlier pass completed the **raincoat placement and flap-closing prototype**; laptop packing is added above. Individual clothes/charger/toolkit placement, fastening the bag to the motorcycle, finger grips, fabric deformation and final recorded foley remain unfinished. See the [packing review checklist](docs/test/M5_CINEMATIC_PLAYTEST.md#packing-performance-pass).
+This earlier pass completed the **raincoat placement and flap-closing prototype**; laptop packing is added above. Individual clothes/charger/toolkit placement, initially placing/fastening the bag on the motorcycle, finger grips, fabric deformation and final recorded foley remain unfinished. See the [packing review checklist](docs/test/M5_CINEMATIC_PLAYTEST.md#packing-performance-pass).
 
 Local validation: **1,041 combined headless checks passed**, including **234 Cinematic checks** after the final framing correction. The full run passed 1,040 checks; the final Cinematic rerun adds a caption-clearance check. Native Cinematic also passed **234 checks** at 30 FPS. Pickup, placement and closure views were inspected, and the resource PCK exports and boots independently. Final animation/contact review and real Web/Android acceptance remain pending.
 
@@ -376,11 +386,12 @@ Based on the [Development Roadmap v1](../PULANG_Development_Roadmap_v1.md). Stat
 - [x] Add lying-to-seated waking performance, bedside alarm placement and timed fabric cue; verify pause/focus, seeking, mattress clearance and pose reset.
 - [x] Add raincoat pickup/placement and bag-flap closure with sampled hand contact; test pause/focus, rewind, prop reset and all-shot Skip equivalence.
 - [x] Add laptop closure, two-handed transfer and stowage after route planning, with synchronized fabric cues and prop/contact/Skip regression checks.
-- [ ] Animate remaining individual packing actions, preparation movements and luggage fastening; refine fingers, cloth, posture and recorded contact sound with production assets.
+- [x] Add standing two-strap tightening, visible buckles/bands/tails, synchronized fabric cues and secured-luggage continuity through memory, Skip and departure.
+- [ ] Animate remaining individual packing actions, preparation movements, carrying/mounting luggage and initial strap fastening; add the bike-touch gesture and refine fingers, cloth, posture and recorded contact sound with production assets.
 - [ ] Refine waking bed/hand contact, facial expression, cloth and final recorded bedsheet sound with production assets.
 - [ ] Refine planted feet, mounting/sitting transitions and final walking performances/footsteps with production character rigs.
 - [x] Connect the prototype UI sound set across story/practice menus, phone sections, authored choices and keyboard navigation.
-- [x] Add five original cinematic sound prototypes and nine timed events, including waking fabric and a motorcycle sound bridge through the father memory.
+- [x] Add five original cinematic sound prototypes and eleven timed events, including waking fabric and a motorcycle sound bridge through the father memory.
 - [x] Test sound timing/tails, activation, SFX/Master mute, pause/background, skip/replacement cleanup and save isolation, including native playback.
 - [ ] Review cinematic sound/contact timing on headphones and phone speakers; replace prototypes with final recordings.
 - [ ] Expand and playtest pacing toward the planned 30–60 minute slice.

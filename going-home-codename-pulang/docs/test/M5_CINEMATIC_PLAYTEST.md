@@ -70,6 +70,19 @@ The Cinematic suite covers open/closed endpoints, ordered placement/closure, pau
 - [x] Add laptop stowage after route planning, as described below.
 - [ ] Add remaining item placement and fastening luggage to the motorcycle.
 
+## Luggage strap check pass
+
+The five-second `departure/straps` shot sets `luggage_check: true` and uses a standing Raka beside the motorcycle, with the seated rider hidden. `CinematicLuggage` builds a closed bag, two bands, buckles and free tails on the bike. The shot begins with the bag already placed and straps threaded around it; Raka pulls each tail, removing the visible slack, then leaves short secured ends. The neutral standing pose reuses the walk clip at time zero; arms reach sampled grip points while the feet stay still. Other parking shots sample the secured luggage state and retain their normal walking/riding behavior.
+
+All segments use fixed meshes with sampled transforms, not simulated ropes or per-frame mesh/node creation. Frame endpoints remain fixed. The five-second duration and memory bridge at 4.4 seconds are unchanged; two fabric cues at 1.5 and 2.8 seconds accompany the pulls. The memory frees the present-day stage and hides luggage; returning to departure rebuilds the same secured geometry, then moves it with the bike. The cinematic bag does not add physical cargo to gameplay or save data.
+
+Automated checks sample 101 times for two-hand contact, torso clearance at the grips, planted legs, fixed frame endpoints, projected luggage/grip bounds and constant node count. They cover ordered tightening, pause/focus, rewind, reduced motion, story-state isolation, memory cleanup, departure attachment and morning reset. All-shot Skip comparisons include strap geometry. Native captures: `straps_ready.png`, `straps_first_pull.png`, `straps_second_pull.png`, `straps_secured.png`.
+
+- [ ] Watch the two pulls at natural speed and verify both hands, buckles and short tails read clearly at phone sizes.
+- [ ] Review production finger/forearm contact, strap routing, cloth tension and final recorded buckle/fabric timing. Authored point checks are not a complete mesh or cloth assessment.
+- [ ] Add carrying/placing the bag, initial threading/fastening, the bike-touch gesture and mounting transitions with production assets.
+- [ ] Repeat pause, Skip, memory continuity and departure framing in actual browser/Android builds.
+
 ## Laptop packing pass
 
 `departure/laptop_packing` adds eight seconds after the route screen. The editorial cut starts with Raka and his chair nearer the laptop, the laptop pulled to the near-left table edge, and the bag reopened. He closes the lid, grips both sides, lifts before moving across the bag wall, lowers the laptop above the raincoat, releases it, and closes the flap. Preparation actions across the cut are not animated. The bag dimensions accommodate the laptop; the desk prop is reused rather than copied.
@@ -109,6 +122,7 @@ Five original mono 22,050 Hz PCM sketches are synthesized by `tools/generate_cin
 | Night / Mom calls | phone | 0.20 s | 2.6 s |
 | Departure / packing | fabric | 1.6 s and 3.3 s | 0.85 s each |
 | Departure / laptop_packing | fabric | 3.0 s and 6.6 s | 0.85 s each |
+| Departure / straps | fabric | 1.5 s and 2.8 s | 0.85 s each |
 | Departure / straps | memory_motor | 4.4 s | 4.0 s, across the next two cuts |
 
 Each shot may contain an ordered `audio` array of `{ "cue": "bank_id", "at": seconds }`. `data/audio/cinematic.json` maps IDs to imported assets and gain in dB. Events must start within their shot. `CinematicAudio` owns two SFX voices and the director advances its clock; ordinary cuts keep remaining tails. Full voices cause additional requests to be discarded. A late frame starts a still-relevant cue at its elapsed offset and drops sounds whose duration has already passed. No queued event survives its shot, skip, replacement, completion or cancellation.

@@ -1,5 +1,25 @@
 # Validation record
 
+## M5 luggage strap check - 2026-09-28
+
+Godot **4.7.2.stable.official.ed1daf0bf**, Compatibility; native Windows at 1280×720 with a 30 FPS cap.
+
+| Check | Result |
+| --- | --- |
+| Full headless regression, fixed 30 cadence | **96 Story + 34 Practice + 30 Cockpit + 21 RoadRender + 145 Lifecycle + 57 TouchLayout + 79 Input + 60 Narrative + 52 Mood + 71 Audio + 279 Cinematic + 46 CinematicAudio + 79 Phone + 41 Interface = 1,090 checks, 0 failures** |
+| Native Cinematic | **279 checks, 0 failures**; standing two-strap action, existing packing/waking/walking/phone/memory, all-shot Skip equivalence and checkpoint restoration |
+| Native CinematicAudio | **52 checks, 0 failures**; two added fabric events, unchanged memory bridge timing, native playback/mixer/pause/focus and Skip cleanup |
+| Contact / geometry | 101 samples check hand grips within 2 mm, grip clearance in front of the torso, unchanged leg transforms, fixed frame endpoints, luggage/grip framing and constant node count |
+| Continuity / state | Ordered tightening, short secured tails, pause/focus, rewind/repeated seeking, reduced motion, unchanged journey state, memory-stage disposal, identical secured bag on return, movement with the departing motorcycle and no luggage on the morning approach |
+| Visual inspection / fixes | Ready, both pulls and secured poses inspected. Pull direction and camera refined to separate hands from the torso and expose both buckles. Direct basis construction fixes numerical drift from repeated rotation/scale decomposition; final full regression and native runs pass |
+| Timeline | **25 shots / 113 authored seconds**, five sound assets / eleven events; no new save fields or checkpoint IDs |
+| Resource PCK / independent boot | **Pass**, 1,744,376 bytes; pack boots outside the source project and exits 0 after 120 frames |
+| Remaining | Carrying/placing luggage, initial strap threading/fastening, bike-touch gesture, mounting transitions, production fingers/cloth/foley, human review and real Web/Android acceptance |
+
+Reproduce with `powershell -ExecutionPolicy Bypass -File tools/test.ps1 -Suite All -FixedFps 30`; native `-Suite Cinematic -Visual -FixedFps 30` and `-Suite CinematicAudio -Visual -FixedFps 30`. Final ignored logs: `.godot-test/Straps-all30.log`, `Straps-native30.log`, `StrapsAudio-native30.log`, `straps-export.log`, `straps-pack-boot.log`. Captures: `tests/screenshots/straps_*.png`. See the [strap review checklist](M5_CINEMATIC_PLAYTEST.md#luggage-strap-check-pass).
+
+These bounded checks cover the authored prototype, not all mesh intersections, physical cargo restraint or production cloth behavior. Final test/export/boot logs contain no game script errors. The existing sandbox certificate-store startup message remains unrelated to offline checks; exporting a resource PCK does not establish browser or Android acceptance.
+
 ## M5 laptop packing - 2026-09-28
 
 Godot **4.7.2.stable.official.ed1daf0bf**, Compatibility; native Windows at 1280×720 with a 30 FPS cap.
