@@ -560,6 +560,23 @@
         "performance": "rest"
       },
       {
+        "shot_id": "laptop_packing",
+        "camera": [-1.7, 3.15, 1.1],
+        "target": [-0.3, 1.14, -0.2],
+        "duration": 8,
+        "text": "The work can travel with me. One thing at a time.",
+        "fov": 52,
+        "framing": "insert",
+        "movement": "static",
+        "transition": "cut",
+        "screen": "JAKARTA\nKarawang ... Banyuwangi\nA long way home",
+        "packing": true,
+        "laptop_packing": true,
+        "actor": true,
+        "performance": "rest",
+        "audio": [{"cue": "fabric", "at": 3.0}, {"cue": "fabric", "at": 6.6}]
+      },
+      {
         "shot_id": "straps",
         "camera": [
           2,

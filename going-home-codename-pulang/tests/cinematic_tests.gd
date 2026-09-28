@@ -78,6 +78,7 @@ func _ready() -> void:
 	await _test_walk(director, "office", "walk_to_meeting", "raka")
 	await _test_wake(director)
 	await _test_pack(director)
+	await _test_laptop(director)
 	director.play("departure")
 	director.shot_index = director.definitions.departure.shots.size() - 1
 	director._show_shot()
@@ -324,15 +325,15 @@ func _test_pack(director: CutsceneDirector) -> void:
 			left_contact = left_contact and actor.left_forearm.to_global(Vector3(0, -0.29, 0)).distance_to(packing.raincoat.to_global(Vector3(0, 0.06, 0))) < 0.002
 		if weight >= 0.72 and weight <= 0.90:
 			right_contact = right_contact and actor.right_forearm.to_global(Vector3(0, -0.29, 0)).distance_to(packing.flap.to_global(Vector3(0.10, 0.025, -0.18))) < 0.002
-		if packing.raincoat.position.x > -0.37 and weight < 0.44:
-			clearance = clearance and packing.raincoat.position.y - 0.05 > 1.14
+		if packing.raincoat.position.x > -0.43 and weight < 0.44:
+			clearance = clearance and packing.raincoat.position.y - 0.05 > 1.17
 		var points: Array[Vector3] = []
 		for x in [-0.12, 0.12]:
 			for y in [-0.05, 0.06]:
 				for z in [-0.09, 0.09]:
 					points.append(packing.raincoat.to_global(Vector3(x, y, z)))
-		for x in [-0.30, 0.30]:
-			for z in [0.0, -0.46]:
+		for x in [-0.39, 0.39]:
+			for z in [0.0, -0.52]:
 				points.append(packing.flap.to_global(Vector3(x, 0.025, z)))
 		for point in points:
 			var pixel := director.camera.unproject_position(point)
@@ -366,3 +367,99 @@ func _test_pack(director: CutsceneDirector) -> void:
 	check(GameState.snapshot() == saved, "Packing animation leaves journey state unchanged")
 	director.play("morning")
 	check(not director.room.props.bag.visible and director.room.props.badge_text.visible and director.room.props.lanyard.visible, "Replaying morning hides luggage and restores the complete badge")
+
+func _test_laptop(director: CutsceneDirector) -> void:
+	var saved := GameState.snapshot()
+	director.play("departure")
+	var index := 0
+	for i in range(director.definitions.departure.shots.size()):
+		if director.definitions.departure.shots[i].shot_id == "laptop_packing":
+			index = i
+	check(index > 0 and director.definitions.departure.shots[index - 1].shot_id == "route", "Laptop packing follows route planning")
+	director.shot_index = index - 1
+	director._show_shot()
+	var stage := director.room
+	var laptop: CinematicLaptop = stage.props.laptop
+	var actor: CinematicActor = stage.props.raka
+	var bag: PackingProps = stage.props.bag
+	check(laptop.position == CinematicLaptop.DESK and laptop.screen.visible and laptop.screen.text.contains("Banyuwangi"), "Route planning retains the open desk laptop and route text")
+	director.shot_index = index
+	director._show_shot()
+	var shot: Dictionary = director.definitions.departure.shots[index]
+	var initial := stage.prop_snapshot()
+	var nodes := get_tree().get_node_count()
+	check(laptop.position == CinematicLaptop.START and laptop.screen.visible and is_zero_approx(laptop.lid.rotation.x) and bag.flap.rotation.x > 1.5, "Laptop insert begins with an open laptop beside the reopened bag")
+	await capture("laptop_ready")
+	var contacts := true
+	var clearance := true
+	var walls_clear := true
+	var framed := true
+	var size := get_viewport().get_visible_rect().size
+	for step in range(101):
+		var p := float(step) / 100
+		stage.pose(shot, p)
+		var left_hand := actor.left_forearm.to_global(Vector3(0, -0.29, 0))
+		var right_hand := actor.right_forearm.to_global(Vector3(0, -0.29, 0))
+		if p >= 0.08 and p <= 0.25:
+			contacts = contacts and left_hand.distance_to(laptop.lid.to_global(Vector3(0, 0.22, 0.025))) < 0.002
+		if p >= 0.32 and p <= 0.76:
+			contacts = contacts and left_hand.distance_to(laptop.to_global(Vector3(-0.30, 0.03, 0))) < 0.002 and right_hand.distance_to(laptop.to_global(Vector3(0.30, 0.03, 0))) < 0.002
+		if p >= 0.84 and p <= 0.96:
+			contacts = contacts and right_hand.distance_to(bag.flap.to_global(Vector3(0.10, 0.025, -0.18))) < 0.002
+		if p >= 0.43 and p <= 0.62:
+			clearance = clearance and laptop.position.y - 0.025 > 1.17 and is_equal_approx(laptop.lid.rotation.x, PI / 2)
+		var bounds := AABB(laptop.position - Vector3(0.325, 0.025, 0.225), Vector3(0.65, 0.075, 0.45))
+		for wall in [AABB(Vector3(-0.34, 0.92, -0.52), Vector3(0.03, 0.24, 0.52)), AABB(Vector3(0.41, 0.92, -0.52), Vector3(0.03, 0.24, 0.52)), AABB(Vector3(-0.34, 0.92, -0.52), Vector3(0.78, 0.24, 0.03)), AABB(Vector3(-0.34, 0.92, -0.03), Vector3(0.78, 0.24, 0.03))]:
+			walls_clear = walls_clear and not bounds.intersects(wall)
+		for x in [-0.325, 0.325]:
+			for z in [-0.225, 0.225]:
+				var pixel := director.camera.unproject_position(laptop.to_global(Vector3(x, 0, z)))
+				framed = framed and pixel.x > 0 and pixel.x < size.x and pixel.y > size.y * 0.15 and pixel.y < size.y * 0.78
+			for y in [0.0, 0.40]:
+				var pixel := director.camera.unproject_position(laptop.lid.to_global(Vector3(x, y, 0)))
+				framed = framed and pixel.x > 0 and pixel.x < size.x and pixel.y > size.y * 0.15 and pixel.y < size.y * 0.78
+	check(contacts, "Hands retain lid, two-handed laptop and flap contacts within 2 mm")
+	check(clearance, "Laptop closes before lifting and clears the bag walls during transfer")
+	check(walls_clear, "Laptop bounds never intersect bag walls during pickup, transfer or placement")
+	check(framed, "Laptop base and lid stay between caption bars throughout the insert")
+	check(get_tree().get_node_count() == nodes, "Laptop sampling retains a single prop without allocating nodes")
+	stage.pose(shot, 0.27)
+	check(not laptop.screen.visible and is_equal_approx(laptop.lid.rotation.x, PI / 2), "Closing the laptop hides the screen before pickup")
+	await capture("laptop_closed")
+	stage.pose(shot, 0.52)
+	await capture("laptop_lift")
+	var middle := stage.prop_snapshot()
+	var pose := stage.actor_snapshot()
+	var elapsed := director.elapsed
+	director.set_process(true)
+	get_tree().paused = true
+	await frames(8)
+	check(stage.prop_snapshot() == middle and stage.actor_snapshot() == pose and director.elapsed == elapsed, "Pause freezes laptop and both hands")
+	get_tree().paused = false
+	AudioManager.focus_suspended = true
+	await frames(8)
+	check(stage.prop_snapshot() == middle and stage.actor_snapshot() == pose, "Background freezes laptop packing")
+	AudioManager.focus_suspended = false
+	director.set_process(false)
+	stage.pose(shot, 1)
+	check(laptop.position == CinematicLaptop.INSIDE and is_zero_approx(bag.flap.rotation.x) and not laptop.screen.visible, "Laptop finishes inside the closed bag")
+	check(laptop.position.x - 0.325 > -0.31 and laptop.position.x + 0.325 < 0.41 and laptop.position.z - 0.225 > -0.49 and laptop.position.z + 0.225 < -0.03 and laptop.position.y - 0.025 > bag.raincoat.position.y + 0.05 and laptop.position.y + 0.05 < 1.1575, "Packed laptop fits within the bag above the raincoat and below the flap")
+	await capture("laptop_packed")
+	stage.pose(shot, 0.52)
+	check(stage.prop_snapshot() == middle and stage.actor_snapshot() == pose, "Backward seeking restores laptop and hand poses exactly")
+	stage.pose(shot, 0)
+	check(stage.prop_snapshot() == initial, "Rewinding restores laptop, bag and chair starting transforms")
+	director._apply_shot(0.5)
+	middle = stage.prop_snapshot()
+	pose = stage.actor_snapshot()
+	GameState.settings.reduced_motion = not GameState.settings.reduced_motion
+	director._apply_shot(0.5)
+	check(stage.prop_snapshot() == middle and stage.actor_snapshot() == pose, "Reduced camera motion preserves laptop action")
+	director.shot_index = index - 1
+	director._show_shot()
+	check(laptop.position == CinematicLaptop.DESK and laptop.screen.visible and is_zero_approx(laptop.lid.rotation.x) and actor.body.position == Vector3.ZERO and stage.props.raka_chair.position == Vector3(0, 0, 0.45), "Returning to route restores the open desk laptop and clears packing placement")
+	check(GameState.snapshot() == saved, "Laptop packing and seeking leave journey state unchanged")
+	director.shot_index = index
+	director._show_shot()
+	director._process(8)
+	check(director.stage_id == "parking" and director.room.props.luggage.visible and not is_instance_valid(laptop), "Laptop packing hands off to parking and frees the interior props")

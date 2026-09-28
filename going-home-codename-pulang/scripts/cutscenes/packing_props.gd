@@ -13,21 +13,21 @@ func build() -> void:
 	var bag := Node3D.new()
 	add_child(bag)
 	bag.position = Vector3(0.05, 0.92, -0.26)
-	LowPoly.box(bag, Vector3.ZERO, Vector3(0.60, 0.05, 0.46), Color("46523f"))
-	for x in [-0.285, 0.285]:
-		LowPoly.box(bag, Vector3(x, 0.10, 0), Vector3(0.03, 0.20, 0.46), Color("66735b"))
-	for z in [-0.215, 0.215]:
-		LowPoly.box(bag, Vector3(0, 0.10, z), Vector3(0.60, 0.20, 0.03), Color("66735b"))
+	LowPoly.box(bag, Vector3.ZERO, Vector3(0.78, 0.05, 0.52), Color("46523f"))
+	for x in [-0.375, 0.375]:
+		LowPoly.box(bag, Vector3(x, 0.12, 0), Vector3(0.03, 0.24, 0.52), Color("66735b"))
+	for z in [-0.245, 0.245]:
+		LowPoly.box(bag, Vector3(0, 0.12, z), Vector3(0.78, 0.24, 0.03), Color("66735b"))
 	# Clothes, charger and toolkit are already inside; their placement is not animated.
 	LowPoly.box(bag, Vector3(-0.18, 0.05, 0), Vector3(0.24, 0.05, 0.30), Color("bdad8a"))
 	LowPoly.box(bag, Vector3(0.23, 0.07, -0.10), Vector3(0.12, 0.09, 0.14), Color("344347"))
 	LowPoly.box(bag, Vector3(0.22, 0.07, 0.09), Vector3(0.14, 0.08, 0.16), Color("8b6149"))
 	flap = Node3D.new()
 	bag.add_child(flap)
-	flap.position = Vector3(0, 0.21, 0.23)
-	LowPoly.box(flap, Vector3(0, 0, -0.23), Vector3(0.60, 0.025, 0.46), Color("758365"))
+	flap.position = Vector3(0, 0.25, 0.26)
+	LowPoly.box(flap, Vector3(0, 0, -0.26), Vector3(0.78, 0.025, 0.52), Color("758365"))
 	for x in [-0.18, 0.18]:
-		LowPoly.box(flap, Vector3(x, 0.02, -0.23), Vector3(0.055, 0.025, 0.46), Color("343d35"))
+		LowPoly.box(flap, Vector3(x, 0.02, -0.26), Vector3(0.055, 0.025, 0.52), Color("343d35"))
 	raincoat = Node3D.new()
 	add_child(raincoat)
 	LowPoly.box(raincoat, Vector3.ZERO, Vector3(0.24, 0.10, 0.18), Color("bb974f"))

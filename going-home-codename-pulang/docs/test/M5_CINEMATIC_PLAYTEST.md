@@ -1,10 +1,10 @@
 # M5 opening cinematic review
 
-The current opening is a blocking prototype with 24 authored shots, not final character animation or an accepted vertical slice. All captions and device text are English. Raka remains competent, loses his role through restructuring, has professional alternatives, and chooses to go home.
+The current opening is a blocking prototype with 25 authored shots, not final character animation or an accepted vertical slice. All captions and device text are English. Raka remains competent, loses his role through restructuring, has professional alternatives, and chooses to go home.
 
 ## Play the opening
 
-Begin a new journey, watch the apartment and parking shots, ride to the office, finish the restructuring conversation, watch the sign-out/evening sequence, answer Mom, and watch packing/departure. The shot durations total 105 seconds: morning 24, office 19, sign-out 11, evening 23, departure 28. Dialogue, commute, transitions and pauses add to this time; it is not a measured player-session length.
+Begin a new journey, watch the apartment and parking shots, ride to the office, finish the restructuring conversation, watch the sign-out/evening sequence, answer Mom, and watch packing/departure. The shot durations total 113 seconds: morning 24, office 19, sign-out 11, evening 23, departure 36. Dialogue, commute, transitions and pauses add to this time; it is not a measured player-session length.
 
 Hold Space for more than 0.8 seconds or select Skip scene. This finishes the current sequence, not the whole prologue. Pause freezes the shot clock and movement. Reduced camera motion makes camera travel static; the departing motorcycle still moves through the set.
 
@@ -67,7 +67,21 @@ The Cinematic suite covers open/closed endpoints, ordered placement/closure, pau
 - [ ] Watch the five-second insert at natural speed; assess the pickup, release and flap timing against both fabric cues.
 - [ ] Review hand/forearm visibility, elbow shape and mesh contact on phone-size framing and actual Web/Android builds.
 - [ ] Replace blocking raincoat/bag/rig assets, add finger grips and cloth deformation, and record final fabric/fastener foley.
-- [ ] Add remaining item placement, laptop stowage after route planning and fastening luggage to the motorcycle.
+- [x] Add laptop stowage after route planning, as described below.
+- [ ] Add remaining item placement and fastening luggage to the motorcycle.
+
+## Laptop packing pass
+
+`departure/laptop_packing` adds eight seconds after the route screen. The editorial cut starts with Raka and his chair nearer the laptop, the laptop pulled to the near-left table edge, and the bag reopened. He closes the lid, grips both sides, lifts before moving across the bag wall, lowers the laptop above the raincoat, releases it, and closes the flap. Preparation actions across the cut are not animated. The bag dimensions accommodate the laptop; the desk prop is reused rather than copied.
+
+`CinematicLaptop` owns the hinged screen and sampled prop/hand motion. `CinematicStage` resets it to the original open desk transform before sampling each shot, restores the chair on other shots, and frees it on the parking cut. Screen text is hidden when the lid closes. The existing actor clip and analytic hand reach use the same director clock; no new animation or physics clock is introduced.
+
+The Cinematic suite samples 101 times to check lid/two-hand/flap contact, closed-lid clearance, bag-wall bounds, base/lid framing and node stability. It also checks contents fitting under the closed flap, route-before-packing order, open-screen restoration, pause/background, rewind, reduced motion, unchanged story state and parking cleanup. All-shot Skip comparison includes the laptop, bag and chair. Captures: `laptop_ready.png`, `laptop_closed.png`, `laptop_lift.png`, `laptop_packed.png`.
+
+- [ ] Review the preparation cut, two-handed weight transfer, torso lean and final release at natural speed.
+- [ ] Inspect fingers, elbows, lid and bag contact using production meshes; bounded prop checks are not full character collision or cloth validation.
+- [ ] Review route readability, framing and cue timing on phone-size displays and actual Web/Android builds.
+- [ ] Add preparation movements and remaining item/luggage-fastening performances; replace synthesized fabric with recorded foley.
 
 ## Waking performance pass
 
@@ -94,6 +108,7 @@ Five original mono 22,050 Hz PCM sketches are synthesized by `tools/generate_cin
 | Office / HR message | message | 0.25 s | 0.45 s |
 | Night / Mom calls | phone | 0.20 s | 2.6 s |
 | Departure / packing | fabric | 1.6 s and 3.3 s | 0.85 s each |
+| Departure / laptop_packing | fabric | 3.0 s and 6.6 s | 0.85 s each |
 | Departure / straps | memory_motor | 4.4 s | 4.0 s, across the next two cuts |
 
 Each shot may contain an ordered `audio` array of `{ "cue": "bank_id", "at": seconds }`. `data/audio/cinematic.json` maps IDs to imported assets and gain in dB. Events must start within their shot. `CinematicAudio` owns two SFX voices and the director advances its clock; ordinary cuts keep remaining tails. Full voices cause additional requests to be discarded. A late frame starts a still-relevant cue at its elapsed offset and drops sounds whose duration has already passed. No queued event survives its shot, skip, replacement, completion or cancellation.

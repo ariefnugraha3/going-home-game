@@ -38,9 +38,11 @@ func _interior(location: String, night: bool) -> void:
 	LowPoly.box(self, Vector3(0, 0.83, -0.6), Vector3(2.9, 0.12, 1.2), Color("80634a"))
 	for x in [-1.25, 1.25]:
 		LowPoly.box(self, Vector3(x, 0.4, -0.6), Vector3(0.1, 0.8, 1), Color("5c5041"))
-	LowPoly.box(self, Vector3(0.2, 0.93, -0.75), Vector3(0.65, 0.05, 0.45), Color("374443"))
-	LowPoly.box(self, Vector3(0.2, 1.16, -0.96), Vector3(0.65, 0.45, 0.04), Color("283c40"))
-	screen = _text("", Vector3(0.2, 1.18, -0.932), 0.0009)
+	var laptop := CinematicLaptop.new()
+	add_child(laptop)
+	laptop.build()
+	props.laptop = laptop
+	screen = laptop.screen
 	LowPoly.cylinder(self, Vector3(-0.95, 1, -0.7), 0.09, 0.22, Color("eee0b5"))
 	LowPoly.cylinder(self, Vector3(-1.2, 1.08, -0.8), 0.14, 0.35, Color("819591"))
 	LowPoly.beam(self, Vector3(-1.2, 1.1, -0.8), Vector3(-1.0, 1.22, -0.8), 0.04, Color("819591"))
@@ -75,7 +77,7 @@ func _interior(location: String, night: bool) -> void:
 		LowPoly.box(self, Vector3(-2.6, 0.95, -0.08), Vector3(0.65, 0.9, 0.08), Color("665b47"))
 		LowPoly.box(self, Vector3(-2.6, 1.02, 0.01), Vector3(0.55, 0.55, 0.14), Color("698174"))
 	props.raka = _seated(Vector3(0, 0, 0.45), 0, Color("65715d"))
-	_chair(Vector3(0, 0, 0.45), 0)
+	props.raka_chair = _chair(Vector3(0, 0, 0.45), 0)
 	if night:
 		LowPoly.cylinder(self, Vector3(1.2, 1.02, -0.95), 0.055, 0.24, Color("a58c65"))
 		LowPoly.cylinder(self, Vector3(1.2, 1.24, -0.95), 0.16, 0.23, Color("ebce94"), 0.1)
@@ -88,7 +90,7 @@ func _interior(location: String, night: bool) -> void:
 		practical.layers = 2
 		add_child(practical)
 
-func _chair(pos: Vector3, facing: float) -> void:
+func _chair(pos: Vector3, facing: float) -> Node3D:
 	var chair := Node3D.new()
 	add_child(chair)
 	chair.position = pos
@@ -98,6 +100,7 @@ func _chair(pos: Vector3, facing: float) -> void:
 	for x in [-0.22, 0.22]:
 		for z in [-0.18, 0.18]:
 			LowPoly.box(chair, Vector3(x, 0.3, z), Vector3(0.06, 0.6, 0.06), Color("665b47"))
+	return chair
 
 func _seated(pos: Vector3, facing: float, shirt: Color) -> CinematicActor:
 	var actor := CinematicActor.new()
@@ -182,6 +185,10 @@ func pose(shot: Dictionary, weight: float) -> void:
 		packing.sample(weight if packing_action else 1.0)
 		if packing_action:
 			packing.pose_actor(props.raka, weight)
+		props.laptop.reset_to_desk()
+		if shot.get("laptop_packing", false):
+			props.laptop.sample(weight, packing, props.raka)
+		props.raka_chair.position = Vector3(-0.35, 0, 0.25) if shot.get("laptop_packing", false) else Vector3(0, 0, 0.45)
 		var on_table: bool = not props.raka.handset.visible
 		for key in ["phone", "phone_body", "phone_face"]:
 			props[key].visible = on_table
@@ -227,6 +234,8 @@ func prop_snapshot() -> Dictionary:
 	var result := {}
 	if props.has("bag"):
 		result.bag = props.bag.pose_snapshot()
+		result.laptop = props.laptop.pose_snapshot()
+		result.chair = props.raka_chair.transform
 		for key in ["badge", "badge_text", "lanyard"]:
 			result[key] = props[key].visible
 	if props.has("luggage"):

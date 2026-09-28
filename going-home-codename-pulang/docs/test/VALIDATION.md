@@ -1,5 +1,25 @@
 # Validation record
 
+## M5 laptop packing - 2026-09-28
+
+Godot **4.7.2.stable.official.ed1daf0bf**, Compatibility; native Windows at 1280×720 with a 30 FPS cap.
+
+| Check | Result |
+| --- | --- |
+| Full headless regression, fixed 30 cadence | **96 Story + 34 Practice + 30 Cockpit + 21 RoadRender + 145 Lifecycle + 57 TouchLayout + 79 Input + 60 Narrative + 52 Mood + 71 Audio + 258 Cinematic + 44 CinematicAudio + 79 Phone + 41 Interface = 1,067 checks, 0 failures** |
+| Native Cinematic | **258 checks, 0 failures**; laptop closure/transfer/stowage, existing raincoat/waking/walking/phone/memory, all-shot Skip equivalence and checkpoint handoffs |
+| Native CinematicAudio | **50 checks, 0 failures**; two added fabric events, memory bridge, native playback/pause/resume, SFX output and Skip cleanup |
+| Geometry / framing | 101 samples check lid, both carry grips and flap contact within 2 mm; lift-before-transfer; laptop bounds against four bag walls; base/lid projection between caption bars; final fit above raincoat and below flap |
+| State / lifecycle | Open route screen before packing; sampled prop/hand/chair restoration; rewind, pause/focus and reduced-motion behavior; fixed node count; unchanged journey state; interior props freed on parking cut |
+| Native inspection | Ready, closed, lifting and packed poses reviewed. Initial lateral laptop placement refined to leave a gap beside the bag; final geometry/framing tests and native rerun passed |
+| Timeline | **25 shots / 113 authored seconds**, departure 36 seconds; five sound assets / nine authored events; no save format or checkpoint changes |
+| Resource PCK / independent boot | **Pass**, 1,740,964 bytes; pack boots from outside the source project and exits 0 after 120 frames |
+| Remaining | Preparation actions across the cut, individual remaining items, luggage fastening, production finger/cloth/posture/contact/foley, human pacing/listening and actual Web/Android acceptance |
+
+Reproduce with `powershell -ExecutionPolicy Bypass -File tools/test.ps1 -Suite All -FixedFps 30`; native `-Suite Cinematic -Visual -FixedFps 30` and `-Suite CinematicAudio -Visual -FixedFps 30`. Ignored logs: `.godot-test/Laptop-all30.log`, `Laptop-native30.log`, `LaptopAudio-native30.log`, `laptop-export.log`, `laptop-pack-boot.log`. Captures: `tests/screenshots/laptop_*.png`. See the [laptop review checklist](M5_CINEMATIC_PLAYTEST.md#laptop-packing-pass).
+
+Contact and box-bound checks cover the authored prototype; they do not establish full character mesh collision, finger grips or cloth behavior. Final test/export/boot logs contain no game script errors. The existing sandbox certificate-store startup message remains unrelated to these offline checks. A PCK is not a browser or Android build.
+
 ## M5 packing performance - 2026-09-28
 
 Godot **4.7.2.stable.official.ed1daf0bf**, Compatibility; native Windows at 1280×720, capped at 30 FPS.
