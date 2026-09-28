@@ -3,8 +3,13 @@ extends Node3D
 
 # Articulated blocking actor. AnimationPlayer is sampled by the shot director,
 # so no independent animation clock can continue through pause or scene skips.
-const CLIPS := ["rest", "listen", "phone", "pack", "ride", "passenger"]
+const CLIPS := ["rest", "listen", "phone", "pack", "ride", "passenger", "walk", "wake"]
 var animator: AnimationPlayer
+var body: Node3D
+var seated_legs: Node3D
+var walking_legs: Node3D
+var shoes: Array[MeshInstance3D] = []
+var bare_feet: Array[MeshInstance3D] = []
 var head: Node3D
 var left_arm: Node3D
 var right_arm: Node3D
@@ -15,8 +20,12 @@ var helmet: MeshInstance3D
 var active_clip: String = "rest"
 
 func build(shirt: Color) -> void:
-	LowPoly.box(self, Vector3(0, 0.95, 0), Vector3(0.43, 0.58, 0.28), shirt)
-	head = _joint(self, "Head", Vector3(0, 1.28, 0))
+	body = _joint(self, "Body", Vector3.ZERO)
+	seated_legs = _joint(self, "SeatedLegs", Vector3.ZERO)
+	walking_legs = _joint(self, "WalkingLegs", Vector3.ZERO)
+	LowPoly.box(body, Vector3(0, 0.95, 0), Vector3(0.43, 0.58, 0.28), shirt)
+	LowPoly.cylinder(body, Vector3(0, 1.285, 0), 0.075, 0.18, Color("b87f55"))
+	head = _joint(body, "Head", Vector3(0, 1.28, 0))
 	LowPoly.sphere(head, Vector3(0, 0.15, -0.025), Vector3(0.37, 0.28, 0.36), Color("b87f55"))
 	LowPoly.sphere(head, Vector3(0, 0.26, 0), Vector3(0.4, 0.1, 0.37), Color("29312e"))
 	# A small nose makes the forward direction legible in profile.
@@ -24,10 +33,16 @@ func build(shirt: Color) -> void:
 	helmet = LowPoly.sphere(head, Vector3(0, 0.26, 0.015), Vector3(0.46, 0.22, 0.45), Color("d1c7a3"))
 	helmet.visible = false
 	for side in [-1, 1]:
-		LowPoly.beam(self, Vector3(side * 0.13, 0.7, 0), Vector3(side * 0.18, 0.6, -0.42), 0.105, Color("394653"))
-		LowPoly.beam(self, Vector3(side * 0.18, 0.6, -0.42), Vector3(side * 0.18, 0.12, -0.4), 0.09, Color("394653"))
-		LowPoly.box(self, Vector3(side * 0.18, 0.08, -0.45), Vector3(0.17, 0.13, 0.3), Color("29312e"))
-		var arm := _joint(self, "LeftArm" if side == -1 else "RightArm", Vector3(side * 0.24, 1.15, 0))
+		LowPoly.beam(seated_legs, Vector3(side * 0.13, 0.7, 0), Vector3(side * 0.18, 0.6, -0.42), 0.105, Color("394653"))
+		LowPoly.beam(seated_legs, Vector3(side * 0.18, 0.6, -0.42), Vector3(side * 0.18, 0.12, -0.4), 0.09, Color("394653"))
+		LowPoly.box(seated_legs, Vector3(side * 0.18, 0.08, -0.45), Vector3(0.17, 0.13, 0.3), Color("29312e"))
+		var hip := _joint(walking_legs, "LeftHip" if side == -1 else "RightHip", Vector3(side * 0.13, 0.98, 0))
+		LowPoly.beam(hip, Vector3.ZERO, Vector3(0, -0.43, 0), 0.105, Color("394653"))
+		var knee := _joint(hip, "Knee", Vector3(0, -0.43, 0))
+		LowPoly.beam(knee, Vector3.ZERO, Vector3(0, -0.45, 0), 0.09, Color("394653"))
+		shoes.append(LowPoly.box(knee, Vector3(0, -0.47, -0.055), Vector3(0.17, 0.13, 0.3), Color("29312e")))
+		bare_feet.append(LowPoly.box(knee, Vector3(0, -0.48, -0.045), Vector3(0.14, 0.09, 0.23), Color("b87f55")))
+		var arm := _joint(body, "LeftArm" if side == -1 else "RightArm", Vector3(side * 0.24, 1.15, 0))
 		LowPoly.beam(arm, Vector3.ZERO, Vector3(0, -0.27, 0), 0.075, shirt)
 		var forearm := _joint(arm, "Forearm", Vector3(0, -0.27, 0))
 		LowPoly.beam(forearm, Vector3.ZERO, Vector3(0, -0.27, 0), 0.06, Color("b87f55"))
@@ -91,11 +106,53 @@ func _clip(id: String) -> Animation:
 			right.fill(Vector3(1.25, 0.3, 0))
 			elbow_left.fill(Vector3(0.15, 0, 0))
 			elbow_right.fill(Vector3(0.15, 0, 0))
-	_track(clip, "LeftArm:rotation", left)
-	_track(clip, "RightArm:rotation", right)
-	_track(clip, "LeftArm/Forearm:rotation", elbow_left)
-	_track(clip, "RightArm/Forearm:rotation", elbow_right)
-	_track(clip, "Head:rotation", nod)
+		"wake":
+			var angles := [PI / 2, PI / 2, 1.05, 0.25, 0.0]
+			var rotations := []
+			var positions := []
+			var hip := Vector3(0, 0.7, 0)
+			for angle in angles:
+				rotations.append(Vector3(angle, 0, 0))
+				positions.append(hip - Basis(Vector3.RIGHT, angle) * hip)
+			_track(clip, "Body:rotation", rotations)
+			_track(clip, "Body:position", positions)
+			_track(clip, "Body/Head:position", [Vector3(0, 1.28, -0.14), Vector3(0, 1.28, -0.14), Vector3(0, 1.28, -0.06), Vector3(0, 1.28, 0), Vector3(0, 1.28, 0)])
+			for side in ["LeftHip", "RightHip"]:
+				# Keep shins above the mattress until the root has moved knees
+				# beyond its foot edge; bending earlier cuts through the bed.
+				_track(clip, "WalkingLegs/" + side + ":rotation", [Vector3(PI / 2, 0, 0), Vector3(PI / 2, 0, 0), Vector3(PI / 2, 0, 0), Vector3(PI / 2, 0, 0), Vector3(PI / 2, 0, 0), Vector3(1.48, 0, 0), Vector3(1.34, 0, 0), Vector3(1.34, 0, 0), Vector3(1.34, 0, 0)])
+				_track(clip, "WalkingLegs/" + side + "/Knee:rotation", [Vector3.ZERO, Vector3.ZERO, Vector3.ZERO, Vector3.ZERO, Vector3.ZERO, Vector3(-0.4, 0, 0), Vector3(-1.0, 0, 0), Vector3(-1.25, 0, 0), Vector3(-1.34, 0, 0)])
+			left = [Vector3(0.05, 0, 0.1), Vector3(0.2, 0, 0.15), Vector3(-0.3, 0, 0.1), Vector3(-0.1, 0, 0), Vector3(0.45, 0, 0)]
+			right = [Vector3(0.05, 0, -0.1), Vector3(0.2, 0, -0.15), Vector3(-0.3, 0, -0.1), Vector3(-0.1, 0, 0), Vector3(0.45, 0, 0)]
+			elbow_left = [Vector3(0.2, 0, 0), Vector3(0.25, 0, 0), Vector3(0.1, 0, 0), Vector3(0.2, 0, 0), Vector3(0.8, 0, 0)]
+			elbow_right = elbow_left.duplicate()
+			nod = [Vector3.ZERO, Vector3(0.04, 0.08, 0), Vector3(0.1, 0, 0), Vector3(0.08, 0, 0), Vector3(0.04, 0, 0)]
+		"walk":
+			left.clear()
+			right.clear()
+			var hips_left := []
+			var hips_right := []
+			var knees_left := []
+			var knees_right := []
+			for step in range(9):
+				var swing := sin(float(step) / 8 * TAU)
+				left.append(Vector3(-swing * 0.18, 0, 0))
+				right.append(Vector3(swing * 0.18, 0, 0))
+				hips_left.append(Vector3(swing * 0.3, 0, 0))
+				hips_right.append(Vector3(-swing * 0.3, 0, 0))
+				knees_left.append(Vector3(-maxf(0, swing) * 0.4, 0, 0))
+				knees_right.append(Vector3(-maxf(0, -swing) * 0.4, 0, 0))
+			elbow_left.fill(Vector3(0.12, 0, 0))
+			elbow_right.fill(Vector3(0.12, 0, 0))
+			_track(clip, "WalkingLegs/LeftHip:rotation", hips_left)
+			_track(clip, "WalkingLegs/RightHip:rotation", hips_right)
+			_track(clip, "WalkingLegs/LeftHip/Knee:rotation", knees_left)
+			_track(clip, "WalkingLegs/RightHip/Knee:rotation", knees_right)
+	_track(clip, "Body/LeftArm:rotation", left)
+	_track(clip, "Body/RightArm:rotation", right)
+	_track(clip, "Body/LeftArm/Forearm:rotation", elbow_left)
+	_track(clip, "Body/RightArm/Forearm:rotation", elbow_right)
+	_track(clip, "Body/Head:rotation", nod)
 	return clip
 
 func sample(id: String, progress: float) -> bool:
@@ -104,10 +161,49 @@ func sample(id: String, progress: float) -> bool:
 	active_clip = id
 	if animator.current_animation != id:
 		animator.play(id)
+	# Wake animates the torso around the hip and raises the head onto a pillow.
+	# Reset these channels before seeking any clip, including backwards seeks.
+	body.position = Vector3(0, 0.28, 0) if id == "walk" else Vector3.ZERO
+	body.rotation = Vector3.ZERO
+	head.position = Vector3(0, 1.28, 0)
+	walking_legs.position.y = -0.28 if id == "wake" else 0.0
 	animator.seek(clampf(progress, 0, 1), true)
+	walking_legs.visible = id in ["walk", "wake"]
+	seated_legs.visible = not walking_legs.visible
+	for shoe in shoes:
+		shoe.visible = id != "wake"
+	for foot in bare_feet:
+		foot.visible = id == "wake"
 	handset.visible = id == "phone" and progress >= 0.3
 	helmet.visible = id in ["ride", "passenger"]
 	return true
 
+func reach_hand(left: bool, world_target: Vector3) -> void:
+	# Two-bone analytic reach for the blocking mesh (upper arm .27, hand .29).
+	# Solve from rest transforms each sample; unreachable targets clamp safely.
+	var arm := left_arm if left else right_arm
+	var forearm := left_forearm if left else right_forearm
+	arm.rotation = Vector3.ZERO
+	forearm.rotation = Vector3.ZERO
+	var target := body.to_local(world_target) - arm.position
+	var distance := clampf(target.length(), 0.025, 0.559)
+	var direction := target.normalized()
+	var pole := Vector3(-1 if left else 1, -0.4, 0)
+	var bend := (pole - direction * pole.dot(direction)).normalized()
+	var along := (0.27 * 0.27 - 0.29 * 0.29 + distance * distance) / (2 * distance)
+	var elbow := direction * along + bend * sqrt(maxf(0, 0.27 * 0.27 - along * along))
+	arm.quaternion = Quaternion(Vector3.DOWN, elbow.normalized())
+	var lower := arm.basis.inverse() * (direction * distance - elbow)
+	forearm.quaternion = Quaternion(Vector3.DOWN, lower.normalized())
+
 func pose_snapshot() -> Array:
-	return [head.transform, left_arm.transform, right_arm.transform, left_forearm.transform, right_forearm.transform, handset.visible, helmet.visible]
+	var pose := [body.transform, head.transform, left_arm.transform, right_arm.transform, left_forearm.transform, right_forearm.transform, handset.visible, helmet.visible, walking_legs.visible, seated_legs.visible]
+	# Hidden gait joints are excluded: previous walks must not affect comparison
+	# of a seated dialogue or the deterministic final riding pose after Skip.
+	if walking_legs.visible:
+		pose.append(walking_legs.transform)
+		pose.append(bare_feet[0].visible)
+		for hip in walking_legs.get_children():
+			pose.append(hip.transform)
+			pose.append(hip.get_node("Knee").transform)
+	return pose

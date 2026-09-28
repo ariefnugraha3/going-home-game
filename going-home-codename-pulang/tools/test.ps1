@@ -1,7 +1,8 @@
 param(
     [string]$Godot = 'D:\Godot_v4.7.2-stable_win64.exe\Godot_v4.7.2-stable_win64_console.exe',
     [switch]$Visual,
-    [ValidateSet('Story', 'Practice', 'Cockpit', 'RoadRender', 'TouchLayout', 'Input', 'Narrative', 'Mood', 'Audio', 'Cinematic', 'CinematicAudio', 'Phone', 'Interface', 'All')][string]$Suite = 'All',
+    [ValidateSet('Story', 'Practice', 'Cockpit', 'RoadRender', 'Lifecycle', 'TouchLayout', 'Input', 'Narrative', 'Mood', 'Audio', 'Cinematic', 'CinematicAudio', 'Phone', 'Interface', 'All')][string]$Suite = 'All',
+    [ValidateRange(1, 100)][int]$SoakCycles = 3,
     [switch]$StoryDebug,
     [ValidateSet(30, 60)][int]$FixedFps = 60
 )
@@ -21,6 +22,7 @@ try {
     if ($Suite -in @('Practice', 'All')) { $scenes += 'PracticeTests' }
     if ($Suite -in @('Cockpit', 'All')) { $scenes += 'CockpitTests' }
     if ($Suite -in @('RoadRender', 'All')) { $scenes += 'RoadRenderTests' }
+    if ($Suite -in @('Lifecycle', 'All')) { $scenes += 'LifecycleTests' }
     if ($Suite -in @('TouchLayout', 'All')) { $scenes += 'TouchLayoutTests' }
     if ($Suite -in @('Input', 'All')) { $scenes += 'InputTests' }
     if ($Suite -in @('Narrative', 'All')) { $scenes += 'NarrativeTests' }
@@ -32,10 +34,12 @@ try {
     if ($Suite -in @('Interface', 'All')) { $scenes += 'InterfaceTests' }
     foreach ($scene in $scenes) {
         $logPath = Join-Path $testStorage ($scene + '.log')
-        $testArgs = @('--path', $projectRoot, '--log-file', $logPath, '--quit-after', '60000')
+        $frameBudget = if ($scene -eq 'LifecycleTests') { [string](3600 * $SoakCycles + 600) } else { '60000' }
+        $testArgs = @('--path', $projectRoot, '--log-file', $logPath, '--quit-after', $frameBudget)
         if (-not $Visual) { $testArgs += @('--headless', '--fixed-fps', [string]$FixedFps) }
         $testArgs += ('res://tests/' + $scene + '.tscn')
         $testArgs += '--'
+        if ($scene -eq 'LifecycleTests') { $testArgs += ('--soak-cycles=' + $SoakCycles) }
         if ($Visual) { $testArgs += '--visual' }
         if ($StoryDebug) { $testArgs += '--story-debug' }
         if ($FixedFps -eq 30) { $testArgs += '--limit-30' }

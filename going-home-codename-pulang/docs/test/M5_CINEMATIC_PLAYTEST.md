@@ -1,10 +1,10 @@
 # M5 opening cinematic review
 
-The current opening is a blocking prototype with 23 authored shots, not final character animation or an accepted vertical slice. All captions and device text are English. Raka remains competent, loses his role through restructuring, has professional alternatives, and chooses to go home.
+The current opening is a blocking prototype with 24 authored shots, not final character animation or an accepted vertical slice. All captions and device text are English. Raka remains competent, loses his role through restructuring, has professional alternatives, and chooses to go home.
 
 ## Play the opening
 
-Begin a new journey, watch the apartment and parking shots, ride to the office, finish the restructuring conversation, watch the sign-out/evening sequence, answer Mom, and watch packing/departure. The shot durations total 101 seconds: morning 24, office 15, sign-out 11, evening 23, departure 28. Dialogue, commute, transitions and pauses add to this time; it is not a measured player-session length.
+Begin a new journey, watch the apartment and parking shots, ride to the office, finish the restructuring conversation, watch the sign-out/evening sequence, answer Mom, and watch packing/departure. The shot durations total 105 seconds: morning 24, office 19, sign-out 11, evening 23, departure 28. Dialogue, commute, transitions and pauses add to this time; it is not a measured player-session length.
 
 Hold Space for more than 0.8 seconds or select Skip scene. This finishes the current sequence, not the whole prologue. Pause freezes the shot clock and movement. Reduced camera motion makes camera travel static; the departing motorcycle still moves through the set.
 
@@ -38,9 +38,50 @@ The suite checks every shot's metadata and set, natural timeline completion, ski
 - [ ] Confirm the two-second father/young-Raka insert reads as a memory, the child sits behind the father, and the return to the luggage/title shot is clear. Assess reading time and the new prototype sound bridge.
 - [ ] Pause mid-gesture, change reduced motion, resume, skip, and Continue from departure. Check that reduced motion holds the camera while actor movement remains; skip lands on the correct final actor pose.
 
-`CinematicActor` uses a small Node3D joint hierarchy with six AnimationPlayer clips sampled manually by the shot director. This is not a Skeleton3D/skinned production character. No independent actor clock or per-shot animation tween runs behind the director. `performance` and `npc_performance` in the shot data choose authored clips. Final dialogue poses are held rather than driven by voice/lip synchronization. Existing stable checkpoint IDs and save schema are unchanged.
+`CinematicActor` uses a small Node3D joint hierarchy with eight AnimationPlayer clips sampled manually by the shot director. This is not a Skeleton3D/skinned production character. No independent actor clock or per-shot animation tween runs behind the director. `performance` and `npc_performance` in the shot data choose authored clips. Final dialogue poses are held rather than driven by voice/lip synchronization. Existing stable checkpoint IDs and save schema are unchanged.
 
 The Cinematic suite now also compares actor poses for skips from every shot, checks deterministic seeking of all clips, freezes joints/prop state during pause, verifies phone handoff and memory cleanup, and captures `performance_phone.png`, `performance_pack.png` and `performance_memory.png` under the ignored screenshot folder.
+
+## Walking performance pass
+
+Morning `parking` now uses a five-second approach beside the stationary bike. Office `walk_to_meeting` adds a four-second rear view before the seated meeting. `performance: "walk"` uses stage-local `actor_from`, `actor_to` and a positive integer `walk_cycles` (four for parking, three for office). Root position and gait phase derive from the same eased shot progress. This lets speed ease at either end without an independent actor clock; the integer cycle count lands on a neutral stance.
+
+The actor retains its original seated geometry/proportions for the six original clips. Walking raises the upper body, swaps in articulated hips/knees, and hides phone/helmet props. Waking also uses articulated legs, as described below. The parking set hides its seated rider while the walking actor is visible, then restores him on the cluster cut. The office cut returns Raka to his chair. These are direct editorial cuts, not mounting or sitting animations. A small neck mesh connects head and torso in both postures.
+
+Automated checks cover start/mid/end root position, facing, deterministic backward seeking, pause, reduced-motion independence, neutral endpoints, actor visibility and restoration of the seated pose. Native start/mid/end captures are in `tests/screenshots/walk_*.png`. Projection checks keep the head/feet between the cinematic bars at the test viewport. All-shot skip tests also include the new office shot. No save fields or flag IDs change.
+
+- [ ] Watch both approaches at natural speed and compare reduced motion on/off; review gait cadence, foot sliding and the cuts into seated poses.
+- [ ] Confirm only one Raka is visible beside the bike, and inspect floor contact, furniture clearance and proportions on final models.
+- [ ] Review head/feet and caption clearance across phone aspect ratios and larger UI/text settings.
+- [ ] Replace blocking gait with final rig animation, foot locking, mounting/sitting transitions and licensed/original recorded footsteps where appropriate.
+- [ ] Repeat pause/background, Skip and Continue on real Web/Android exports.
+
+## Packing performance pass
+
+The existing five-second `departure/packing` insert now shows a folded raincoat lifted over the bag wall, lowered into the opening and released, followed by the right hand closing the flap. Clothes, charger and toolkit are preplaced inside. The following route insert retains the closed bag and the laptop on the desk. The badge, label and lanyard hide together. No extra shots, sounds or save fields are added.
+
+`PackingProps` owns the replaceable geometry and samples absolute prop transforms. `CinematicActor.reach_hand` solves the upper arm/forearm against sampled contact points. The director calls both after the actor clip; there is no item reparenting, tween, physics simulation or independent timer. The reach clamps targets outside the blocking arm's length. One hundred and one samples check raincoat grip (within 2 mm), flap contact during closure and clearance above the bag's side wall. These checks cover authored contact points, not all mesh intersections or production finger/cloth contact.
+
+The Cinematic suite covers open/closed endpoints, ordered placement/closure, pause/focus, rewind, reduced-motion independence, unchanged story state, node-count stability, direct entry into the route insert and all-shot Skip equivalence for props. At the authored 1280×720 viewport, sampled raincoat/flap bounds must stay between the caption bars throughout the action. Native captures: `pack_ready.png`, `pack_lift.png`, `pack_placed.png`, `pack_closing.png`, `pack_closed.png` in the ignored screenshot folder.
+
+- [ ] Watch the five-second insert at natural speed; assess the pickup, release and flap timing against both fabric cues.
+- [ ] Review hand/forearm visibility, elbow shape and mesh contact on phone-size framing and actual Web/Android builds.
+- [ ] Replace blocking raincoat/bag/rig assets, add finger grips and cloth deformation, and record final fabric/fastener foley.
+- [ ] Add remaining item placement, laptop stowage after route planning and fastening luggage to the motorcycle.
+
+## Waking performance pass
+
+The existing morning `room` shot now uses `performance: "wake"` and a bedside medium camera. The eight-clip actor can lie face-up with its head supported by the pillow, rise and move to the foot edge, then lower the shins into a seated pose. Bare feet replace the walking shoes only during this clip. All transforms derive from normalized director progress; there is no separate animation clock. Other clips explicitly reset torso rotation/translation, head offset, leg-root height and footwear visibility.
+
+`bedside_phone: true` on `alarm` and `room` places the three existing phone parts on the bedside table; other shots restore the original desk placement. This is shot presentation data, not a save field. The five-second duration, `room` ID and sequence/skip checkpoint contract are unchanged. A `fabric` cue at 1.6 seconds reuses the synthesized cloth asset through the existing SFX/Master buses.
+
+Automated checks cover horizontal/upright torso orientation, initial/final bed placement, bare-foot visibility, intermediate motion, pause/focus, reduced camera motion, deterministic backward seeking, pose/phone reset and unchanged story state. Forty-one timeline samples check knee/shin centerline clearance before bending below the mattress. This is a bounded geometry check, not production collision/IK or a complete contact assessment. Native captures: `wake_alarm.png`, `wake_lying.png`, `wake_rising.png`, `wake_seated.png` in the ignored screenshot folder. All-shot skip tests include the waking clip; audio tests cover cue onset, once-only scheduling and Skip cleanup.
+
+- [ ] Watch the five-second action at natural speed; review the slide toward the bed edge, weight transfer and pacing before the coffee cut.
+- [ ] Refine torso/pillow/mattress and hand contact, clothing, bare feet and facial/eye performance with final rigs.
+- [ ] Add appropriate authored cloth deformation and final recorded bedsheet foley; the current bed has no simulated cloth.
+- [ ] Check bedside alarm readability and head/torso framing across phone sizes and enlarged UI/text settings.
+- [ ] Repeat pause/background, Skip and Continue in actual Web/Android exports.
 
 ## Cinematic sound pass
 
@@ -49,6 +90,7 @@ Five original mono 22,050 Hz PCM sketches are synthesized by `tools/generate_cin
 | Shot | Cue | Start within shot | Duration |
 | --- | --- | --- | --- |
 | Morning / alarm | alarm | 0.15 s | 2.0 s |
+| Morning / room (waking) | fabric | 1.6 s | 0.85 s |
 | Office / HR message | message | 0.25 s | 0.45 s |
 | Night / Mom calls | phone | 0.20 s | 2.6 s |
 | Departure / packing | fabric | 1.6 s and 3.3 s | 0.85 s each |

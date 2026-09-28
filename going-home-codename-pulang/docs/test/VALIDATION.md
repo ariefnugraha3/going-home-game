@@ -1,5 +1,81 @@
 # Validation record
 
+## M5 packing performance - 2026-09-28
+
+Godot **4.7.2.stable.official.ed1daf0bf**, Compatibility; native Windows at 1280×720, capped at 30 FPS.
+
+| Check | Result |
+| --- | --- |
+| Headless regression | **1,041 checks, 0 failures** across the final suite results: 96 Story + 34 Practice + 30 Cockpit + 21 RoadRender + 145 Lifecycle + 57 TouchLayout + 79 Input + 60 Narrative + 52 Mood + 71 Audio + 234 Cinematic + 42 CinematicAudio + 79 Phone + 41 Interface |
+| Run scope | Full All run passed 1,040 checks. A final camera correction and new framing assertion were then verified by rerunning Cinematic: **234 checks, 0 failures** |
+| Native Cinematic | **234 checks, 0 failures**, including natural completion, all-shot actor/prop Skip equivalence and departure checkpoint recovery |
+| Packing action | Raincoat pickup, clearance over bag wall, release inside, right-hand flap closure; 101 samples verify grip/contact and projected prop bounds between caption bars |
+| State/lifecycle | Pause/focus freeze, deterministic rewind, reduced-motion independence, fixed node count during sampling, packed state on direct route entry, badge/actor reset and unchanged journey state |
+| Visual inspection | Open bag, lift, placement, closing and closed poses reviewed. Initial raincoat framing overlapped the caption bar; the camera was raised/pulled back and FOV widened, then the final framing assertion and native captures passed |
+| Resource PCK / independent boot | **Pass**, 1,737,360 bytes; boot from the pack outside the source project exits 0 after 120 frames |
+| Pending | Remaining item/laptop packing, luggage fastening, production rig/finger/cloth/contact/foley, human pacing review and actual Web/Android acceptance |
+
+Reproduce with `powershell -ExecutionPolicy Bypass -File tools/test.ps1 -Suite All -FixedFps 30` and `-Suite Cinematic -Visual -FixedFps 30`. Logs: `.godot-test/Packing-all30.log`, `Packing-final-headless.log`, `Packing-native30.log`, `packing-export.log`, `packing-pack-boot.log`; captures: `tests/screenshots/pack_*.png` (all ignored). See the [packing review](M5_CINEMATIC_PLAYTEST.md#packing-performance-pass).
+
+The geometric assertions cover authored points and bounds, not full mesh collision or production animation acceptance. Final test/boot logs have no game script errors; the existing sandbox certificate-store startup message remains unrelated to offline tests. Resource-pack export is not an actual browser or Android build.
+
+## M5 waking performance - 2026-09-28
+
+Godot **4.7.2.stable.official.ed1daf0bf**, Compatibility; native Windows / NVIDIA RTX 3050 Laptop GPU at 1280×720 and a 30 FPS cap.
+
+| Check | Result |
+| --- | --- |
+| Combined headless suites, fixed 30 cadence | **96 Story + 34 Practice + 30 Cockpit + 21 RoadRender + 145 Lifecycle + 57 TouchLayout + 79 Input + 60 Narrative + 52 Mood + 71 Audio + 191 Cinematic + 42 CinematicAudio + 79 Phone + 41 Interface = 998 checks, 0 failures** |
+| Native Cinematic | **191 checks, 0 failures**; lying-to-seated waking, existing walking/phone/packing/memory poses, all-shot natural/Skip equivalence and checkpoint handoffs |
+| Native CinematicAudio | **48 checks, 0 failures**; waking cloth onset at 1.6 seconds, late-frame offset, Skip cleanup and existing native playback/pause/SFX tests |
+| Waking state | Horizontal/upright torso, bed root endpoints, bare feet, deterministic seeking, pause/focus freeze, reduced-camera-motion independence and reset of torso/head/leg offsets/phone placement |
+| Geometry and visuals | Bedside alarm plus lying/rising/seated native captures inspected. First pass bent shins through the mattress; root travel now clears the foot edge before bending. Forty-one timeline samples verify bounded knee/shin centerline clearance |
+| Narrative/save contract | Existing `room` shot ID and five-second duration retained; **24 shots / 105 seconds**, eight actor clips and seven timed sound events. No save schema, checkpoint or story flag changes |
+| Resource PCK / independent boot | **Pass**, 1,733,572 bytes; main scene boots from the pack outside the source project and exits 0 after 120 frames |
+| Remaining acceptance | Human pacing/weight transfer, final bed/hand contact, face/eye/costume/cloth refinement, recorded bedsheet sound, real Web/Android performance and mobile framing |
+
+Reproduce with `powershell -ExecutionPolicy Bypass -File tools/test.ps1 -Suite All -FixedFps 30`, and native `-Suite Cinematic -Visual -FixedFps 30` / `-Suite CinematicAudio -Visual -FixedFps 30`. Native logs: `.godot-test/Waking-native30.log`, `WakingAudio-native30.log`; captures: `tests/screenshots/wake_*.png`; pack logs: `.godot-test/waking-export.log`, `waking-pack-boot.log` (all ignored). See [Waking review](M5_CINEMATIC_PLAYTEST.md#waking-performance-pass).
+
+The native checks and captures use the prototype rig. Centerline samples do not certify full mesh contact, foot locking or cloth deformation; no human animation/listening acceptance is claimed. Final test and boot logs contain no game script errors or renderer disposal warnings. The existing sandbox certificate-store startup message remains unrelated to these offline tests.
+
+## M5 walking performances - 2026-09-28
+
+Godot **4.7.2.stable.official.ed1daf0bf**, Compatibility; native Windows / NVIDIA RTX 3050 Laptop GPU at 1280×720 and a 30 FPS cap.
+
+| Check | Result |
+| --- | --- |
+| Combined final headless results, fixed 30 cadence | **96 Story + 34 Practice + 30 Cockpit + 21 RoadRender + 145 Lifecycle + 57 TouchLayout + 79 Input + 60 Narrative + 52 Mood + 71 Audio + 173 Cinematic + 39 CinematicAudio + 79 Phone + 41 Interface = 977 checks, 0 failures** |
+| Native Cinematic | **173 checks, 0 failures**; includes all-shot natural/skip final-state equivalence and the two walking approaches |
+| Walking behavior | Authored root position/direction and alternating hip/knee/arm gait, neutral endpoints, deterministic backward seeking, pause and reduced-camera-motion independence |
+| Pose handoffs | Parked motorcycle remains stationary; only one Raka appears during approach; cluster/meeting cuts restore rider/seated poses and original seated proportions; phone, packing and father-memory regression checks pass |
+| Framing | Native start/mid/end views inspected for both walks; office camera widened/repositioned after initial inspection; six projection checks keep head/feet between cinematic bars at the test viewport |
+| Narrative contract | One new four-second office shot; **24 shots / 105 authored seconds** across five sequences; existing flags/checkpoint IDs/schema and six cinematic sound events retained |
+| Resource PCK / independent boot | **Pass**, 1,731,412 bytes; main scene boots from the pack outside the source project and exits 0 after 120 frames |
+| Human/final/platform acceptance | **Pending**: natural-speed gait, foot locking, furniture contact on final rigs, mounting/sitting transitions, recorded footsteps, mobile aspect ratios and actual Web/Android performance |
+
+Reproduce with `powershell -ExecutionPolicy Bypass -File tools/test.ps1 -Suite All -FixedFps 30` and `powershell -ExecutionPolicy Bypass -File tools/test.ps1 -Suite Cinematic -Visual -FixedFps 30`; native log retained as `.godot-test/Walking-native30.log`, captures in `tests/screenshots/walk_*.png`, pack logs in `.godot-test/walking-export.log` and `walking-pack-boot.log` (ignored). See [Walking review](M5_CINEMATIC_PLAYTEST.md#walking-performance-pass).
+
+The headless runner initially supplied a square 1280×1280 viewport, causing two horizontal projection assertions to fail despite the native landscape captures passing. The Cinematic harness now explicitly requests the same 1280×720 landscape viewport for both backends. This scopes framing checks to that viewport; it does not certify every aspect ratio. Native verification preceded this harness-only normalization and failure-diagnostic addition; production scripts/data are the same. The existing sandbox certificate-store startup message remains unrelated to offline gameplay.
+
+## M4/M5 scene-transition lifecycle - 2026-09-28
+
+Godot **4.7.2.stable.official.ed1daf0bf**, Compatibility; native Windows / NVIDIA RTX 3050 Laptop GPU at a 30 FPS cap. This update adds a regression harness and documentation; production behavior and save schema are unchanged.
+
+| Check | Result |
+| --- | --- |
+| Combined headless suites, fixed 30 render cadence | **96 Story + 34 Practice + 30 Cockpit + 21 RoadRender + 145 Lifecycle + 57 TouchLayout + 79 Input + 60 Narrative + 52 Mood + 71 Audio + 142 Cinematic + 39 CinematicAudio + 79 Phone + 41 Interface = 946 checks, 0 failures** |
+| Native Lifecycle, three cycles | **145 checks, 0 failures**; actual title/practice replacements, interrupted opening/Continue, prologue handoffs, shelter/rest/reflection and completed Continue |
+| Extended headless Lifecycle, ten cycles at fixed 30 cadence | **481 checks, 0 failures**; each cycle restores baseline node/orphan counts, signal connections, material-cache cleanup and audio pool size |
+| Native cleanup baseline | **20 live nodes / 0 orphan nodes** before loading and after all three cycles; singleton/viewport subscriptions return to baseline; material cache empties; watched scene/world/stage/marking resources expire |
+| Native menu snapshots | **2,060 live nodes / 0 orphans**, 67 cached materials on each return; audio retains its original **13 players / 7 buses** |
+| Native diagnostic memory | Empty-tree static memory warms from 35,417,527 bytes initially to 69,197,970 / 69,237,374 / 69,243,602 after cycles; reported resource count 45 initially, 49 after each cycle. These observations do not establish OS/GPU memory acceptance |
+| Input/audio/save | Simulated focus loss releases held two-finger riding input and pauses/suspends audio; focus return leaves explicit Resume required; practice preserves story state/save bytes; completed Continue does not rewrite the save or replay music |
+| Target-platform and duration gates | **Pending**: real Web/Android lifecycle, natural-speed extended play, OS/GPU memory and thermal profiling |
+
+Use the [Lifecycle guide](LIFECYCLE.md) for commands, exact route, report fields and limits. Native evidence is retained locally in `.godot-test/LifecycleTests-native30.log` and `lifecycle-native30.json`; standard headless evidence in `LifecycleTests-headless30.log` and `lifecycle-headless30.json`; extended evidence in `LifecycleTests-ten-cycles.log` and `lifecycle-ten-cycles.json`. All artifacts are ignored by Git. Tests/tools/docs remain excluded by both export presets; no production export change is introduced.
+
+An initial harness run referenced a nonexistent input-action constant; it was corrected to the current eight riding actions before the final runs. Final suites have no game script errors or native renderer disposal warnings. The existing sandbox root-certificate-store startup error remains unrelated to these offline tests.
+
 ## M4/M5 road-marking batches - 2026-09-28
 
 Godot **4.7.2.stable.official.ed1daf0bf**, Compatibility; native Windows / NVIDIA RTX 3050 Laptop GPU at a 30 FPS cap.

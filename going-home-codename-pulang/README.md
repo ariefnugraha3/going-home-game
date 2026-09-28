@@ -136,6 +136,14 @@ Native fixed-camera measurements in Godot Compatibility show fewer draw calls at
 
 Local validation: **801 combined headless checks passed**, including **21 RoadRender checks**. The native RoadRender suite passed **37 checks**, adding transform/culling verification and 12 renderer measurements. Story/practice road views were inspected, resource disposal returned node counts to baseline, and the resource PCK exports and boots independently. Target-platform profiling remains pending.
 
+## Scene-transition lifecycle · M4/M5 update, 2026-09-28
+
+A repeatable **Lifecycle** suite now exercises actual title/practice scene replacements and the story handoffs through Karawang's ending. Each cycle interrupts the opening, restores it with Continue, passes through the office/call/departure, visits shelter and guesthouse, opens Phone and settings, and restores the completed checkpoint. Simulated background/foreground notifications check pause, touch release and audio focus.
+
+After each cycle, live/orphan node counts and singleton/viewport signal subscriptions must return to their initial values. Watched scene, UI, world, cinematic and marking resources must be released; the material cache must empty and the shared audio pool must remain fixed. Practice and completed-checkpoint restoration preserve saved bytes. A local JSON report records cleanup counts and diagnostic memory counters.
+
+Use `-Suite Lifecycle` for three cycles or `-SoakCycles 10` for an extended run; see the [lifecycle test guide](docs/test/LIFECYCLE.md). **946 combined headless checks passed**, including **145 Lifecycle checks**; native rendering also passed **145 checks across three cycles**. An additional **10-cycle headless run passed 481 checks**. This is accelerated transition coverage using cutscene skips and road teleports. Long-duration gameplay, OS/GPU memory investigation and real Web/Android lifecycle/performance acceptance remain open.
+
 ## Location audio and music · M4 update
 
 The road now blends between city traffic, roadside, fields, warung, and indoor ambience using `data/audio/soundscape.json`. Loops keep their playback position across zone changes. A sheltered stop adds roof rain only while it is raining; the warung adds sparse crockery sounds. Riding wind fades out when the engine stops.
@@ -160,19 +168,19 @@ Local validation: **613 combined checks passed** at fixed 30 render cadence, inc
 
 ## Opening cinematics - M5 update
 
-The opening now has **23 authored shots across five sequences**: morning routine and parking, HR notification/meeting, post-meeting sign-out, evening apartment, and packing/departure. Phone and laptop inserts show the alarm, HR message, recruiter opportunities, Apply, Mom, and the route home. The bike appears in the parking set with luggage at departure, followed by a PULANG title reveal and the existing ride into Karawang.
+The opening now has **24 authored shots across five sequences**: morning routine and parking, HR notification/meeting, post-meeting sign-out, evening apartment, and packing/departure. Phone and laptop inserts show the alarm, HR message, recruiter opportunities, Apply, Mom, and the route home. The bike appears in the parking set with luggage at departure, followed by a PULANG title reveal and the existing ride into Karawang.
 
 Shots in `data/cutscenes/opening.json` define stable IDs, purpose, framing, FOV, duration, optional camera endpoint, set, and prop text. `CinematicStage` builds the replaceable interior/parking sets; the director handles framing, restrained camera travel and the shared rider/bike departure movement. **Reduced camera motion** disables camera travel. Pause freezes the timeline; hold Space or select **Skip scene** to finish the current sequence, restore its final set/framing, and commit its flags once.
 
 The restructuring conversation now leads through badge/sign-out before the evening scene. Existing checkpoint IDs remain unchanged: Continue restores the stable checkpoint, not an individual shot. An interruption around the meeting can replay the commute/meeting from its saved checkpoint. Continue at departure restores packing, and finishing/skipping it restores the riding camera and controls.
 
-The authored shot durations total **101 seconds**, excluding dialogue, commute, transitions and player pauses. This remains a compact prototype: actors use articulated blocking geometry, and bike departure uses root movement. Final skinned rigs and performances, waking/walking/full packing actions, cinematic foley/voice treatment and the planned 30-60 minute slice remain unfinished. Use the [M5 cinematic review guide](docs/test/M5_CINEMATIC_PLAYTEST.md).
+The authored shot durations total **105 seconds**, excluding dialogue, commute, transitions and player pauses. This remains a compact prototype: actors use articulated blocking geometry, waking and walking follow the shot clock, and bike departure uses root movement. Final skinned rigs and performances, full packing actions, bed/foot/hand contact and mounting/sitting transitions, cinematic foley/voice treatment and the planned 30-60 minute slice remain unfinished. Use the [M5 cinematic review guide](docs/test/M5_CINEMATIC_PLAYTEST.md).
 
 Prior cinematic update validation: **424 combined checks passed** at fixed 30 render cadence, including **92 cinematic checks**. The same 92 cinematic checks also passed with native rendering capped at 30 FPS. Representative phone/laptop, packing, night, cluster and departure/title captures were inspected. Human pacing, final art and Web/Android acceptance remain pending.
 
 ## Cinematic sound cues · M5 update, 2026-09-27
 
-The opening now has five original synthesized sound sketches: a morning alarm, HR notification, Mom's ringtone, packing fabric, and a soft motorcycle/air memory bridge. Six events are timed in the authored shots. The four-second motorcycle cue begins 0.6 seconds before the father/child insert, continues through its two seconds, and fades over the first 1.4 seconds of the present-day title shot. Location ambience continues underneath; no new music or voice acting is added.
+The opening now has five original synthesized sound sketches: a morning alarm, HR notification, Mom's ringtone, fabric, and a soft motorcycle/air memory bridge. Seven events are timed in the authored shots, including the waking cloth cue added below. The four-second motorcycle cue begins 0.6 seconds before the father/child insert, continues through its two seconds, and fades over the first 1.4 seconds of the present-day title shot. Location ambience continues underneath; no new music or voice acting is added.
 
 Cinematic sound follows **Sound effects** and **Master** volume. Pause and backgrounding freeze picture and sound together. Skip, sequence replacement, cancellation and completion clear active sounds; muted or expired events never replay when volume returns. A two-voice pool keeps overlapping tails bounded. Continue uses the existing stable checkpoint and can replay its sequence normally; sound adds no save fields.
 
@@ -180,13 +188,43 @@ Cue timing lives in `data/cutscenes/opening.json`, with asset paths/gains in `da
 
 Local validation: **693 combined checks passed** at fixed 30 render cadence, including **39 cinematic audio checks**. The native cinematic audio suite passed **45 checks** at a 30 FPS cap, including actual SFX output and playback pause/resume. The resource PCK exports and boots independently. Human listening and real Web/Android acceptance remain pending.
 
+## Packing performance · M5 update, 2026-09-28
+
+The five-second packing insert now shows Raka picking up a folded raincoat, lifting it over an open bag, placing it inside, and closing the flap with his other hand. Clothes, a charger and a toolkit are visible inside. A higher camera angle frames the hands and bag. The following route insert retains the closed bag; the laptop remains on the desk for route planning. The opening stays at **24 shots / 105 authored seconds** and reuses the two existing fabric cues.
+
+The director samples both props and a two-joint hand reach from the same shot clock. Pause/background freezes the action, backward seeking restores it, and Skip restores the final luggage state. The complete office badge, including its label and lanyard, is hidden during packing. Journey checkpoints and saves are unchanged.
+
+This completes the **raincoat placement and flap-closing prototype**. Individual clothes/charger/toolkit placement, laptop packing after route planning, fastening the bag to the motorcycle, finger grips, fabric deformation and final recorded foley remain unfinished. See the [packing review checklist](docs/test/M5_CINEMATIC_PLAYTEST.md#packing-performance-pass).
+
+Local validation: **1,041 combined headless checks passed**, including **234 Cinematic checks** after the final framing correction. The full run passed 1,040 checks; the final Cinematic rerun adds a caption-clearance check. Native Cinematic also passed **234 checks** at 30 FPS. Pickup, placement and closure views were inspected, and the resource PCK exports and boots independently. Final animation/contact review and real Web/Android acceptance remain pending.
+
+## Waking performance · M5 update, 2026-09-28
+
+The opening now shows Raka waking on the bed and sitting at its foot before the coffee/badge inserts. The alarm phone sits on a new bedside table. The existing five-second `room` shot uses a bedside camera and an eighth `AnimationPlayer` clip for the torso, head, arms and legs; the character has bare feet in bed. A short fabric cue at 1.6 seconds reuses the original cloth sound prototype, bringing the opening to seven timed sound events.
+
+The legs remain extended until they clear the mattress edge, then bend into the seated pose. Pause/background freeze the shared shot clock, reduced camera motion keeps the performance, and seeking/Skip remain deterministic. The following insert restores ordinary actor transforms and the desk phone placement. Existing shot IDs, **24 shots / 105 authored seconds**, checkpoints and save schema are retained.
+
+This is still a blocking performance with simple meshes. Final bed/hand contact, expressive face/eye animation, cloth simulation or authored cloth deformation, costume refinement and recorded bedsheet sound remain open in the [waking review checklist](docs/test/M5_CINEMATIC_PLAYTEST.md#waking-performance-pass).
+
+Local validation: **998 combined headless checks passed**, including **191 Cinematic and 42 CinematicAudio checks**. Native runs passed **191 Cinematic and 48 CinematicAudio checks** at 30 FPS. Bedside alarm and lying/rising/seated views were inspected; knee timing was refined to avoid lowering the shins through the mattress. The resource PCK exports and boots independently. Final performance/contact review and real Web/Android acceptance remain pending.
+
+## Walking performances · M5 update, 2026-09-28
+
+Raka now walks toward the parked motorcycle during the morning sequence and toward the meeting table after the HR message. A seventh `AnimationPlayer` clip drives alternating hip, knee and arm movement, while the shot director moves the character along an authored path. The camera leaves room for the standing character; the motorcycle remains parked and its seated rider is hidden during the approach.
+
+Pause freezes both the gait and position. Reduced camera motion keeps the character moving while holding the camera still. Rewinding or skipping produces deterministic poses, and the following cut restores the original seated/riding posture without a duplicate Raka. Walking is limited to these cinematics; gameplay remains first-person riding with bounded stop interactions.
+
+The new office shot adds four seconds, bringing the opening to **24 shots / 105 authored seconds**. These are blocking performances: foot locking, production rigs, mounting/sitting animation and recorded footsteps remain open in the [walking review checklist](docs/test/M5_CINEMATIC_PLAYTEST.md#walking-performance-pass).
+
+Local validation: **977 combined headless checks passed**, including **173 Cinematic checks**. The native Cinematic run also passed **173 checks** at 30 FPS; both walking shots were inspected at start/mid/end and their camera framing refined. The resource PCK exports and boots independently. Human gait/contact review and real Web/Android acceptance remain pending.
+
 ## Character performances and memory - M5 update, 2026-09-25
 
 The opening characters now have articulated head, shoulder and elbow joints driven by six original `AnimationPlayer` clips: rest, listening, lifting the phone, reaching during packing, riding and passenger poses. The director samples each clip at the shot's current progress. Pause freezes the pose, and skipping any shot restores the same final pose as normal completion. The phone disappears from the desk when the handheld prop appears; Raka holds it during the mother's dialogue.
 
 A **two-second memory insert** before departure shows young Raka behind his father on the motorcycle, with a distinct roadside set and **A MEMORY / With Dad** caption. Both riders use prototype helmet geometry. It returns to present-day parking with the luggage and title reveal. Cinematic bikes hide the first-person arm meshes to avoid duplicate hands. Interior lighting layers and the room wall behind the phone shot are also corrected.
 
-The opening now totals **23 shots / 101 authored seconds** before dialogue, riding, transitions and pauses. These are reusable animation prototypes, not finished character art: skinning, facial/lip animation, walking, waking, complete packing actions, refined hand contact and final cinematic sound remain open. The memory keeps continuous ambient crossfades and now has the synthesized sound bridge described above; final recorded sound and listening acceptance remain pending.
+This earlier pass brought the opening to **23 shots / 101 authored seconds**; the walking update above extends it to 24 / 105. These are reusable animation prototypes, not finished character art: skinning, facial/lip animation, complete packing actions, refined bed/hand/foot contact and final cinematic sound remain open. The memory keeps continuous ambient crossfades and now has the synthesized sound bridge described above; final recorded sound and listening acceptance remain pending.
 
 Local validation: **474 combined checks passed**, including **142 cinematic checks**, at fixed 30 render cadence. The 142 cinematic checks also passed in native Godot at a 30 FPS cap. Phone, packing, father/child and departure poses were inspected in rendered captures. Human animation/comfort review and real Web/Android validation remain pending.
 
@@ -311,6 +349,8 @@ Based on the [Development Roadmap v1](../PULANG_Development_Roadmap_v1.md). Stat
 - [ ] Refine hero bike and character art; replace synthesized placeholders with recorded motorcycle/regional ambience and review the final mix.
 - [x] Batch story/practice road markings into bounded MultiMeshes after native before/after draw-call measurement.
 - [x] Test original marking transforms, dimensions, culling margins and resource disposal across repeated world loads.
+- [x] Add repeated real scene-transition regression with checkpoint restoration, background/foreground handling and per-cycle node/resource/signal/audio cleanup reports.
+- [ ] Complete long-duration natural-speed transition and OS/GPU memory profiling on actual Web/Android exports.
 - [ ] Review visual identity and sound quality, and profile actual target-platform builds.
 
 ### M5 — Vertical Slice · In progress
@@ -318,12 +358,18 @@ Based on the [Development Roadmap v1](../PULANG_Development_Roadmap_v1.md). Stat
 - [x] Connect Jakarta opening → commute → layoff → mother's call → departure → first road segment.
 - [x] Connect optional stops → rain shelter/conversation → guesthouse → journal → chapter ending.
 - [x] Test the compact desktop flow, checkpoint recovery, and Continue through completion.
-- [x] Expand the opening to 23 authored shots with interior/parking sets, readable phone/laptop inserts, post-meeting sign-out, and departure/title reveal.
+- [x] Expand the opening to 24 authored shots with interior/parking sets, readable phone/laptop inserts, post-meeting sign-out, and departure/title reveal.
 - [x] Add per-shot framing/FOV, restrained camera travel, reduced-motion behavior, deterministic skip, pause and stable-checkpoint regression checks.
-- [x] Add articulated prototype actors, six director-sampled AnimationPlayer clips, phone prop handoff, and a father/young-Raka memory insert.
+- [x] Add articulated prototype actors, eight director-sampled AnimationPlayer clips, phone prop handoff, and a father/young-Raka memory insert.
 - [x] Test deterministic actor poses after seeking/skipping, pause, dialogue handoff and memory-to-present restoration.
+- [x] Add a director-sampled walking gait and authored approaches to the parked motorcycle and meeting table; restore seated/riding poses on the following cut.
+- [x] Add lying-to-seated waking performance, bedside alarm placement and timed fabric cue; verify pause/focus, seeking, mattress clearance and pose reset.
+- [x] Add raincoat pickup/placement and bag-flap closure with sampled hand contact; test pause/focus, rewind, prop reset and all-shot Skip equivalence.
+- [ ] Animate remaining individual packing actions, laptop stowage after route planning and luggage fastening; refine fingers, cloth and recorded contact sound with production assets.
+- [ ] Refine waking bed/hand contact, facial expression, cloth and final recorded bedsheet sound with production assets.
+- [ ] Refine planted feet, mounting/sitting transitions and final walking performances/footsteps with production character rigs.
 - [x] Connect the prototype UI sound set across story/practice menus, phone sections, authored choices and keyboard navigation.
-- [x] Add five original cinematic sound prototypes and six timed events, including a motorcycle sound bridge through the father memory.
+- [x] Add five original cinematic sound prototypes and seven timed events, including waking fabric and a motorcycle sound bridge through the father memory.
 - [x] Test sound timing/tails, activation, SFX/Master mute, pause/background, skip/replacement cleanup and save isolation, including native playback.
 - [ ] Review cinematic sound/contact timing on headphones and phone speakers; replace prototypes with final recordings.
 - [ ] Expand and playtest pacing toward the planned 30–60 minute slice.
@@ -411,6 +457,8 @@ powershell -ExecutionPolicy Bypass -File tools/test.ps1 -Suite Input -Visual
 powershell -ExecutionPolicy Bypass -File tools/test.ps1 -Suite Narrative -StoryDebug -Visual
 powershell -ExecutionPolicy Bypass -File tools/test.ps1 -Suite Mood -Visual -FixedFps 30
 powershell -ExecutionPolicy Bypass -File tools/test.ps1 -Suite RoadRender -Visual -FixedFps 30
+powershell -ExecutionPolicy Bypass -File tools/test.ps1 -Suite Lifecycle -Visual -FixedFps 30
+powershell -ExecutionPolicy Bypass -File tools/test.ps1 -Suite Lifecycle -FixedFps 30 -SoakCycles 10
 powershell -ExecutionPolicy Bypass -File tools/test.ps1 -Suite Audio -Visual -FixedFps 30
 powershell -ExecutionPolicy Bypass -File tools/test.ps1 -Suite Cinematic -Visual -FixedFps 30
 powershell -ExecutionPolicy Bypass -File tools/test.ps1 -Suite CinematicAudio -Visual -FixedFps 30
@@ -418,9 +466,9 @@ powershell -ExecutionPolicy Bypass -File tools/test.ps1 -Suite Phone -Visual -Fi
 powershell -ExecutionPolicy Bypass -File tools/test.ps1 -Suite Interface -Visual -FixedFps 30
 ```
 
-The helper isolates all test saves in `.godot-test/`. **Do not run the test scenes against your normal user profile**: their corruption and new-game cases deliberately replace the test save. The default `-Suite All` runs story, practice, cockpit, road render, touch layout, input, narrative, mood, audio, cinematic, cinematic audio, phone, and interface sequentially; use `-Suite Story`, `Practice`, `Cockpit`, `RoadRender`, `TouchLayout`, `Input`, `Narrative`, `Mood`, `Audio`, `Cinematic`, `CinematicAudio`, `Phone`, or `Interface` to select one. `-StoryDebug` enables additional viewer checks in the narrative suite. Headless `-FixedFps` changes simulated render cadence; with `-Visual`, it sets the actual native FPS cap. Physics remains at 60 ticks per second. The helper fails on script errors or a missing success summary, even if the engine exits with code zero.
+The helper isolates all test saves in `.godot-test/`. **Do not run the test scenes against your normal user profile**: their corruption and new-game cases deliberately replace the test save. The default `-Suite All` runs story, practice, cockpit, road render, lifecycle, touch layout, input, narrative, mood, audio, cinematic, cinematic audio, phone, and interface sequentially; use `-Suite Story`, `Practice`, `Cockpit`, `RoadRender`, `Lifecycle`, `TouchLayout`, `Input`, `Narrative`, `Mood`, `Audio`, `Cinematic`, `CinematicAudio`, `Phone`, or `Interface` to select one. `-StoryDebug` enables additional viewer checks in the narrative suite. Headless `-FixedFps` changes simulated render cadence; with `-Visual`, it sets the actual native FPS cap (RoadRender and Lifecycle always use a native 30 FPS cap). Physics remains at 60 ticks per second. The helper fails on script errors or a missing success summary, even if the engine exits with code zero.
 
-The story suite exercises content references, conditions, schema validation, corrupt-save fallback, opening/skip handoff, physical throttle/brake/steering, ground contact, pause, every stop, multitouch action handling, journal persistence, and Continue. The practice suite drives the full track under physics, checks solid-obstacle response, recovery, metrics, save isolation, and real title/practice scene transitions. `-Visual` also captures rendered screenshots under `tests/screenshots/` (ignored by Git). See [Validation record](docs/test/VALIDATION.md) for results and outstanding platform work.
+The story suite exercises content references, conditions, schema validation, corrupt-save fallback, opening/skip handoff, physical throttle/brake/steering, ground contact, pause, every stop, multitouch action handling, journal persistence, and Continue. The practice suite drives the full track under physics, checks solid-obstacle response, recovery, metrics, save isolation, and real title/practice scene transitions. Suites with visual snapshots write screenshots under `tests/screenshots/` (ignored by Git); Lifecycle writes a local JSON counter report instead. See [Validation record](docs/test/VALIDATION.md) for results and outstanding platform work.
 
 ## Export
 

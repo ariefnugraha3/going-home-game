@@ -53,13 +53,11 @@ func _interior(location: String, night: bool) -> void:
 	props.badge = badge
 	var badge_text := _text("RAKA", Vector3(-0.5, 0.938, -0.35), 0.00055)
 	badge_text.rotation.x = -PI / 2
-	LowPoly.beam(self, Vector3(-0.58, 0.945, -0.44), Vector3(-0.7, 0.945, -0.63), 0.012, Color("48676e"))
-	var bag := Node3D.new()
+	props.badge_text = badge_text
+	props.lanyard = LowPoly.beam(self, Vector3(-0.58, 0.945, -0.44), Vector3(-0.7, 0.945, -0.63), 0.012, Color("48676e"))
+	var bag := PackingProps.new()
 	add_child(bag)
-	bag.position = Vector3(-0.35, 0.98, -0.35)
-	LowPoly.box(bag, Vector3.ZERO, Vector3(0.72, 0.25, 0.42), Color("66735b"))
-	for x in [-0.22, 0.22]:
-		LowPoly.box(bag, Vector3(x, 0.14, 0), Vector3(0.055, 0.025, 0.44), Color("343d35"))
+	bag.build()
 	props.bag = bag
 	bag.visible = false
 	if location == "office":
@@ -69,6 +67,10 @@ func _interior(location: String, night: bool) -> void:
 	else:
 		LowPoly.box(self, Vector3(2.5, 0.35, -1), Vector3(1.4, 0.65, 2.6), Color("4e6e68"))
 		LowPoly.box(self, Vector3(2.5, 0.72, -1.85), Vector3(1.1, 0.2, 0.55), Color("ddd3b5"))
+		LowPoly.box(self, Vector3(1.5, 0.69, -1.75), Vector3(0.6, 0.08, 0.65), Color("80634a"))
+		for x in [1.28, 1.72]:
+			for z in [-1.99, -1.51]:
+				LowPoly.box(self, Vector3(x, 0.325, z), Vector3(0.06, 0.65, 0.06), Color("5c5041"))
 		LowPoly.box(self, Vector3(-2.6, 0.45, 0.2), Vector3(0.65, 0.08, 0.6), Color("665b47"))
 		LowPoly.box(self, Vector3(-2.6, 0.95, -0.08), Vector3(0.65, 0.9, 0.08), Color("665b47"))
 		LowPoly.box(self, Vector3(-2.6, 1.02, 0.01), Vector3(0.55, 0.55, 0.14), Color("698174"))
@@ -129,6 +131,8 @@ func _parking(memory: bool = false) -> void:
 	props.bike = bike
 	var rider := _seated(Vector3(0, 0.22, 0), -PI / 2, Color("916c4e") if memory else Color("65715d"))
 	props.rider = rider
+	if not memory:
+		props.walker = _seated(Vector3.ZERO, 0, Color("65715d"))
 	if memory:
 		var child := _seated(Vector3(-0.57, 0.48, 0), -PI / 2, Color("b39864"))
 		child.scale = Vector3.ONE * 0.65
@@ -141,19 +145,43 @@ func configure(shot: Dictionary) -> void:
 		screen.text = shot.get("screen", "")
 	if props.has("phone"):
 		props.phone.text = shot.get("phone", "06:40")
+		var phone_position := Vector3(1.5, 0.75, -1.75) if shot.get("bedside_phone", false) else Vector3(0.86, 0.925, -0.45)
+		props.phone_body.position = phone_position
+		props.phone_face.position = phone_position + Vector3(0, 0.016, 0)
+		props.phone.position = phone_position + Vector3(0, 0.022, 0)
 	if props.has("bag"):
 		props.bag.visible = shot.get("packing", false)
-		props.badge.visible = not shot.get("packing", false)
+		for key in ["badge", "badge_text", "lanyard"]:
+			props[key].visible = not shot.get("packing", false)
 	if props.has("raka"):
 		props.raka.visible = shot.get("actor", true)
 	if props.has("nadia"):
 		props.nadia.visible = shot.get("actor", true)
 	if props.has("luggage"):
 		props.luggage.visible = shot.get("luggage", false)
+	if props.has("walker"):
+		props.walker.visible = shot.get("performance", "rest") == "walk"
+		props.rider.visible = not props.walker.visible
 
 func pose(shot: Dictionary, weight: float) -> void:
 	if props.has("raka"):
-		props.raka.sample(shot.get("performance", "rest"), weight)
+		if shot.get("performance", "rest") == "walk":
+			_pose_walk(props.raka, shot, weight)
+		elif shot.get("performance", "rest") == "wake":
+			# Sit toward the foot of the bed as the torso rises. Like the actor
+			# clip, placement is a pure function of the shot's shared clock.
+			props.raka.position = Vector3(2.5, 0.13, -1.05).lerp(Vector3(2.5, 0, 0.2), smoothstep(0.15, 0.55, weight))
+			props.raka.rotation = Vector3(0, PI, 0)
+			props.raka.sample("wake", weight)
+		else:
+			props.raka.position = Vector3(0, 0, 0.45)
+			props.raka.rotation = Vector3.ZERO
+			props.raka.sample(shot.get("performance", "rest"), weight)
+		var packing: PackingProps = props.bag
+		var packing_action: bool = shot.get("performance", "rest") == "pack"
+		packing.sample(weight if packing_action else 1.0)
+		if packing_action:
+			packing.pose_actor(props.raka, weight)
 		var on_table: bool = not props.raka.handset.visible
 		for key in ["phone", "phone_body", "phone_face"]:
 			props[key].visible = on_table
@@ -161,6 +189,13 @@ func pose(shot: Dictionary, weight: float) -> void:
 		props.nadia.sample(shot.get("npc_performance", "listen"), weight)
 	if props.has("rider"):
 		props.rider.sample("ride", weight)
+	if props.has("walker"):
+		if props.walker.visible:
+			_pose_walk(props.walker, shot, weight)
+		else:
+			props.walker.position = Vector3.ZERO
+			props.walker.rotation = Vector3.ZERO
+			props.walker.sample("walk", 0)
 	if props.has("young_raka"):
 		props.young_raka.sample("passenger", weight)
 	if props.has("bike"):
@@ -168,9 +203,32 @@ func pose(shot: Dictionary, weight: float) -> void:
 		props.bike.position.x = travel
 		props.rider.position.x = travel
 
+func _pose_walk(actor: CinematicActor, shot: Dictionary, weight: float) -> void:
+	var from_values: Array = shot.get("actor_from", [0, 0, 0])
+	var to_values: Array = shot.get("actor_to", from_values)
+	var start := Vector3(from_values[0], from_values[1], from_values[2])
+	var end := Vector3(to_values[0], to_values[1], to_values[2])
+	var direction := end - start
+	actor.position = start.lerp(end, weight)
+	actor.rotation = Vector3(0, atan2(-direction.x, -direction.z), 0) if direction.length_squared() > 0 else Vector3.ZERO
+	# Root travel and the repeating gait share the director's eased progress.
+	# An integer stride count lands on a neutral pose at either end, and seeking
+	# backwards or skipping never depends on a previous animation frame.
+	actor.sample("walk", fposmod(weight * maxi(1, int(shot.get("walk_cycles", 1))), 1.0))
+
 func actor_snapshot() -> Dictionary:
 	var result := {}
-	for key in ["raka", "nadia", "rider", "young_raka"]:
+	for key in ["raka", "nadia", "rider", "young_raka", "walker"]:
 		if props.has(key):
-			result[key] = [props[key].transform, props[key].pose_snapshot()]
+			result[key] = [props[key].transform, props[key].visible, props[key].pose_snapshot()]
+	return result
+
+func prop_snapshot() -> Dictionary:
+	var result := {}
+	if props.has("bag"):
+		result.bag = props.bag.pose_snapshot()
+		for key in ["badge", "badge_text", "lanyard"]:
+			result[key] = props[key].visible
+	if props.has("luggage"):
+		result.luggage = [props.luggage.transform, props.luggage.visible]
 	return result

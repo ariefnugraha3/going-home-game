@@ -33,7 +33,7 @@ func _ready() -> void:
 				previous = event.at
 				count += 1
 		check(valid, "Authored cues reference bank and ordered in-shot times: " + id)
-	check(count == 6, "Opening contains six sparse authored sound events")
+	check(count == 7, "Opening contains seven sparse authored sound events")
 	director.play("morning")
 	director._process(.2)
 	check(events.is_empty() and sound.pending.is_empty(), "Before activation an elapsed cue is consumed silently")
@@ -52,6 +52,12 @@ func _ready() -> void:
 	director.play("morning")
 	director._process(3)
 	check(events.size() == 1 and director.shot_index == 1, "Large frame discards a cue that would already have ended")
+	director._process(1.5)
+	check(events.size() == 1, "Waking fabric waits for the movement cue")
+	director._process(.2)
+	check(events.size() == 2 and events.back() == "fabric" and is_equal_approx(offsets.back(), .1), "Waking movement triggers its fabric cue once at the authored offset")
+	director.finish()
+	check(sound.remaining == [0.0, 0.0] and sound.pending.is_empty(), "Skipping the waking shot clears its fabric sound")
 	director.play("morning")
 	director._process(.2)
 	director.play("office")

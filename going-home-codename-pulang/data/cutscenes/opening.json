@@ -12,14 +12,14 @@
       {
         "shot_id": "alarm",
         "camera": [
-          1.1,
-          1.6,
-          0.15
+          1.05,
+          1.4,
+          -0.85
         ],
         "target": [
-          0.86,
-          0.94,
-          -0.45
+          1.5,
+          0.77,
+          -1.75
         ],
         "duration": 3,
         "text": "The alarm. Another Tuesday.",
@@ -29,6 +29,7 @@
         "transition": "cut",
         "actor": false,
         "performance": "rest",
+        "bedside_phone": true,
         "audio": [
           {
             "cue": "alarm",
@@ -39,27 +40,29 @@
       {
         "shot_id": "room",
         "camera": [
-          3.5,
-          2.2,
-          3.6
+          0.1,
+          2.0,
+          2.4
         ],
         "target": [
-          0.6,
-          1,
-          -0.5
+          2.5,
+          1.1,
+          -0.6
         ],
         "duration": 5,
         "text": "Nine years in Jakarta. Most mornings know what to do.",
         "fov": 45,
-        "framing": "wide",
+        "framing": "bedside medium",
         "movement": "dolly",
         "transition": "cut",
         "camera_end": [
-          3.3,
-          2.2,
-          3.6
+          0.3,
+          2.0,
+          2.4
         ],
-        "performance": "rest"
+        "performance": "wake",
+        "bedside_phone": true,
+        "audio": [{"cue": "fabric", "at": 1.6}]
       },
       {
         "shot_id": "coffee",
@@ -127,7 +130,10 @@
           1.8,
           4.3
         ],
-        "performance": "rest"
+        "performance": "walk",
+        "actor_from": [-2.8, 0, 1.4],
+        "actor_to": [-0.1, 0, 1.4],
+        "walk_cycles": 4
       },
       {
         "shot_id": "cluster",
@@ -192,6 +198,23 @@
             "at": 0.25
           }
         ]
+      },
+      {
+        "shot_id": "walk_to_meeting",
+        "camera": [-3, 1.75, 6.1],
+        "camera_end": [-3, 1.75, 5.8],
+        "target": [-1.3, 0.5, 0.8],
+        "duration": 4,
+        "text": "A few steps to the meeting table.",
+        "fov": 50,
+        "framing": "rear medium",
+        "movement": "dolly",
+        "transition": "cut",
+        "performance": "walk",
+        "npc_performance": "listen",
+        "actor_from": [-1.9, 0, 2.6],
+        "actor_to": [-1.9, 0, 0.45],
+        "walk_cycles": 3
       },
       {
         "shot_id": "meeting_room",
@@ -484,18 +507,18 @@
       {
         "shot_id": "packing",
         "camera": [
-          -1.3,
-          1.7,
-          0.9
+          -1.29,
+          3.01,
+          1.16
         ],
         "target": [
-          -0.35,
-          1,
-          -0.35
+          -0.12,
+          1.12,
+          -0.2
         ],
         "duration": 5,
         "text": "Raincoat. Charger. Toolkit. The laptop comes too.",
-        "fov": 42,
+        "fov": 52,
         "framing": "insert",
         "movement": "static",
         "transition": "cut",
