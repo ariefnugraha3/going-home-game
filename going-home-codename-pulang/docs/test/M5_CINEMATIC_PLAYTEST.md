@@ -1,10 +1,10 @@
 # M5 opening cinematic review
 
-The current opening is a blocking prototype with 25 authored shots, not final character animation or an accepted vertical slice. All captions and device text are English. Raka remains competent, loses his role through restructuring, has professional alternatives, and chooses to go home.
+The current opening is a blocking prototype with 26 authored shots, not final character animation or an accepted vertical slice. All captions and device text are English. Raka remains competent, loses his role through restructuring, has professional alternatives, and chooses to go home.
 
 ## Play the opening
 
-Begin a new journey, watch the apartment and parking shots, ride to the office, finish the restructuring conversation, watch the sign-out/evening sequence, answer Mom, and watch packing/departure. The shot durations total 113 seconds: morning 24, office 19, sign-out 11, evening 23, departure 36. Dialogue, commute, transitions and pauses add to this time; it is not a measured player-session length.
+Begin a new journey, watch the apartment and parking shots, ride to the office, finish the restructuring conversation, watch the sign-out/evening sequence, answer Mom, and watch packing/departure. The shot durations total 118 seconds: morning 24, office 19, sign-out 11, evening 23, departure 41. Dialogue, commute, transitions and pauses add to this time; it is not a measured player-session length.
 
 Hold Space for more than 0.8 seconds or select Skip scene. This finishes the current sequence, not the whole prologue. Pause freezes the shot clock and movement. Reduced camera motion makes camera travel static; the departing motorcycle still moves through the set.
 
@@ -70,17 +70,30 @@ The Cinematic suite covers open/closed endpoints, ordered placement/closure, pau
 - [x] Add laptop stowage after route planning, as described below.
 - [ ] Add remaining item placement and fastening luggage to the motorcycle.
 
+## Bike touch pass
+
+The new five-second `departure/bike_touch` insert follows `straps` and precedes `father_memory`, matching the GDD's tank/cluster touch before the memory. `bike_touch: true` selects standing Raka and hides the seated rider. He already holds a small cloth at the editorial cut, brings it to the tank's near flank, wipes out and back, holds briefly, then withdraws it. Moving from the luggage to this standing position and taking out/putting away the cloth are not animated.
+
+`CinematicBikeTouch` samples an ellipsoid path from the existing tank mesh bounds and transform, keeps the path away from the center fuel cap, aligns a rigid cloth to the surface normal and drives the right hand with the existing two-joint reach. The tank is exposed as `BikeVisual.tank`; its geometry and riding behavior are unchanged. The standing pose reuses the walk clip at time zero. The director owns the only clock, and non-wipe shots reset/hide the cloth. The secured luggage is preserved through this shot and restored after memory.
+
+The Cinematic suite samples 101 times to check palm/cloth contact, modeled surface offset and fuel-cap separation, stationary legs/bike, cloth framing, an unobstructed view past the torso and constant node count. It also checks stroke travel/return, pause/focus, rewind, reduced motion, unchanged journey state, memory/departure cleanup and morning reset. All-shot Skip comparison includes the cloth. Captures: `bike_touch_ready.png`, `bike_touch_contact.png`, `bike_touch_wipe.png`, `bike_touch_withdrawn.png`.
+
+- [ ] Review the wipe, reflective hold and memory transition at natural speed; confirm the gesture supports Raka's connection to the motorcycle.
+- [ ] Refine actual faceted-mesh contact, palm/fingers, cloth deformation, visible dust removal and expressive body/head motion using production assets. Ellipsoid checks do not certify full mesh contact.
+- [ ] Add standing-position transitions and cloth retrieval/storage, then replace synthesized cloth with recorded wiping foley.
+- [ ] Inspect both cloth and caption readability at phone sizes and in real Web/Android builds.
+
 ## Luggage strap check pass
 
 The five-second `departure/straps` shot sets `luggage_check: true` and uses a standing Raka beside the motorcycle, with the seated rider hidden. `CinematicLuggage` builds a closed bag, two bands, buckles and free tails on the bike. The shot begins with the bag already placed and straps threaded around it; Raka pulls each tail, removing the visible slack, then leaves short secured ends. The neutral standing pose reuses the walk clip at time zero; arms reach sampled grip points while the feet stay still. Other parking shots sample the secured luggage state and retain their normal walking/riding behavior.
 
-All segments use fixed meshes with sampled transforms, not simulated ropes or per-frame mesh/node creation. Frame endpoints remain fixed. The five-second duration and memory bridge at 4.4 seconds are unchanged; two fabric cues at 1.5 and 2.8 seconds accompany the pulls. The memory frees the present-day stage and hides luggage; returning to departure rebuilds the same secured geometry, then moves it with the bike. The cinematic bag does not add physical cargo to gameplay or save data.
+All segments use fixed meshes with sampled transforms, not simulated ropes or per-frame mesh/node creation. Frame endpoints remain fixed. The five-second duration is unchanged; two fabric cues at 1.5 and 2.8 seconds accompany the pulls. The memory bridge now starts at 4.4 seconds in the following bike-touch insert. The memory frees the present-day stage and hides luggage; returning to departure rebuilds the same secured geometry, then moves it with the bike. The cinematic bag does not add physical cargo to gameplay or save data.
 
 Automated checks sample 101 times for two-hand contact, torso clearance at the grips, planted legs, fixed frame endpoints, projected luggage/grip bounds and constant node count. They cover ordered tightening, pause/focus, rewind, reduced motion, story-state isolation, memory cleanup, departure attachment and morning reset. All-shot Skip comparisons include strap geometry. Native captures: `straps_ready.png`, `straps_first_pull.png`, `straps_second_pull.png`, `straps_secured.png`.
 
 - [ ] Watch the two pulls at natural speed and verify both hands, buckles and short tails read clearly at phone sizes.
 - [ ] Review production finger/forearm contact, strap routing, cloth tension and final recorded buckle/fabric timing. Authored point checks are not a complete mesh or cloth assessment.
-- [ ] Add carrying/placing the bag, initial threading/fastening, the bike-touch gesture and mounting transitions with production assets.
+- [ ] Add carrying/placing the bag, initial threading/fastening and mounting transitions with production assets.
 - [ ] Repeat pause, Skip, memory continuity and departure framing in actual browser/Android builds.
 
 ## Laptop packing pass
@@ -123,7 +136,8 @@ Five original mono 22,050 Hz PCM sketches are synthesized by `tools/generate_cin
 | Departure / packing | fabric | 1.6 s and 3.3 s | 0.85 s each |
 | Departure / laptop_packing | fabric | 3.0 s and 6.6 s | 0.85 s each |
 | Departure / straps | fabric | 1.5 s and 2.8 s | 0.85 s each |
-| Departure / straps | memory_motor | 4.4 s | 4.0 s, across the next two cuts |
+| Departure / bike_touch | fabric | 1.6 s and 3.0 s | 0.85 s each |
+| Departure / bike_touch | memory_motor | 4.4 s | 4.0 s, across the next two cuts |
 
 Each shot may contain an ordered `audio` array of `{ "cue": "bank_id", "at": seconds }`. `data/audio/cinematic.json` maps IDs to imported assets and gain in dB. Events must start within their shot. `CinematicAudio` owns two SFX voices and the director advances its clock; ordinary cuts keep remaining tails. Full voices cause additional requests to be discarded. A late frame starts a still-relevant cue at its elapsed offset and drops sounds whose duration has already passed. No queued event survives its shot, skip, replacement, completion or cancellation.
 
@@ -131,7 +145,7 @@ Audio requires the existing user activation. Master/SFX zero drops new events; e
 
 - [ ] At natural speed, listen to the alarm, HR notification and ringtone. They should remain quiet and readable without resembling urgent gameplay prompts.
 - [ ] Compare packing fabric with the prototype reach; record contact/timing adjustments for the final animation pass.
-- [ ] Listen from straps through the two-second memory and title. The motor/air should connect the images, fade naturally and leave space for the present-day road sound.
+- [ ] Listen from bike touch through the two-second memory and title. The motor/air should connect the images, fade naturally and leave space for the present-day road sound.
 - [ ] Pause mid-cue, open settings, mute/unmute SFX, background/resume and skip. Check for clicks, stale alarms, duplicate cues or tails under dialogue.
 - [ ] Compare headphones and phone speakers at comfortable volume; approve final timbre, gain and ambience balance only after human listening.
 - [ ] Repeat activation, pause/focus, touch Skip and Continue on real Web/Android exports.

@@ -4,12 +4,13 @@ extends Node3D
 var show_rider_arms: bool = true
 var instruments: BikeInstruments
 var bars: Node3D
+var tank: MeshInstance3D
 
 func _ready() -> void:
 	var steel := Color("a9b5b0")
 	var black := Color("29312e")
 	var paint := Color("466e64")
-	LowPoly.sphere(self, Vector3(0, 0.85, -0.2), Vector3(0.69, 0.25, 1.05), paint)
+	tank = LowPoly.sphere(self, Vector3(0, 0.85, -0.2), Vector3(0.69, 0.25, 1.05), paint)
 	LowPoly.cylinder(self, Vector3(0, 1.075, -0.22), 0.09, 0.018, steel)
 	LowPoly.box(self, Vector3(0, 0.79, 0.48), Vector3(0.48, 0.13, 0.67), black)
 	LowPoly.box(self, Vector3(0, 0.42, -0.06), Vector3(0.37, 0.42, 0.39), steel)

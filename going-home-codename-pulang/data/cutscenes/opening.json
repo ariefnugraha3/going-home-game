@@ -600,11 +600,27 @@
         "performance": "rest",
         "audio": [
           {"cue": "fabric", "at": 1.5},
-          {"cue": "fabric", "at": 2.8},
-          {
-            "cue": "memory_motor",
-            "at": 4.4
-          }
+          {"cue": "fabric", "at": 2.8}
+        ]
+      },
+      {
+        "shot_id": "bike_touch",
+        "camera": [0.6, 2.7, -0.25],
+        "target": [0.18, 1.03, 0.24],
+        "duration": 5,
+        "text": "I brush the dust away. Dad always looked after this bike.",
+        "fov": 48,
+        "framing": "insert",
+        "movement": "static",
+        "transition": "cut",
+        "location": "parking",
+        "luggage": true,
+        "bike_touch": true,
+        "performance": "rest",
+        "audio": [
+          {"cue": "fabric", "at": 1.6},
+          {"cue": "fabric", "at": 3.0},
+          {"cue": "memory_motor", "at": 4.4}
         ]
       },
       {

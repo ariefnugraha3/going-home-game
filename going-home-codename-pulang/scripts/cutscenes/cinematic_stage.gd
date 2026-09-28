@@ -144,6 +144,10 @@ func _parking(memory: bool = false) -> void:
 	bike.add_child(luggage)
 	luggage.build()
 	props.luggage = luggage
+	var touch := CinematicBikeTouch.new()
+	bike.add_child(touch)
+	touch.build(bike.tank)
+	props.bike_touch = touch
 
 func configure(shot: Dictionary) -> void:
 	if screen != null:
@@ -165,7 +169,7 @@ func configure(shot: Dictionary) -> void:
 	if props.has("luggage"):
 		props.luggage.visible = shot.get("luggage", false)
 	if props.has("walker"):
-		props.walker.visible = shot.get("performance", "rest") == "walk" or shot.get("luggage_check", false)
+		props.walker.visible = shot.get("performance", "rest") == "walk" or shot.get("luggage_check", false) or shot.get("bike_touch", false)
 		props.rider.visible = not props.walker.visible
 
 func pose(shot: Dictionary, weight: float) -> void:
@@ -200,8 +204,11 @@ func pose(shot: Dictionary, weight: float) -> void:
 		props.rider.sample("ride", weight)
 	if props.has("luggage"):
 		props.luggage.sample(weight if shot.get("luggage_check", false) else 1.0)
+		props.bike_touch.reset()
 	if props.has("walker"):
-		if shot.get("luggage_check", false):
+		if shot.get("bike_touch", false):
+			props.bike_touch.sample(props.walker, weight)
+		elif shot.get("luggage_check", false):
 			props.luggage.pose_actor(props.walker, weight)
 		elif props.walker.visible:
 			_pose_walk(props.walker, shot, weight)
@@ -246,4 +253,5 @@ func prop_snapshot() -> Dictionary:
 			result[key] = props[key].visible
 	if props.has("luggage"):
 		result.luggage = props.luggage.pose_snapshot()
+		result.bike_touch = props.bike_touch.pose_snapshot()
 	return result

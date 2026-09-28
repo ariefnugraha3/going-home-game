@@ -33,7 +33,7 @@ func _ready() -> void:
 				previous = event.at
 				count += 1
 		check(valid, "Authored cues reference bank and ordered in-shot times: " + id)
-	check(count == 11, "Opening contains eleven sparse authored sound events")
+	check(count == 13, "Opening contains thirteen sparse authored sound events")
 	director.play("morning")
 	director._process(.2)
 	check(events.is_empty() and sound.pending.is_empty(), "Before activation an elapsed cue is consumed silently")
@@ -75,7 +75,7 @@ func _ready() -> void:
 		check(events.size() == before, "Unmute cannot replay elapsed cue: " + key)
 	AudioManager.update_mix(0)
 	director.play("departure")
-	director.shot_index = _shot_index(director, "straps")
+	director.shot_index = _shot_index(director, "bike_touch")
 	director._show_shot()
 	director._process(4.5)
 	check(events.back() == "memory_motor" and is_equal_approx(sound.remaining[0], 3.9), "Memory sound begins before the visual cut")
@@ -90,7 +90,7 @@ func _ready() -> void:
 	check(director.active_id.is_empty() and sound.pending.is_empty(), "Natural completion clears the audio timeline")
 	# Pause/focus freeze both the director's clock and an in-flight native voice.
 	director.play("departure")
-	director.shot_index = _shot_index(director, "straps")
+	director.shot_index = _shot_index(director, "bike_touch")
 	director._show_shot()
 	director._process(4.5)
 	if visual_test:
@@ -156,7 +156,16 @@ func _ready() -> void:
 	director._process(1.3)
 	check(events.slice(before) == ["fabric", "fabric"], "Two strap pulls trigger their fabric cues once before the memory bridge")
 	director.finish()
-	check(events.size() == before + 2 and sound.pending.is_empty() and sound.remaining == [0.0, 0.0], "Skipping strap checks clears fabric and never starts the pending memory cue")
+	check(events.size() == before + 2 and sound.pending.is_empty() and sound.remaining == [0.0, 0.0], "Skipping strap checks clears fabric and never starts later bike-touch cues")
+	director.play("departure")
+	director.shot_index = _shot_index(director, "bike_touch")
+	director._show_shot()
+	before = events.size()
+	director._process(1.7)
+	director._process(1.4)
+	check(events.slice(before) == ["fabric", "fabric"], "Tank wiping plays both cloth cues once before the memory bridge")
+	director.finish()
+	check(events.size() == before + 2 and sound.pending.is_empty() and sound.remaining == [0.0, 0.0], "Skipping the tank wipe clears cloth and drops the upcoming memory cue")
 	director.clear_room()
 	# The departure flag belongs to the director; the sound component adds no state.
 	GameState.flags = snapshot.flags.duplicate(true)

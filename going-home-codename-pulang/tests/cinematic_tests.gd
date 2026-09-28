@@ -80,6 +80,7 @@ func _ready() -> void:
 	await _test_pack(director)
 	await _test_laptop(director)
 	await _test_straps(director)
+	await _test_bike_touch(director)
 	director.play("departure")
 	director.shot_index = director.definitions.departure.shots.size() - 1
 	director._show_shot()
@@ -552,6 +553,8 @@ func _test_straps(director: CutsceneDirector) -> void:
 	check(stage.prop_snapshot() == held and stage.actor_snapshot() == held_actor, "Reduced camera motion retains strap and actor movement")
 	check(GameState.snapshot() == saved, "Strap action adds no journey fields or checkpoint changes")
 	director._process(5)
+	check(director.definitions.departure.shots[director.shot_index].shot_id == "bike_touch" and director.room.props.luggage.pose_snapshot() == final_luggage, "Strap check hands off to bike touch with secured luggage intact")
+	director._process(5)
 	check(director.stage_id == "memory" and not director.room.props.luggage.visible and not is_instance_valid(luggage), "Memory cut frees checked luggage and omits it from the past")
 	director._process(2)
 	check(director.room.props.luggage.pose_snapshot() == final_luggage and not director.room.props.walker.visible and director.room.props.rider.visible, "Present-day departure restores the same secured luggage and a single mounted rider")
@@ -565,3 +568,98 @@ func _test_straps(director: CutsceneDirector) -> void:
 			director.shot_index = i
 	director._show_shot()
 	check(not director.room.props.luggage.visible and director.room.props.walker.visible and not director.room.props.rider.visible, "Morning approach resets to walking without departure luggage")
+
+func _test_bike_touch(director: CutsceneDirector) -> void:
+	var saved := GameState.snapshot()
+	director.play("departure")
+	for i in range(director.definitions.departure.shots.size()):
+		if director.definitions.departure.shots[i].shot_id == "bike_touch":
+			director.shot_index = i
+	var shots: Array = director.definitions.departure.shots
+	check(shots[director.shot_index - 1].shot_id == "straps" and shots[director.shot_index + 1].shot_id == "father_memory", "Bike touch connects the luggage check to the father memory")
+	director._show_shot()
+	var stage := director.room
+	var shot: Dictionary = shots[director.shot_index]
+	var touch: CinematicBikeTouch = stage.props.bike_touch
+	var actor: CinematicActor = stage.props.walker
+	var initial := stage.prop_snapshot()
+	var secured: Array = stage.props.luggage.pose_snapshot()
+	var nodes := get_tree().get_node_count()
+	var feet := [actor.walking_legs.get_child(0).global_transform, actor.walking_legs.get_child(1).global_transform]
+	check(touch.cloth.visible and actor.visible and actor.walking_legs.visible and not stage.props.rider.visible and not actor.helmet.visible and not actor.handset.visible, "Bike touch shows one standing Raka holding a cloth")
+	await capture("bike_touch_ready")
+	stage.pose(shot, 0.22)
+	var stroke_start := touch.cloth.global_position
+	await capture("bike_touch_contact")
+	stage.pose(shot, 0.46)
+	check(touch.cloth.global_position.distance_to(stroke_start) > 0.15, "Cloth visibly travels along the tank")
+	await capture("bike_touch_wipe")
+	var held := stage.prop_snapshot()
+	var held_actor := stage.actor_snapshot()
+	var elapsed := director.elapsed
+	get_tree().paused = true
+	director.set_process(true)
+	await frames(8)
+	check(stage.prop_snapshot() == held and stage.actor_snapshot() == held_actor and director.elapsed == elapsed, "Pause freezes tank wipe and cloth together")
+	get_tree().paused = false
+	AudioManager.focus_suspended = true
+	await frames(8)
+	check(stage.prop_snapshot() == held and stage.actor_snapshot() == held_actor, "Background freezes the wipe without moving its props")
+	AudioManager.focus_suspended = false
+	director.set_process(false)
+	stage.pose(shot, 1)
+	stage.pose(shot, 0.46)
+	check(stage.prop_snapshot() == held and stage.actor_snapshot() == held_actor, "Backward seeking restores the same wipe and hand pose")
+	var contact := true
+	var surface := true
+	var unobstructed := true
+	var planted := true
+	var framed := true
+	var size := get_viewport().get_visible_rect().size
+	var radii := touch.tank.mesh.get_aabb().size * 0.5
+	for step in range(101):
+		var p := float(step) / 100
+		stage.pose(shot, p)
+		contact = contact and actor.right_forearm.to_global(Vector3(0, -0.29, 0)).distance_to(touch.cloth.to_global(Vector3(0, 0.055, 0))) < 0.002
+		if p >= 0.22 and p <= 0.82:
+			var q := touch.tank.to_local(touch.surface_point) / radii
+			surface = surface and absf(q.length_squared() - 1) < 0.001 and touch.cloth.global_position.distance_to(touch.surface_point + touch.surface_normal * 0.01) < 0.002
+			var on_bike: Vector3 = stage.props.bike.to_local(touch.cloth.global_position)
+			surface = surface and on_bike.x > 0.20
+			var torso := AABB(Vector3(-0.215, 0.66, -0.14), Vector3(0.43, 0.58, 0.28))
+			unobstructed = unobstructed and torso.intersects_segment(actor.body.to_local(director.camera.global_position), actor.body.to_local(touch.cloth.global_position)) == null
+		for i in range(2):
+			planted = planted and actor.walking_legs.get_child(i).global_transform == feet[i]
+		for x in [-0.08, 0.08]:
+			for z in [-0.07, 0.07]:
+				var point := touch.cloth.to_global(Vector3(x, 0, z))
+				var pixel := director.camera.unproject_position(point)
+				framed = framed and not director.camera.is_position_behind(point) and pixel.x > 0 and pixel.x < size.x and pixel.y > size.y * 0.15 and pixel.y < size.y * 0.78
+	check(contact, "Right hand retains cloth contact within 2 mm through approach, wipe and withdrawal")
+	check(surface, "Wipe tracks the tank ellipsoid on its side clear of the central fuel cap")
+	check(unobstructed, "Actor torso never blocks the camera's view of the wiping cloth")
+	check(planted and stage.props.bike.position == Vector3.ZERO, "Wiping keeps both feet and motorcycle stationary")
+	check(framed, "Cloth remains between caption bars throughout the wipe")
+	check(get_tree().get_node_count() == nodes and stage.props.luggage.pose_snapshot() == secured, "Wiping preserves secured luggage without allocating nodes")
+	await capture("bike_touch_withdrawn")
+	stage.pose(shot, 0.70)
+	check(touch.cloth.global_position.distance_to(stroke_start) < 0.002, "Wipe returns along the tank before the reflective hold")
+	stage.pose(shot, 0)
+	check(stage.prop_snapshot() == initial, "Rewinding restores the cloth to the starting hand position")
+	director._apply_shot(0.5)
+	held = stage.prop_snapshot()
+	held_actor = stage.actor_snapshot()
+	GameState.settings.reduced_motion = not GameState.settings.reduced_motion
+	director._apply_shot(0.5)
+	check(stage.prop_snapshot() == held and stage.actor_snapshot() == held_actor, "Reduced camera motion preserves the bike-touch performance")
+	check(GameState.snapshot() == saved, "Bike touch does not alter journey state or checkpoint")
+	director._process(5)
+	check(director.stage_id == "memory" and not is_instance_valid(touch) and not director.room.props.bike_touch.cloth.visible, "Memory frees the present-day cloth and never shows a duplicate")
+	director._process(2)
+	check(director.stage_id == "parking" and not director.room.props.bike_touch.cloth.visible and director.room.props.rider.visible and not director.room.props.walker.visible and director.room.props.luggage.pose_snapshot() == secured, "Departure restores mounted rider and secured luggage without the wiping cloth")
+	director.play("morning")
+	for i in range(director.definitions.morning.shots.size()):
+		if director.definitions.morning.shots[i].shot_id == "parking":
+			director.shot_index = i
+	director._show_shot()
+	check(not director.room.props.bike_touch.cloth.visible and not director.room.props.luggage.visible, "Morning approach has no leftover wipe cloth or departure luggage")

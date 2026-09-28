@@ -1,5 +1,25 @@
 # Validation record
 
+## M5 bike touch and memory - 2026-09-29
+
+Godot **4.7.2.stable.official.ed1daf0bf**, Compatibility; native Windows at 1280×720 with a 30 FPS cap.
+
+| Check | Result |
+| --- | --- |
+| Headless regression | **96 Story + 34 Practice + 30 Cockpit + 21 RoadRender + 145 Lifecycle + 57 TouchLayout + 79 Input + 60 Narrative + 52 Mood + 71 Audio + 304 Cinematic + 48 CinematicAudio + 79 Phone + 41 Interface = 1,117 checks, 0 failures** across final suite results |
+| Run scope | Full All run passed 1,116 checks; the final camera refinement and additional torso-occlusion assertion were verified by rerunning Cinematic: **304 checks, 0 failures** |
+| Native Cinematic | **304 checks, 0 failures**; tank wiping, held cloth, all-shot Skip equivalence, existing packing/strap/waking/walking/memory regressions and checkpoint handoffs |
+| Native CinematicAudio | **54 checks, 0 failures**; two wiping cues, memory bridge moved to bike touch, once-only scheduling, native mixer/playback/pause and Skip cleanup |
+| Geometry / state | 101 samples check hand/cloth contact within 2 mm, modeled tank-surface offset, cap separation, stationary legs/bike, cloth framing, torso occlusion and node stability; stroke return, pause/focus, rewind, reduced motion, no journey-state changes and no cloth leaking into memory/departure/morning |
+| Visual review | Ready, contact, wiping and withdrawal inspected. Camera refined to expose the cloth beyond the handlebars and torso; the final headless/native camera checks pass |
+| Timeline | **26 shots / 118 authored seconds**, departure 41 seconds; five sound assets / thirteen events. The motor cue starts 0.6 seconds before memory and ends 1.4 seconds into departure. No new save fields or checkpoint IDs |
+| Resource PCK / independent boot | **Pass**, 1,747,524 bytes; final pack boots outside the source project and exits 0 after 120 frames |
+| Remaining | Production palm/fingers/cloth/mesh contact, visible dust removal, expression, standing transitions, cloth retrieval/storage, recorded wiping sound, human review and actual Web/Android acceptance |
+
+Reproduce with `powershell -ExecutionPolicy Bypass -File tools/test.ps1 -Suite All -FixedFps 30`; native `-Suite Cinematic -Visual -FixedFps 30` and `-Suite CinematicAudio -Visual -FixedFps 30`. Ignored logs: `.godot-test/BikeTouch-all30.log`, `BikeTouch-final-headless.log`, `BikeTouch-native30.log`, `BikeTouchAudio-native30.log`, `bike-touch-export.log`, `bike-touch-pack-boot.log`. Captures: `tests/screenshots/bike_touch_*.png`. See the [bike-touch review checklist](M5_CINEMATIC_PLAYTEST.md#bike-touch-pass).
+
+The rigid cloth follows a modeled ellipsoid; point and torso-box checks do not certify complete faceted-mesh contact, finger grips, cloth deformation or every possible occluder. Final test logs contain no game script errors. The existing sandbox certificate-store startup message remains unrelated to offline checks; resource-pack export does not establish browser/Android acceptance.
+
 ## M5 luggage strap check - 2026-09-28
 
 Godot **4.7.2.stable.official.ed1daf0bf**, Compatibility; native Windows at 1280×720 with a 30 FPS cap.
