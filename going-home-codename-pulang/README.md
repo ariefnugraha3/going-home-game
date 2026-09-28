@@ -400,7 +400,7 @@ Based on the [Development Roadmap v1](../PULANG_Development_Roadmap_v1.md). Stat
 - [x] Connect Jakarta opening → commute → layoff → mother's call → departure → first road segment.
 - [x] Connect optional stops → rain shelter/conversation → guesthouse → journal → chapter ending.
 - [x] Test the compact desktop flow, checkpoint recovery, and Continue through completion.
-- [x] Expand the opening to 28 authored shots with interior/parking sets, readable phone/laptop inserts, post-meeting sign-out, mounting, and departure/title reveal.
+- [x] Expand the opening to 29 authored shots with interior/parking sets, readable phone/laptop inserts, post-meeting sign-out, helmet preparation, mounting, and departure/title reveal.
 - [x] Add per-shot framing/FOV, restrained camera travel, reduced-motion behavior, deterministic skip, pause and stable-checkpoint regression checks.
 - [x] Add articulated prototype actors, eight director-sampled AnimationPlayer clips, phone prop handoff, and a father/young-Raka memory insert.
 - [x] Test deterministic actor poses after seeking/skipping, pause, dialogue handoff and memory-to-present restoration.
@@ -412,11 +412,12 @@ Based on the [Development Roadmap v1](../PULANG_Development_Roadmap_v1.md). Stat
 - [x] Add the GDD bike-touch insert with tank wiping, held cloth, sampled hand contact and sound bridge into the father memory; verify pause/Skip, scene cleanup and secured luggage continuity.
 - [x] Add a helmeted mounting performance between memory and departure, with articulated legs, final grip/footrest placement and continuous seated pose; verify pause/background, rewind, reduced motion, Skip and secured luggage.
 - [x] Add two-handed helmet donning before mounting, with continuous handoff, timed fabric and pause/rewind/Skip checks; opening now totals 28 shots / 128 seconds.
+- [x] Add helmet chin-strap fastening and a tightening pull before mounting, with persistent webbing/buckle, sound and pause/rewind/Skip checks; opening totals 29 shots / 132 seconds.
 - [ ] Animate remaining individual packing actions, preparation movements, carrying/mounting luggage and initial strap fastening; refine fingers, cloth, posture, visible dust and recorded contact sound with production assets.
 - [ ] Refine waking bed/hand contact, facial expression, cloth and final recorded bedsheet sound with production assets.
-- [ ] Refine mounting weight transfer and full mesh contact, helmet chin-strap fastening, remaining sitting transitions and final walking performances/footsteps with production character rigs.
+- [ ] Refine mounting weight transfer, helmet/strap/finger contact and cloth, remaining sitting transitions and final walking performances/footsteps with production character rigs.
 - [x] Connect the prototype UI sound set across story/practice menus, phone sections, authored choices and keyboard navigation.
-- [x] Add five original cinematic sound prototypes and fifteen timed events, including helmet/mounting fabric and a motorcycle sound bridge through the father memory.
+- [x] Add five original cinematic sound prototypes and sixteen timed events, including helmet/strap/mounting fabric and a motorcycle sound bridge through the father memory.
 - [x] Test sound timing/tails, activation, SFX/Master mute, pause/background, skip/replacement cleanup and save isolation, including native playback.
 - [ ] Review cinematic sound/contact timing on headphones and phone speakers; replace prototypes with final recordings.
 - [ ] Expand and playtest pacing toward the planned 30–60 minute slice.

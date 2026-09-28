@@ -1,5 +1,16 @@
 # Validation record
 
+## M5 chin-strap fastening - 2026-09-29
+
+- **Headless:** all 14 suites passed, 1,188 checks. The final loose-buckle clearance correction and added assertion passed the Cinematic rerun: **371 checks**, yielding **1,189 checks / 0 failures** across final suite results (53 CinematicAudio).
+- **Native Windows / Compatibility:** **371 Cinematic and 59 CinematicAudio checks passed** at a 30 FPS cap. Loose, joined, pulling and secured close-ups plus held-helmet webbing were inspected at 1280×720. Loose buckle endpoints were moved forward after capture revealed torso overlap.
+- **Coverage:** 101 samples check hand contact, helmet anchors, buckle/tail torso clearance, planted feet, stationary bike, framing and node stability. Also verified pause/focus, rewind, reduced motion, exact helmet-to-strap-to-mount handoffs, secured departure, interior hiding, all-shot Skip snapshots, once-only sound timing and unchanged saves/checkpoints.
+- **Timeline:** 29 shots / 132 authored seconds (departure 55), five sound assets / sixteen events. Chin-strap fabric at 2.5 seconds; existing memory bridge unchanged.
+- **Resource pack:** 1,758,024-byte PCK exported and booted independently, exit 0 after 120 frames. Final logs contain no script/parse/compile errors. The existing sandbox certificate-store startup message is unrelated to these offline checks.
+- **Pending:** production shell/cheek/neck/finger contact, buckle hardware and cloth behavior, recorded fastening sound, human review and actual Web/Android acceptance. Point checks do not certify full mesh collision or mechanical restraint.
+
+Reproduce with `tools/test.ps1 -Suite All -FixedFps 30`; final `-Suite Cinematic -FixedFps 30`; native `-Suite Cinematic -Visual -FixedFps 30` and `-Suite CinematicAudio -Visual -FixedFps 30`. Ignored logs: `.godot-test/ChinStrap-all30.log`, `ChinStrap-final-headless.log`, `ChinStrap-native30.log`, `ChinStrapAudio-native30.log`, `chin-strap-export.log`, `chin-strap-pack-boot.log`. Captures: `tests/screenshots/chin_strap_*.png`. See the [strap review checklist](M5_CINEMATIC_PLAYTEST.md#chin-strap-fastening-pass).
+
 ## M5 helmet preparation - 2026-09-29
 
 - **Headless:** all 14 suites passed, **1,165 checks / 0 failures**, including 349 Cinematic and 51 CinematicAudio, at fixed 30 cadence.

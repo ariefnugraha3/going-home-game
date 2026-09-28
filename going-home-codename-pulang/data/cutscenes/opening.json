@@ -667,6 +667,22 @@
         "audio": [{"cue": "fabric", "at": 2.8}]
       },
       {
+        "shot_id": "chin_strap",
+        "camera": [1.3, 1.95, -1.75],
+        "target": [-0.4, 1.48, -0.58],
+        "duration": 4,
+        "text": "Check the strap. Ready.",
+        "fov": 42,
+        "framing": "close",
+        "movement": "static",
+        "transition": "cut",
+        "location": "parking",
+        "luggage": true,
+        "chin_strap": true,
+        "performance": "ride",
+        "audio": [{"cue": "fabric", "at": 2.5}]
+      },
+      {
         "shot_id": "mount",
         "camera": [2.4, 2.1, -3.2],
         "target": [-0.1, 1.0, 0],

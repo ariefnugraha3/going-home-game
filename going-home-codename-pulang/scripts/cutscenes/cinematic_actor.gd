@@ -17,6 +17,7 @@ var left_forearm: Node3D
 var right_forearm: Node3D
 var handset: MeshInstance3D
 var helmet: MeshInstance3D
+var chin_strap: CinematicChinStrap
 var shoulder_bridges: Array[MeshInstance3D] = []
 var active_clip: String = "rest"
 
@@ -33,6 +34,9 @@ func build(shirt: Color) -> void:
 	LowPoly.box(head, Vector3(0, 0.14, -0.2), Vector3(0.065, 0.07, 0.06), Color("b87f55"))
 	helmet = LowPoly.sphere(head, Vector3(0, 0.26, 0.015), Vector3(0.46, 0.22, 0.45), Color("d1c7a3"))
 	helmet.visible = false
+	chin_strap = CinematicChinStrap.new()
+	head.add_child(chin_strap)
+	chin_strap.build()
 	for side in [-1, 1]:
 		LowPoly.beam(seated_legs, Vector3(side * 0.13, 0.7, 0), Vector3(side * 0.18, 0.6, -0.42), 0.105, Color("394653"))
 		LowPoly.beam(seated_legs, Vector3(side * 0.18, 0.6, -0.42), Vector3(side * 0.18, 0.12, -0.4), 0.09, Color("394653"))
@@ -185,6 +189,9 @@ func sample(id: String, progress: float) -> bool:
 		foot.visible = id == "wake"
 	handset.visible = id == "phone" and progress >= 0.3
 	helmet.visible = id in ["ride", "passenger"]
+	chin_strap.position = Vector3.ZERO
+	chin_strap.visible = helmet.visible
+	chin_strap.sample(1)
 	return true
 
 func raise_shoulders(height: float, forward: float) -> void:
@@ -240,6 +247,7 @@ func reach_foot(left: bool, world_target: Vector3, pole: Vector3) -> void:
 func pose_snapshot() -> Array:
 	var pose := [body.transform, head.transform, left_arm.transform, right_arm.transform, left_forearm.transform, right_forearm.transform, handset.visible, helmet.visible, walking_legs.visible, seated_legs.visible]
 	pose.append(helmet.transform)
+	pose.append(chin_strap.snapshot())
 	for bridge in shoulder_bridges:
 		pose.append([bridge.visible, bridge.transform])
 	# Hidden gait joints are excluded: previous walks must not affect comparison

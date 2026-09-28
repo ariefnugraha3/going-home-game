@@ -83,6 +83,7 @@ func _ready() -> void:
 	await _test_bike_touch(director)
 	await _test_mount(director)
 	await _test_helmet(director)
+	await _test_chin_strap(director)
 	director.play("departure")
 	director.shot_index = director.definitions.departure.shots.size() - 1
 	director._show_shot()
@@ -563,6 +564,7 @@ func _test_straps(director: CutsceneDirector) -> void:
 	director._process(2)
 	check(director.room.props.luggage.pose_snapshot() == final_luggage and not director.room.props.walker.visible and director.room.props.rider.visible, "Present-day mounting restores the same secured luggage and a single rider")
 	director._process(5)
+	director._process(4)
 	director._process(5)
 	var departing: CinematicLuggage = director.room.props.luggage
 	var position_before := departing.global_position
@@ -582,7 +584,7 @@ func _test_helmet(director: CutsceneDirector) -> void:
 		if director.definitions.departure.shots[i].shot_id == "helmet":
 			director.shot_index = i
 	var shots: Array = director.definitions.departure.shots
-	check(shots[director.shot_index - 1].shot_id == "father_memory" and shots[director.shot_index + 1].shot_id == "mount", "Helmet preparation connects memory to mounting")
+	check(shots[director.shot_index - 1].shot_id == "father_memory" and shots[director.shot_index + 1].shot_id == "chin_strap", "Helmet preparation connects memory to the strap check")
 	director._show_shot()
 	var stage := director.room
 	var actor: CinematicActor = stage.props.rider
@@ -651,9 +653,94 @@ func _test_helmet(director: CutsceneDirector) -> void:
 	director._apply_shot(0.5)
 	check(stage.actor_snapshot() == held and GameState.snapshot() == saved, "Reduced motion preserves helmet choreography and journey state")
 	director._process(5)
-	check(stage.actor_snapshot() == final_pose, "Mounting begins with the exact helmet, hand and standing pose")
+	check(stage.actor_snapshot() == final_pose, "Strap check begins with the exact helmet, hand and standing pose")
 	director.play("night")
 	check(not director.room.props.raka.helmet.visible and director.room.props.raka.helmet.position == Vector3(0, 0.26, 0.015), "Other scenes restore the default hidden helmet position")
+
+func _test_chin_strap(director: CutsceneDirector) -> void:
+	var saved := GameState.snapshot()
+	director.play("departure")
+	for i in range(director.definitions.departure.shots.size()):
+		if director.definitions.departure.shots[i].shot_id == "chin_strap":
+			director.shot_index = i
+	director._show_shot()
+	var stage := director.room
+	var shot: Dictionary = director.definitions.departure.shots[director.shot_index]
+	var actor: CinematicActor = stage.props.rider
+	var strap := actor.chin_strap
+	var initial := stage.actor_snapshot()
+	var feet := [actor.shoes[0].global_transform, actor.shoes[1].global_transform]
+	var props := stage.prop_snapshot()
+	var nodes := get_tree().get_node_count()
+	check(strap.visible and strap.ends[0].distance_to(strap.ends[1]) > 0.39, "Chin strap starts with two separated buckle halves")
+	await capture("chin_strap_loose")
+	stage.pose(shot, 0.5)
+	check(absf(strap.ends[0].distance_to(strap.ends[1]) - 0.032) < 0.001, "Buckle halves meet under the chin before tightening")
+	await capture("chin_strap_joined")
+	var short_tail := strap.tail_end
+	stage.pose(shot, 0.68)
+	check(strap.tail_end.distance_to(short_tail) > 0.08, "Right hand pulls the free tail after joining the buckle")
+	await capture("chin_strap_pull")
+	var held := stage.actor_snapshot()
+	var elapsed := director.elapsed
+	get_tree().paused = true
+	director.set_process(true)
+	await frames(8)
+	check(stage.actor_snapshot() == held and director.elapsed == elapsed, "Pause freezes buckle, tail, hands and timeline")
+	get_tree().paused = false
+	AudioManager.focus_suspended = true
+	await frames(8)
+	check(stage.actor_snapshot() == held, "Background freezes chin-strap fastening")
+	AudioManager.focus_suspended = false
+	director.set_process(false)
+	stage.pose(shot, 1)
+	stage.pose(shot, 0.68)
+	check(stage.actor_snapshot() == held, "Rewind restores webbing, buckle halves and both hands")
+	var contact := true
+	var anchored := true
+	var planted := true
+	var framed := true
+	var buckle_clear := true
+	var size := get_viewport().get_visible_rect().size
+	for step in range(101):
+		var p := float(step) / 100
+		stage.pose(shot, p)
+		for i in range(2):
+			planted = planted and actor.shoes[i].global_transform.is_equal_approx(feet[i])
+			var anchor := Vector3(-0.19 if i == 0 else 0.19, 0.23, 0.015)
+			anchored = anchored and strap.bands[i * 3].to_global(Vector3(0, -0.5, 0)).distance_to(actor.head.to_global(anchor)) < 0.002
+			if p >= 0.25 and p <= 0.82:
+				var target: Vector3 = strap.ends[i]
+				if i == 1:
+					target = target.lerp(strap.tail_end, smoothstep(0.50, 0.54, p))
+				var hand := actor.left_forearm if i == 0 else actor.right_forearm
+				contact = contact and hand.to_global(Vector3(0, -0.29, 0)).distance_to(strap.to_global(target)) < 0.002
+		for point in [strap.ends[0], strap.ends[1], strap.tail_end]:
+			var torso := AABB(Vector3(-0.215, 0.66, -0.14), Vector3(0.43, 0.58, 0.28)).grow(0.018)
+			buckle_clear = buckle_clear and not torso.has_point(actor.body.to_local(strap.to_global(point)))
+			var pixel := director.camera.unproject_position(strap.to_global(point))
+			framed = framed and pixel.x > 0 and pixel.x < size.x and pixel.y > size.y * 0.15 and pixel.y < size.y * 0.78
+	check(contact, "Both hands follow buckle and tail targets within 2 mm during fastening")
+	check(anchored, "Both strap roots remain attached to the helmet throughout the check")
+	check(planted and stage.props.bike.position == Vector3.ZERO, "Strap check leaves feet and motorcycle stationary")
+	check(framed, "Buckle halves and pulling tail remain inside caption-safe framing")
+	check(buckle_clear, "Loose and closing buckle halves and tail stay clear of the torso")
+	check(stage.prop_snapshot() == props and get_tree().get_node_count() == nodes, "Chin-strap sampling preserves luggage and allocates no nodes")
+	var fastened := stage.actor_snapshot()
+	await capture("chin_strap_secured")
+	stage.pose(shot, 0)
+	check(stage.actor_snapshot() == initial, "Rewinding restores the unfastened buckle")
+	director._apply_shot(0.5)
+	held = stage.actor_snapshot()
+	GameState.settings.reduced_motion = not GameState.settings.reduced_motion
+	director._apply_shot(0.5)
+	check(stage.actor_snapshot() == held and GameState.snapshot() == saved, "Reduced motion preserves fastening without journey changes")
+	director._process(4)
+	check(stage.actor_snapshot() == fastened, "Mounting starts with the exact secured strap and released hands")
+	director._process(5)
+	check(actor.chin_strap.visible and actor.chin_strap.ends[0].distance_to(actor.chin_strap.ends[1]) < 0.033, "Departure retains the fastened helmet strap")
+	director.play("night")
+	check(not director.room.props.raka.chin_strap.visible, "Interior actors hide the helmet webbing with the helmet")
 
 func _test_mount(director: CutsceneDirector) -> void:
 	var saved := GameState.snapshot()

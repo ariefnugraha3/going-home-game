@@ -1,10 +1,10 @@
 # M5 opening cinematic review
 
-The current opening is a blocking prototype with 28 authored shots, not final character animation or an accepted vertical slice. All captions and device text are English. Raka remains competent, loses his role through restructuring, has professional alternatives, and chooses to go home.
+The current opening is a blocking prototype with 29 authored shots, not final character animation or an accepted vertical slice. All captions and device text are English. Raka remains competent, loses his role through restructuring, has professional alternatives, and chooses to go home.
 
 ## Play the opening
 
-Begin a new journey, watch the apartment and parking shots, ride to the office, finish the restructuring conversation, watch the sign-out/evening sequence, answer Mom, and watch packing/departure. The shot durations total 128 seconds: morning 24, office 19, sign-out 11, evening 23, departure 51. Dialogue, commute, transitions and pauses add to this time; it is not a measured player-session length.
+Begin a new journey, watch the apartment and parking shots, ride to the office, finish the restructuring conversation, watch the sign-out/evening sequence, answer Mom, and watch packing/departure. The shot durations total 132 seconds: morning 24, office 19, sign-out 11, evening 23, departure 55. Dialogue, commute, transitions and pauses add to this time; it is not a measured player-session length.
 
 Hold Space for more than 0.8 seconds or select Skip scene. This finishes the current sequence, not the whole prologue. Pause freezes the shot clock and movement. Reduced camera motion makes camera travel static; the departing motorcycle still moves through the set.
 
@@ -72,17 +72,27 @@ The Cinematic suite covers open/closed endpoints, ordered placement/closure, pau
 
 ## Helmet preparation pass
 
-The five-second `departure/helmet` insert follows memory. Raka begins holding the existing helmet, raises it in front, moves it above his head, lowers it and releases both hands into the mounting start pose. `CinematicHelmet` samples the helmet offset, shoulder lift and hand targets from the director clock; other actor clips reset those offsets. No duplicate helmet, additional clock or save field is introduced. The memory tail fades during the first 1.4 seconds; fabric plays at 2.8 seconds.
+The five-second `departure/helmet` insert follows memory. Raka begins holding the existing helmet, raises it in front, moves it above his head, lowers it and releases both hands into the chin-strap check. `CinematicHelmet` samples the helmet offset, shoulder lift and hand targets from the director clock; other actor clips reset those offsets. No duplicate helmet, additional clock or save field is introduced. The memory tail fades during the first 1.4 seconds; fabric plays at 2.8 seconds.
 
 Checks cover two-hand target contact, connected shoulder geometry, stationary feet/bike, framing and node stability at 101 samples, plus pause/focus, rewind, reduced motion, scene reset, exact mounting handoff and all-shot Skip equivalence. Captures: `helmet_held.png`, `helmet_lift.png`, `helmet_above.png`, `helmet_worn.png`.
 
 - [x] Add sampled helmet lift, placement and release before mounting.
-- [ ] Add helmet retrieval and chin-strap fastening; refine shell opening, head/finger contact, shoulder deformation and recorded foley with production assets.
+- [ ] Add helmet retrieval; refine shell opening, head/finger contact, shoulder deformation and recorded foley with production assets.
 - [ ] Review natural-speed motion, phone-size readability and actual Web/Android pause/Skip/audio behavior. Point-contact checks do not certify complete mesh clearance.
+
+## Chin-strap fastening pass
+
+The four-second `departure/chin_strap` insert follows helmet donning. Raka reaches the two loose buckle halves, joins them below the chin, pulls the right free tail and releases his hands before mounting. `CinematicChinStrap` builds reusable webbing segments and buckle halves; transforms and hand targets share the director clock. The loose webbing follows the helmet while it is held/raised; riding and memory poses retain a closed buckle. Unhelmeted actors hide it. A reused fabric cue plays at 2.5 seconds; no new sound asset, save field or physics simulation is added.
+
+Checks sample 101 times for hand targets, shell attachment points, buckle/tail clearance from the torso, planted shoes, stationary motorcycle, caption framing and node stability. Pause/focus, rewind, reduced motion, loose/secured handoffs, departure persistence, interior reset and all-shot Skip snapshots include the webbing. Captures: `chin_strap_loose.png`, `chin_strap_joined.png`, `chin_strap_pull.png`, `chin_strap_secured.png`.
+
+- [x] Add buckle closure, a tightening pull and secured-strap continuity into mounting/departure.
+- [ ] Refine production shell/cheek/neck contact, fingers, webbing deformation and actual buckle hardware; authored endpoints are not a complete collision or mechanical simulation.
+- [ ] Review natural-speed hand occlusion, phone-size visibility, recorded buckle/strap sound and real Web/Android behavior.
 
 ## Motorcycle mounting pass
 
-The five-second `departure/mount` shot follows helmet preparation and precedes the title/departure. Raka is already helmeted at the cut. His left foot stays planted during the initial right-leg lift and crossing, then both feet move toward the cinematic footrests while his body settles and hands reach the grips. The bag sits farther back on the seat; the strap-check actor position follows it. The bike remains stationary until departure, which starts from the exact final mounting pose.
+The five-second `departure/mount` shot follows the chin-strap check and precedes the title/departure. Raka is already helmeted at the cut. His left foot stays planted during the initial right-leg lift and crossing, then both feet move toward the cinematic footrests while his body settles and hands reach the grips. The bag sits farther back on the seat; the strap-check actor position follows it. The bike remains stationary until departure, which starts from the exact final mounting pose.
 
 `CinematicMount` reuses the ride clip and samples root, torso and analytic two-bone leg/hand targets in motorcycle coordinates. Shoes remain level and reset for other clips; pose snapshots include their transforms. No extra animation clock, physics, nodes per frame, gameplay cargo or save fields are introduced. The memory sound now fades during helmet preparation; mounting retains its fabric cue at 2.5 seconds. The eight original clips and five sound assets remain the same.
 
@@ -90,7 +100,7 @@ Automated checks cover 101 samples for the initial planted foot, level shoes abo
 
 - [x] Add the bounded mounting performance and retain its seated pose through departure.
 - [ ] Review natural-speed weight transfer, support hands, hip/torso alignment and leg clearance with production meshes; sampled shoe points do not certify full body collision or physical balance.
-- [ ] Animate helmet retrieval/chin-strap fastening, cloth storage, preparation movements and remaining morning/office sitting transitions.
+- [ ] Animate helmet retrieval, cloth storage, preparation movements and remaining morning/office sitting transitions.
 - [ ] Replace synthesized fabric with recorded movement/seat foley and review pacing with the memory bridge.
 - [ ] Repeat framing, touch Skip, pause/background and sound tests in actual Web/Android builds.
 
@@ -164,6 +174,7 @@ Five original mono 22,050 Hz PCM sketches are synthesized by `tools/generate_cin
 | Departure / bike_touch | memory_motor | 4.4 s | 4.0 s, across the next two cuts |
 | Departure / mount | fabric | 2.5 s | 0.85 s |
 | Departure / helmet | fabric | 2.8 s | 0.85 s |
+| Departure / chin_strap | fabric | 2.5 s | 0.85 s |
 
 Each shot may contain an ordered `audio` array of `{ "cue": "bank_id", "at": seconds }`. `data/audio/cinematic.json` maps IDs to imported assets and gain in dB. Events must start within their shot. `CinematicAudio` owns two SFX voices and the director advances its clock; ordinary cuts keep remaining tails. Full voices cause additional requests to be discarded. A late frame starts a still-relevant cue at its elapsed offset and drops sounds whose duration has already passed. No queued event survives its shot, skip, replacement, completion or cancellation.
 

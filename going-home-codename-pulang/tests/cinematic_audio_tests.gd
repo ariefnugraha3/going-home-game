@@ -33,7 +33,7 @@ func _ready() -> void:
 				previous = event.at
 				count += 1
 		check(valid, "Authored cues reference bank and ordered in-shot times: " + id)
-	check(count == 15, "Opening contains fifteen sparse authored sound events")
+	check(count == 16, "Opening contains sixteen sparse authored sound events")
 	director.play("morning")
 	director._process(.2)
 	check(events.is_empty() and sound.pending.is_empty(), "Before activation an elapsed cue is consumed silently")
@@ -92,6 +92,12 @@ func _ready() -> void:
 	director._process(0.1)
 	check(events.size() == helmet_events, "Helmet fabric cue is scheduled once")
 	director._process(2)
+	var before_strap := events.size()
+	director._process(2.6)
+	check(events.size() == before_strap + 1 and events.back() == "fabric", "Chin-strap pull triggers its fabric cue")
+	director._process(0.1)
+	check(events.size() == before_strap + 1, "Chin-strap fabric plays once")
+	director._process(1.3)
 	var before_mount := events.size()
 	director._process(1.5)
 	director._process(1.1)

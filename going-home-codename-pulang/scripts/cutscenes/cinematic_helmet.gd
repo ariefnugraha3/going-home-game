@@ -16,6 +16,8 @@ static func sample(actor: CinematicActor, bike: Node3D, progress: float) -> void
 	actor.helmet.position = actor.helmet.position.lerp(worn, smoothstep(0.56, 0.74, p))
 	if p >= 0.74:
 		actor.helmet.position = worn
+	actor.chin_strap.position = actor.helmet.position - CinematicChinStrap.WORN
+	actor.chin_strap.sample(0)
 	var shrug := 0.17 * smoothstep(0.12, 0.36, p) * (1.0 - smoothstep(0.56, 0.84, p))
 	actor.raise_shoulders(shrug, 0.08 * shrug / 0.17)
 	if p < 1.0:
