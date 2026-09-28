@@ -17,6 +17,7 @@ var left_forearm: Node3D
 var right_forearm: Node3D
 var handset: MeshInstance3D
 var helmet: MeshInstance3D
+var shoulder_bridges: Array[MeshInstance3D] = []
 var active_clip: String = "rest"
 
 func build(shirt: Color) -> void:
@@ -43,6 +44,7 @@ func build(shirt: Color) -> void:
 		shoes.append(LowPoly.box(knee, Vector3(0, -0.47, -0.055), Vector3(0.17, 0.13, 0.3), Color("29312e")))
 		bare_feet.append(LowPoly.box(knee, Vector3(0, -0.48, -0.045), Vector3(0.14, 0.09, 0.23), Color("b87f55")))
 		var arm := _joint(body, "LeftArm" if side == -1 else "RightArm", Vector3(side * 0.24, 1.15, 0))
+		shoulder_bridges.append(LowPoly.cylinder(body, Vector3.ZERO, 0.08, 1.0, shirt))
 		LowPoly.beam(arm, Vector3.ZERO, Vector3(0, -0.27, 0), 0.075, shirt)
 		var forearm := _joint(arm, "Forearm", Vector3(0, -0.27, 0))
 		LowPoly.beam(forearm, Vector3.ZERO, Vector3(0, -0.27, 0), 0.06, Color("b87f55"))
@@ -166,6 +168,12 @@ func sample(id: String, progress: float) -> bool:
 	body.position = Vector3(0, 0.28, 0) if id == "walk" else Vector3.ZERO
 	body.rotation = Vector3.ZERO
 	head.position = Vector3(0, 1.28, 0)
+	left_arm.position = Vector3(-0.24, 1.15, 0)
+	right_arm.position = Vector3(0.24, 1.15, 0)
+	helmet.position = Vector3(0, 0.26, 0.015)
+	for bridge in shoulder_bridges:
+		bridge.visible = false
+		bridge.transform = Transform3D.IDENTITY
 	walking_legs.position.y = -0.28 if id == "wake" else 0.0
 	animator.seek(clampf(progress, 0, 1), true)
 	walking_legs.visible = id in ["walk", "wake"]
@@ -178,6 +186,20 @@ func sample(id: String, progress: float) -> bool:
 	handset.visible = id == "phone" and progress >= 0.3
 	helmet.visible = id in ["ride", "passenger"]
 	return true
+
+func raise_shoulders(height: float, forward: float) -> void:
+	for i in range(2):
+		var arm := left_arm if i == 0 else right_arm
+		var origin := Vector3(-0.24 if i == 0 else 0.24, 1.15, 0)
+		var offset := Vector3(0, height, -forward)
+		arm.position = origin + offset
+		var bridge := shoulder_bridges[i]
+		bridge.visible = offset.length() > 0.001
+		if bridge.visible:
+			var basis := Basis(Quaternion(Vector3.UP, offset.normalized()))
+			# Scale the local cylinder axis, preserving its fixed cross section.
+			basis.y *= offset.length()
+			bridge.transform = Transform3D(basis, origin + offset * 0.5)
 
 func reach_hand(left: bool, world_target: Vector3) -> void:
 	# Two-bone analytic reach for the blocking mesh (upper arm .27, hand .29).
@@ -217,6 +239,9 @@ func reach_foot(left: bool, world_target: Vector3, pole: Vector3) -> void:
 
 func pose_snapshot() -> Array:
 	var pose := [body.transform, head.transform, left_arm.transform, right_arm.transform, left_forearm.transform, right_forearm.transform, handset.visible, helmet.visible, walking_legs.visible, seated_legs.visible]
+	pose.append(helmet.transform)
+	for bridge in shoulder_bridges:
+		pose.append([bridge.visible, bridge.transform])
 	# Hidden gait joints are excluded: previous walks must not affect comparison
 	# of a seated dialogue or the deterministic final riding pose after Skip.
 	if walking_legs.visible:

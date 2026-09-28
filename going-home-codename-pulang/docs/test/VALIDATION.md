@@ -1,5 +1,15 @@
 # Validation record
 
+## M5 helmet preparation - 2026-09-29
+
+- **Headless:** all 14 suites passed, **1,165 checks / 0 failures**, including 349 Cinematic and 51 CinematicAudio, at fixed 30 cadence.
+- **Native Windows / Compatibility:** 349 Cinematic and 57 CinematicAudio checks passed at a 30 FPS cap. Held, raised, overhead and worn helmet frames inspected at 1280×720; shoulder connectors corrected after visual review.
+- **Coverage:** 101 samples for two-hand targets, connected shoulders, stationary shoes/bike, framing and node stability; pause/focus, rewind, reduced motion, hidden-helmet reset, exact mounting handoff, all-shot Skip equivalence, once-only fabric timing and memory tail. Opening: 28 shots / 128 seconds, fifteen events; saves/checkpoints unchanged.
+- **Resource pack:** 1,754,044-byte PCK exported and booted independently, exit 0 after 120 frames. Final logs contain no script/parse/compile errors; the existing sandbox certificate-store message remains unrelated to these offline checks.
+- **Still open:** helmet retrieval/chin-strap fastening, final shell/head/finger contact and shoulder deformation, recorded foley, human pacing and actual Web/Android acceptance. The existing closed helmet mesh remains a blocking asset; point checks do not certify full mesh clearance.
+
+Reproduce: `tools/test.ps1 -Suite All -FixedFps 30`, plus `-Suite Cinematic -Visual -FixedFps 30` and `-Suite CinematicAudio -Visual -FixedFps 30`. Ignored logs: `.godot-test/Helmet-all30.log`, `Helmet-native30.log`, `HelmetAudio-native30.log`, `helmet-export.log`, `helmet-pack-boot.log`. Captures: `tests/screenshots/helmet_*.png`. See the [helmet review checklist](M5_CINEMATIC_PLAYTEST.md#helmet-preparation-pass).
+
 ## M5 motorcycle mounting - 2026-09-29
 
 Godot **4.7.2.stable.official.ed1daf0bf**, Compatibility; native Windows at 1280×720 with a 30 FPS cap.

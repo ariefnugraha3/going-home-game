@@ -82,6 +82,7 @@ func _ready() -> void:
 	await _test_straps(director)
 	await _test_bike_touch(director)
 	await _test_mount(director)
+	await _test_helmet(director)
 	director.play("departure")
 	director.shot_index = director.definitions.departure.shots.size() - 1
 	director._show_shot()
@@ -562,6 +563,7 @@ func _test_straps(director: CutsceneDirector) -> void:
 	director._process(2)
 	check(director.room.props.luggage.pose_snapshot() == final_luggage and not director.room.props.walker.visible and director.room.props.rider.visible, "Present-day mounting restores the same secured luggage and a single rider")
 	director._process(5)
+	director._process(5)
 	var departing: CinematicLuggage = director.room.props.luggage
 	var position_before := departing.global_position
 	director._process(3)
@@ -572,6 +574,86 @@ func _test_straps(director: CutsceneDirector) -> void:
 			director.shot_index = i
 	director._show_shot()
 	check(not director.room.props.luggage.visible and director.room.props.walker.visible and not director.room.props.rider.visible, "Morning approach resets to walking without departure luggage")
+
+func _test_helmet(director: CutsceneDirector) -> void:
+	var saved := GameState.snapshot()
+	director.play("departure")
+	for i in range(director.definitions.departure.shots.size()):
+		if director.definitions.departure.shots[i].shot_id == "helmet":
+			director.shot_index = i
+	var shots: Array = director.definitions.departure.shots
+	check(shots[director.shot_index - 1].shot_id == "father_memory" and shots[director.shot_index + 1].shot_id == "mount", "Helmet preparation connects memory to mounting")
+	director._show_shot()
+	var stage := director.room
+	var actor: CinematicActor = stage.props.rider
+	var shot: Dictionary = shots[director.shot_index]
+	var props := stage.prop_snapshot()
+	var initial := stage.actor_snapshot()
+	var feet := [actor.shoes[0].global_transform, actor.shoes[1].global_transform]
+	var nodes := get_tree().get_node_count()
+	check(actor.visible and actor.helmet.visible and not stage.props.walker.visible and actor.helmet.position.z < -0.4, "One standing Raka begins with the existing helmet held in front")
+	await capture("helmet_held")
+	stage.pose(shot, 0.36)
+	await capture("helmet_lift")
+	stage.pose(shot, 0.56)
+	check(actor.helmet.position.y > 0.5 and absf(actor.helmet.position.z - 0.015) < 0.002, "Helmet moves above the head before lowering")
+	await capture("helmet_above")
+	var held := stage.actor_snapshot()
+	get_tree().paused = true
+	director.set_process(true)
+	var elapsed := director.elapsed
+	await frames(8)
+	check(stage.actor_snapshot() == held and director.elapsed == elapsed, "Pause freezes helmet, hands and shared clock")
+	get_tree().paused = false
+	AudioManager.focus_suspended = true
+	await frames(8)
+	check(stage.actor_snapshot() == held, "Background freezes helmet preparation")
+	AudioManager.focus_suspended = false
+	director.set_process(false)
+	stage.pose(shot, 1)
+	stage.pose(shot, 0.56)
+	check(stage.actor_snapshot() == held, "Rewind restores helmet offset and both arm poses")
+	var contact := true
+	var planted := true
+	var framed := true
+	var shoulders_joined := true
+	var size := get_viewport().get_visible_rect().size
+	for step in range(101):
+		var p := float(step) / 100
+		stage.pose(shot, p)
+		for i in range(2):
+			planted = planted and actor.shoes[i].global_transform.is_equal_approx(feet[i])
+			var bridge: MeshInstance3D = actor.shoulder_bridges[i]
+			var arm := actor.left_arm if i == 0 else actor.right_arm
+			if bridge.visible:
+				shoulders_joined = shoulders_joined and bridge.to_global(Vector3(0, 0.5, 0)).distance_to(arm.global_position) < 0.002
+				shoulders_joined = shoulders_joined and bridge.to_global(Vector3(0, -0.5, 0)).distance_to(actor.body.to_global(Vector3(-0.24 if i == 0 else 0.24, 1.15, 0))) < 0.002
+			if p <= 0.8:
+				var hand := actor.left_forearm if i == 0 else actor.right_forearm
+				var rim := actor.head.to_global(actor.helmet.position + Vector3(-0.18 if i == 0 else 0.18, -0.07, 0))
+				contact = contact and hand.to_global(Vector3(0, -0.29, 0)).distance_to(rim) < 0.002
+		for corner in [Vector3(-0.5, -0.5, -0.5), Vector3(0.5, 0.5, 0.5)]:
+			var point := actor.helmet.to_global(corner)
+			var pixel := director.camera.unproject_position(point)
+			framed = framed and not director.camera.is_position_behind(point) and pixel.x > 0 and pixel.x < size.x and pixel.y > size.y * 0.15 and pixel.y < size.y * 0.78
+	check(contact, "Both hands follow helmet rim targets within 2 mm until release")
+	check(shoulders_joined, "Raised shoulder geometry stays joined to the torso and upper arms")
+	check(planted and stage.props.bike.position == Vector3.ZERO, "Helmet preparation keeps shoes and motorcycle stationary")
+	check(framed, "Held and raised helmet remain within caption-safe framing")
+	check(stage.prop_snapshot() == props and get_tree().get_node_count() == nodes, "Helmet preparation preserves luggage without duplicate props or per-frame nodes")
+	var final_pose := stage.actor_snapshot()
+	await capture("helmet_worn")
+	stage.pose(shot, 0)
+	check(stage.actor_snapshot() == initial, "Rewinding restores the held helmet without a worn duplicate")
+	director._apply_shot(0.5)
+	held = stage.actor_snapshot()
+	GameState.settings.reduced_motion = not GameState.settings.reduced_motion
+	director._apply_shot(0.5)
+	check(stage.actor_snapshot() == held and GameState.snapshot() == saved, "Reduced motion preserves helmet choreography and journey state")
+	director._process(5)
+	check(stage.actor_snapshot() == final_pose, "Mounting begins with the exact helmet, hand and standing pose")
+	director.play("night")
+	check(not director.room.props.raka.helmet.visible and director.room.props.raka.helmet.position == Vector3(0, 0.26, 0.015), "Other scenes restore the default hidden helmet position")
 
 func _test_mount(director: CutsceneDirector) -> void:
 	var saved := GameState.snapshot()
