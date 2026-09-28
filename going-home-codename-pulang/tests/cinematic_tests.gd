@@ -81,11 +81,12 @@ func _ready() -> void:
 	await _test_laptop(director)
 	await _test_straps(director)
 	await _test_bike_touch(director)
+	await _test_mount(director)
 	director.play("departure")
 	director.shot_index = director.definitions.departure.shots.size() - 1
 	director._show_shot()
 	director._process(3)
-	check(director.room.props.bike.position.x > 1 and director.room.props.bike.position.x == director.room.props.rider.position.x, "Departure moves motorcycle and rider together")
+	check(director.room.props.bike.position.x > 1 and director.room.props.bike.to_local(director.room.props.rider.global_position).distance_to(CinematicMount.SEAT) < 0.002, "Departure moves motorcycle and rider together at the seat anchor")
 	check(director.room.props.luggage.visible and director.audio_context() == "city", "Departure carries luggage and uses parking ambience")
 	check(not director.room.props.bike.show_rider_arms and director.room.props.rider.helmet.visible, "Cinematic rider wears helmet without duplicate cockpit arms")
 	await capture("cinematic_departure_midpoint")
@@ -123,7 +124,9 @@ func _ready() -> void:
 	director._process(2.5)
 	check(director.room.props.raka.active_clip == "pack" and director.room.props.raka.visible, "Packing insert shows its authored hand gesture")
 	await capture("performance_pack")
-	director.shot_index = director.definitions.departure.shots.size() - 2
+	for i in range(director.definitions.departure.shots.size()):
+		if director.definitions.departure.shots[i].shot_id == "father_memory":
+			director.shot_index = i
 	director._show_shot()
 	check(director.stage_id == "memory" and director.room.props.young_raka.scale.x < 1 and director.room.props.young_raka.position.x < director.room.props.rider.position.x, "Memory places young Raka behind father")
 	check(director.room.props.young_raka.active_clip == "passenger" and director.room.props.young_raka.helmet.visible and director.room.props.rider.helmet.visible and not director.room.props.luggage.visible, "Memory uses helmeted father/passenger poses without departure luggage")
@@ -557,7 +560,8 @@ func _test_straps(director: CutsceneDirector) -> void:
 	director._process(5)
 	check(director.stage_id == "memory" and not director.room.props.luggage.visible and not is_instance_valid(luggage), "Memory cut frees checked luggage and omits it from the past")
 	director._process(2)
-	check(director.room.props.luggage.pose_snapshot() == final_luggage and not director.room.props.walker.visible and director.room.props.rider.visible, "Present-day departure restores the same secured luggage and a single mounted rider")
+	check(director.room.props.luggage.pose_snapshot() == final_luggage and not director.room.props.walker.visible and director.room.props.rider.visible, "Present-day mounting restores the same secured luggage and a single rider")
+	director._process(5)
 	var departing: CinematicLuggage = director.room.props.luggage
 	var position_before := departing.global_position
 	director._process(3)
@@ -568,6 +572,89 @@ func _test_straps(director: CutsceneDirector) -> void:
 			director.shot_index = i
 	director._show_shot()
 	check(not director.room.props.luggage.visible and director.room.props.walker.visible and not director.room.props.rider.visible, "Morning approach resets to walking without departure luggage")
+
+func _test_mount(director: CutsceneDirector) -> void:
+	var saved := GameState.snapshot()
+	director.play("departure")
+	for i in range(director.definitions.departure.shots.size()):
+		if director.definitions.departure.shots[i].shot_id == "mount":
+			director.shot_index = i
+	director._show_shot()
+	var stage := director.room
+	var shot: Dictionary = director.definitions.departure.shots[director.shot_index]
+	var actor: CinematicActor = stage.props.rider
+	var bike: Node3D = stage.props.bike
+	var secured := stage.prop_snapshot()
+	var nodes := get_tree().get_node_count()
+	var initial := stage.actor_snapshot()
+	check(actor.visible and actor.helmet.visible and actor.walking_legs.visible and not actor.seated_legs.visible and not stage.props.walker.visible, "Mount starts with one helmeted Raka standing beside the bike")
+	check(bike.to_local(actor.global_position).x < -0.5 and bike.position == Vector3.ZERO, "Mount starts on the motorcycle's left side without travel")
+	await capture("mount_ready")
+	stage.pose(shot, 0.35)
+	check(bike.to_local(actor.shoes[1].global_position).y > 1.1, "Right foot lifts above the seat before crossing")
+	await capture("mount_lift")
+	stage.pose(shot, 0.5)
+	await capture("mount_cross")
+	var held := stage.actor_snapshot()
+	var elapsed := director.elapsed
+	get_tree().paused = true
+	director.set_process(true)
+	await frames(8)
+	check(stage.actor_snapshot() == held and director.elapsed == elapsed, "Pause freezes mounting joints and root")
+	get_tree().paused = false
+	AudioManager.focus_suspended = true
+	await frames(8)
+	check(stage.actor_snapshot() == held, "Background freezes the mounting performance")
+	AudioManager.focus_suspended = false
+	director.set_process(false)
+	stage.pose(shot, 1)
+	stage.pose(shot, 0.5)
+	check(stage.actor_snapshot() == held, "Rewind restores the mounting pose exactly")
+	var framed := true
+	var planted := true
+	var soles := true
+	var clear := true
+	var size := get_viewport().get_visible_rect().size
+	var bag := AABB(Vector3(-0.39, 0.855, 0.56), Vector3(0.78, 0.30, 0.52))
+	for step in range(101):
+		var p := float(step) / 100
+		stage.pose(shot, p)
+		for shoe in actor.shoes:
+			var point := shoe.global_position
+			var pixel := director.camera.unproject_position(point)
+			framed = framed and not director.camera.is_position_behind(point) and pixel.x > 0 and pixel.x < size.x and pixel.y < size.y * 0.78
+			soles = soles and shoe.global_basis.y.is_equal_approx(Vector3.UP) and point.y > 0.06
+			for x in [-0.085, 0.085]:
+				for z in [-0.15, 0.15]:
+					clear = clear and not bag.has_point(bike.to_local(shoe.to_global(Vector3(x, 0, z))))
+		if p <= 0.55:
+			planted = planted and bike.to_local(actor.shoes[0].global_position).distance_to(Vector3(-0.71, 0.08, 0.345)) < 0.002
+		var head_point := actor.head.to_global(Vector3(0, 0.48, 0))
+		framed = framed and director.camera.unproject_position(head_point).y > size.y * 0.15
+	check(planted, "Left foot stays planted during the initial right-leg lift and crossing")
+	check(soles, "Mounting shoes remain level and above the parking surface")
+	check(clear, "Sampled shoe corners clear the secured luggage throughout mounting")
+	check(framed, "Helmet and feet remain inside the shot's caption-safe framing")
+	check(stage.prop_snapshot() == secured and bike.position == Vector3.ZERO and get_tree().get_node_count() == nodes, "Mount preserves luggage and stationary motorcycle without allocating nodes")
+	check(bike.to_local(actor.global_position).distance_to(CinematicMount.SEAT) < 0.002, "Mount settles at the departure seat anchor")
+	check(bike.to_local(actor.shoes[0].global_position).x < 0 and bike.to_local(actor.shoes[1].global_position).x > 0, "Seated feet finish on opposite sides of the motorcycle")
+	for side in [-1, 1]:
+		var hand := actor.left_forearm if side == -1 else actor.right_forearm
+		check(hand.to_global(Vector3(0, -0.29, 0)).distance_to(bike.to_global(Vector3(side * 0.51, 1.165, -0.29))) < 0.002, "Seated hand reaches its handlebar grip: " + str(side))
+	await capture("mount_seated")
+	var seated := stage.actor_snapshot()
+	stage.pose(shot, 0)
+	check(stage.actor_snapshot() == initial, "Mount can rewind to its standing pose")
+	director._apply_shot(0.5)
+	held = stage.actor_snapshot()
+	GameState.settings.reduced_motion = not GameState.settings.reduced_motion
+	director._apply_shot(0.5)
+	check(stage.actor_snapshot() == held, "Reduced camera motion preserves mounting choreography")
+	check(GameState.snapshot() == saved, "Mounting does not change saves or checkpoints")
+	director._process(5)
+	check(stage.actor_snapshot() == seated and stage.prop_snapshot() == secured, "Natural departure starts with the exact seated pose and secured luggage")
+	director._process(3)
+	check(bike.position.x > 1 and bike.to_local(actor.global_position).distance_to(CinematicMount.SEAT) < 0.002, "Mounted rider follows the bike during departure")
 
 func _test_bike_touch(director: CutsceneDirector) -> void:
 	var saved := GameState.snapshot()
@@ -656,7 +743,7 @@ func _test_bike_touch(director: CutsceneDirector) -> void:
 	director._process(5)
 	check(director.stage_id == "memory" and not is_instance_valid(touch) and not director.room.props.bike_touch.cloth.visible, "Memory frees the present-day cloth and never shows a duplicate")
 	director._process(2)
-	check(director.stage_id == "parking" and not director.room.props.bike_touch.cloth.visible and director.room.props.rider.visible and not director.room.props.walker.visible and director.room.props.luggage.pose_snapshot() == secured, "Departure restores mounted rider and secured luggage without the wiping cloth")
+	check(director.stage_id == "parking" and not director.room.props.bike_touch.cloth.visible and director.room.props.rider.visible and not director.room.props.walker.visible and director.room.props.luggage.pose_snapshot() == secured, "Mounting restores one rider and secured luggage without the wiping cloth")
 	director.play("morning")
 	for i in range(director.definitions.morning.shots.size()):
 		if director.definitions.morning.shots[i].shot_id == "parking":

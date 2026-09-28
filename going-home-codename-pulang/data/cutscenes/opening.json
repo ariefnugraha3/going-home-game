@@ -651,6 +651,22 @@
         "subtitle": "With Dad"
       },
       {
+        "shot_id": "mount",
+        "camera": [2.4, 2.1, -3.2],
+        "target": [-0.1, 1.0, 0],
+        "duration": 5,
+        "text": "Helmet on. Take it slowly.",
+        "fov": 56,
+        "framing": "medium wide",
+        "movement": "static",
+        "transition": "cut",
+        "location": "parking",
+        "luggage": true,
+        "mounting": true,
+        "performance": "ride",
+        "audio": [{"cue": "fabric", "at": 2.5}]
+      },
+      {
         "shot_id": "departure",
         "camera": [
           3.8,

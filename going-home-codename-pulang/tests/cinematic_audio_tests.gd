@@ -33,7 +33,7 @@ func _ready() -> void:
 				previous = event.at
 				count += 1
 		check(valid, "Authored cues reference bank and ordered in-shot times: " + id)
-	check(count == 13, "Opening contains thirteen sparse authored sound events")
+	check(count == 14, "Opening contains fourteen sparse authored sound events")
 	director.play("morning")
 	director._process(.2)
 	check(events.is_empty() and sound.pending.is_empty(), "Before activation an elapsed cue is consumed silently")
@@ -85,8 +85,11 @@ func _ready() -> void:
 	director._process(2)
 	check(director.stage_id == "parking" and is_equal_approx(sound.remaining[0], 1.4) and events.size() == before, "Same sound bridges memory back to present without restarting")
 	director._process(1.5)
-	check(sound.remaining == [0.0, 0.0], "Memory bridge ends in silence during title reveal")
-	director._process(4.5)
+	check(sound.remaining == [0.0, 0.0], "Memory bridge fades out during present-day mounting")
+	director._process(1.1)
+	check(events.back() == "fabric", "Mounting triggers its fabric cue before departure")
+	director._process(2.4)
+	director._process(6)
 	check(director.active_id.is_empty() and sound.pending.is_empty(), "Natural completion clears the audio timeline")
 	# Pause/focus freeze both the director's clock and an in-flight native voice.
 	director.play("departure")

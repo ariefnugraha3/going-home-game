@@ -1,5 +1,24 @@
 # Validation record
 
+## M5 motorcycle mounting - 2026-09-29
+
+Godot **4.7.2.stable.official.ed1daf0bf**, Compatibility; native Windows at 1280×720 with a 30 FPS cap.
+
+| Check | Result |
+| --- | --- |
+| Full headless regression, fixed 30 cadence | **96 Story + 34 Practice + 30 Cockpit + 21 RoadRender + 145 Lifecycle + 57 TouchLayout + 79 Input + 60 Narrative + 52 Mood + 71 Audio + 329 Cinematic + 49 CinematicAudio + 79 Phone + 41 Interface = 1,143 checks, 0 failures** |
+| Native Cinematic | **329 checks, 0 failures**; mounting, all-shot Skip equivalence including shoe transforms, prior packing/strap/wipe/waking/walking/memory regressions and checkpoint handoffs |
+| Native CinematicAudio | **55 checks, 0 failures**; mounting fabric event, memory tail into mounting, native playback/mixer/pause and Skip cleanup |
+| Geometry / state | 101 samples check the initially planted left foot, level shoes above the surface, shoe-corner luggage clearance, caption-safe framing and constant node count; final grip contact, exact seated-pose handoff, pause/focus, rewind, reduced motion and unchanged journey state |
+| Visual review | Standing, lift, crossing, seated, departure and shifted strap-check views inspected. Corrected the initial support-foot reach and a camera outside the parking wall; widened final framing to show the bike above the caption bar |
+| Timeline | **27 shots / 123 authored seconds**, departure 46 seconds; five sound assets / fourteen events. Memory sound ends 1.4 seconds into mounting; fabric at 2.5 seconds. Save schema/checkpoints unchanged |
+| Resource PCK / independent boot | **Pass**, 1,751,048 bytes; final pack boots outside the source project and exits 0 after 120 frames. Exporting resources does not establish browser/Android acceptance |
+| Remaining | Helmet donning, cloth storage, preparation/sitting transitions, full body mesh contact and physical balance, production rigs/fingers/foley, human review and real Web/Android acceptance |
+
+Reproduce with `powershell -ExecutionPolicy Bypass -File tools/test.ps1 -Suite All -FixedFps 30`; native `-Suite Cinematic -Visual -FixedFps 30` and `-Suite CinematicAudio -Visual -FixedFps 30`. Ignored logs: `.godot-test/Mount-all30.log`, `Mount-native30.log`, `MountAudio-native30.log`, `mount-export.log`, `mount-pack-boot.log`. Captures: `tests/screenshots/mount_*.png`. See the [mounting review checklist](M5_CINEMATIC_PLAYTEST.md#motorcycle-mounting-pass).
+
+These bounded point checks do not certify full mesh collision, weight transfer or final animation acceptance. Native captures are desktop evidence, not physical Android/browser testing. The existing sandbox certificate-store startup message is unrelated to offline checks.
+
 ## M5 bike touch and memory - 2026-09-29
 
 Godot **4.7.2.stable.official.ed1daf0bf**, Compatibility; native Windows at 1280×720 with a 30 FPS cap.

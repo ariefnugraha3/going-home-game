@@ -1,10 +1,10 @@
 # M5 opening cinematic review
 
-The current opening is a blocking prototype with 26 authored shots, not final character animation or an accepted vertical slice. All captions and device text are English. Raka remains competent, loses his role through restructuring, has professional alternatives, and chooses to go home.
+The current opening is a blocking prototype with 27 authored shots, not final character animation or an accepted vertical slice. All captions and device text are English. Raka remains competent, loses his role through restructuring, has professional alternatives, and chooses to go home.
 
 ## Play the opening
 
-Begin a new journey, watch the apartment and parking shots, ride to the office, finish the restructuring conversation, watch the sign-out/evening sequence, answer Mom, and watch packing/departure. The shot durations total 118 seconds: morning 24, office 19, sign-out 11, evening 23, departure 41. Dialogue, commute, transitions and pauses add to this time; it is not a measured player-session length.
+Begin a new journey, watch the apartment and parking shots, ride to the office, finish the restructuring conversation, watch the sign-out/evening sequence, answer Mom, and watch packing/departure. The shot durations total 123 seconds: morning 24, office 19, sign-out 11, evening 23, departure 46. Dialogue, commute, transitions and pauses add to this time; it is not a measured player-session length.
 
 Hold Space for more than 0.8 seconds or select Skip scene. This finishes the current sequence, not the whole prologue. Pause freezes the shot clock and movement. Reduced camera motion makes camera travel static; the departing motorcycle still moves through the set.
 
@@ -35,7 +35,7 @@ The suite checks every shot's metadata and set, natural timeline completion, ski
 - [ ] Watch the phone shot: one handset becomes visible in the raised hand, the desk phone disappears, and the call pose remains through dialogue. Review hand/ear contact from the actual camera.
 - [ ] Watch the packing reach and listening nod. They should remain understated; inspect joint seams and any prop penetration before replacing the blocking meshes.
 - [ ] Inspect helmeted riding and passenger poses, with no extra first-person arms on the cinematic motorcycle. The playable cockpit retains its own arms.
-- [ ] Confirm the two-second father/young-Raka insert reads as a memory, the child sits behind the father, and the return to the luggage/title shot is clear. Assess reading time and the new prototype sound bridge.
+- [ ] Confirm the two-second father/young-Raka insert reads as a memory, the child sits behind the father, and the return to mounting and the title shot is clear. Assess reading time and the new prototype sound bridge.
 - [ ] Pause mid-gesture, change reduced motion, resume, skip, and Continue from departure. Check that reduced motion holds the camera while actor movement remains; skip lands on the correct final actor pose.
 
 `CinematicActor` uses a small Node3D joint hierarchy with eight AnimationPlayer clips sampled manually by the shot director. This is not a Skeleton3D/skinned production character. No independent actor clock or per-shot animation tween runs behind the director. `performance` and `npc_performance` in the shot data choose authored clips. Final dialogue poses are held rather than driven by voice/lip synchronization. Existing stable checkpoint IDs and save schema are unchanged.
@@ -46,14 +46,14 @@ The Cinematic suite now also compares actor poses for skips from every shot, che
 
 Morning `parking` now uses a five-second approach beside the stationary bike. Office `walk_to_meeting` adds a four-second rear view before the seated meeting. `performance: "walk"` uses stage-local `actor_from`, `actor_to` and a positive integer `walk_cycles` (four for parking, three for office). Root position and gait phase derive from the same eased shot progress. This lets speed ease at either end without an independent actor clock; the integer cycle count lands on a neutral stance.
 
-The actor retains its original seated geometry/proportions for the six original clips. Walking raises the upper body, swaps in articulated hips/knees, and hides phone/helmet props. Waking also uses articulated legs, as described below. The parking set hides its seated rider while the walking actor is visible, then restores him on the cluster cut. The office cut returns Raka to his chair. These are direct editorial cuts, not mounting or sitting animations. A small neck mesh connects head and torso in both postures.
+The actor retains its original seated geometry for dialogue and memory; present-day riding uses the articulated legs from the mounting pass. Walking raises the upper body, swaps in articulated hips/knees, and hides phone/helmet props. Waking also uses articulated legs, as described below. The parking set hides its seated rider while the walking actor is visible, then restores him on the cluster cut. The office cut returns Raka to his chair. These morning/office transitions remain direct editorial cuts. The departure sequence has the mounting performance described below. A small neck mesh connects head and torso in both postures.
 
 Automated checks cover start/mid/end root position, facing, deterministic backward seeking, pause, reduced-motion independence, neutral endpoints, actor visibility and restoration of the seated pose. Native start/mid/end captures are in `tests/screenshots/walk_*.png`. Projection checks keep the head/feet between the cinematic bars at the test viewport. All-shot skip tests also include the new office shot. No save fields or flag IDs change.
 
 - [ ] Watch both approaches at natural speed and compare reduced motion on/off; review gait cadence, foot sliding and the cuts into seated poses.
 - [ ] Confirm only one Raka is visible beside the bike, and inspect floor contact, furniture clearance and proportions on final models.
 - [ ] Review head/feet and caption clearance across phone aspect ratios and larger UI/text settings.
-- [ ] Replace blocking gait with final rig animation, foot locking, mounting/sitting transitions and licensed/original recorded footsteps where appropriate.
+- [ ] Replace blocking gait with final rig animation, foot locking, remaining sitting transitions and licensed/original recorded footsteps where appropriate.
 - [ ] Repeat pause/background, Skip and Continue on real Web/Android exports.
 
 ## Packing performance pass
@@ -69,6 +69,20 @@ The Cinematic suite covers open/closed endpoints, ordered placement/closure, pau
 - [ ] Replace blocking raincoat/bag/rig assets, add finger grips and cloth deformation, and record final fabric/fastener foley.
 - [x] Add laptop stowage after route planning, as described below.
 - [ ] Add remaining item placement and fastening luggage to the motorcycle.
+
+## Motorcycle mounting pass
+
+The five-second `departure/mount` shot follows the father memory and precedes the title/departure. Raka is already helmeted at the cut. His left foot stays planted during the initial right-leg lift and crossing, then both feet move toward the cinematic footrests while his body settles and hands reach the grips. The bag sits farther back on the seat; the strap-check actor position follows it. The bike remains stationary until departure, which starts from the exact final mounting pose.
+
+`CinematicMount` reuses the ride clip and samples root, torso and analytic two-bone leg/hand targets in motorcycle coordinates. Shoes remain level and reset for other clips; pose snapshots include their transforms. No extra animation clock, physics, nodes per frame, gameplay cargo or save fields are introduced. The memory sound fades during the first 1.4 seconds; a reused fabric cue plays at 2.5 seconds. The eight original clips and five sound assets remain the same.
+
+Automated checks cover 101 samples for the initial planted foot, level shoes above the surface, shoe-corner clearance from the luggage, caption-safe framing and constant node count. They also check lift height, feet on opposite sides, final grip contact, pause/focus, rewind, reduced motion, unchanged journey state, exact natural handoff and movement with the bike. All-shot Skip equivalence includes the new shot and shoe transforms. Captures: `mount_ready.png`, `mount_lift.png`, `mount_cross.png`, `mount_seated.png`.
+
+- [x] Add the bounded mounting performance and retain its seated pose through departure.
+- [ ] Review natural-speed weight transfer, support hands, hip/torso alignment and leg clearance with production meshes; sampled shoe points do not certify full body collision or physical balance.
+- [ ] Animate helmet donning, cloth storage, preparation movements and remaining morning/office sitting transitions.
+- [ ] Replace synthesized fabric with recorded movement/seat foley and review pacing with the memory bridge.
+- [ ] Repeat framing, touch Skip, pause/background and sound tests in actual Web/Android builds.
 
 ## Bike touch pass
 
@@ -93,7 +107,7 @@ Automated checks sample 101 times for two-hand contact, torso clearance at the g
 
 - [ ] Watch the two pulls at natural speed and verify both hands, buckles and short tails read clearly at phone sizes.
 - [ ] Review production finger/forearm contact, strap routing, cloth tension and final recorded buckle/fabric timing. Authored point checks are not a complete mesh or cloth assessment.
-- [ ] Add carrying/placing the bag, initial threading/fastening and mounting transitions with production assets.
+- [ ] Add carrying/placing the bag, initial threading/fastening with production assets; refine the mounting prototype below.
 - [ ] Repeat pause, Skip, memory continuity and departure framing in actual browser/Android builds.
 
 ## Laptop packing pass
@@ -138,6 +152,7 @@ Five original mono 22,050 Hz PCM sketches are synthesized by `tools/generate_cin
 | Departure / straps | fabric | 1.5 s and 2.8 s | 0.85 s each |
 | Departure / bike_touch | fabric | 1.6 s and 3.0 s | 0.85 s each |
 | Departure / bike_touch | memory_motor | 4.4 s | 4.0 s, across the next two cuts |
+| Departure / mount | fabric | 2.5 s | 0.85 s |
 
 Each shot may contain an ordered `audio` array of `{ "cue": "bank_id", "at": seconds }`. `data/audio/cinematic.json` maps IDs to imported assets and gain in dB. Events must start within their shot. `CinematicAudio` owns two SFX voices and the director advances its clock; ordinary cuts keep remaining tails. Full voices cause additional requests to be discarded. A late frame starts a still-relevant cue at its elapsed offset and drops sounds whose duration has already passed. No queued event survives its shot, skip, replacement, completion or cancellation.
 
@@ -145,7 +160,7 @@ Audio requires the existing user activation. Master/SFX zero drops new events; e
 
 - [ ] At natural speed, listen to the alarm, HR notification and ringtone. They should remain quiet and readable without resembling urgent gameplay prompts.
 - [ ] Compare packing fabric with the prototype reach; record contact/timing adjustments for the final animation pass.
-- [ ] Listen from bike touch through the two-second memory and title. The motor/air should connect the images, fade naturally and leave space for the present-day road sound.
+- [ ] Listen from bike touch through the two-second memory, mounting and title. The motor/air should connect the images, fade naturally and leave space for the present-day road sound.
 - [ ] Pause mid-cue, open settings, mute/unmute SFX, background/resume and skip. Check for clicks, stale alarms, duplicate cues or tails under dialogue.
 - [ ] Compare headphones and phone speakers at comfortable volume; approve final timbre, gain and ambience balance only after human listening.
 - [ ] Repeat activation, pause/focus, touch Skip and Continue on real Web/Android exports.

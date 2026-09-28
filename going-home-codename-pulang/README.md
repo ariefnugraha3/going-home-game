@@ -168,25 +168,35 @@ Local validation: **613 combined checks passed** at fixed 30 render cadence, inc
 
 ## Opening cinematics - M5 update
 
-The opening now has **26 authored shots across five sequences**: morning routine and parking, HR notification/meeting, post-meeting sign-out, evening apartment, and packing/departure. Phone and laptop inserts show the alarm, HR message, recruiter opportunities, Apply, Mom, and the route home. The bike appears in the parking set with luggage at departure, followed by a PULANG title reveal and the existing ride into Karawang.
+The opening now has **27 authored shots across five sequences**: morning routine and parking, HR notification/meeting, post-meeting sign-out, evening apartment, and packing/departure. Phone and laptop inserts show the alarm, HR message, recruiter opportunities, Apply, Mom, and the route home. Raka mounts the loaded bike before the PULANG title reveal and the existing ride into Karawang.
 
 Shots in `data/cutscenes/opening.json` define stable IDs, purpose, framing, FOV, duration, optional camera endpoint, set, and prop text. `CinematicStage` builds the replaceable interior/parking sets; the director handles framing, restrained camera travel and the shared rider/bike departure movement. **Reduced camera motion** disables camera travel. Pause freezes the timeline; hold Space or select **Skip scene** to finish the current sequence, restore its final set/framing, and commit its flags once.
 
 The restructuring conversation now leads through badge/sign-out before the evening scene. Existing checkpoint IDs remain unchanged: Continue restores the stable checkpoint, not an individual shot. An interruption around the meeting can replay the commute/meeting from its saved checkpoint. Continue at departure restores packing, and finishing/skipping it restores the riding camera and controls.
 
-The authored shot durations total **118 seconds**, excluding dialogue, commute, transitions and player pauses. This remains a compact prototype: actors use articulated blocking geometry, waking and walking follow the shot clock, and bike departure uses root movement. Final skinned rigs and performances, full packing actions, bed/foot/hand contact and mounting/sitting transitions, cinematic foley/voice treatment and the planned 30-60 minute slice remain unfinished. Use the [M5 cinematic review guide](docs/test/M5_CINEMATIC_PLAYTEST.md).
+The authored shot durations total **123 seconds**, excluding dialogue, commute, transitions and player pauses. This remains a compact prototype: actors use articulated blocking geometry; waking, walking and mounting follow the shot clock. Final skinned rigs and performances, full packing actions, bed/foot/hand contact, remaining preparation/sitting transitions, cinematic foley/voice treatment and the planned 30-60 minute slice remain unfinished. Use the [M5 cinematic review guide](docs/test/M5_CINEMATIC_PLAYTEST.md).
 
 Prior cinematic update validation: **424 combined checks passed** at fixed 30 render cadence, including **92 cinematic checks**. The same 92 cinematic checks also passed with native rendering capped at 30 FPS. Representative phone/laptop, packing, night, cluster and departure/title captures were inspected. Human pacing, final art and Web/Android acceptance remain pending.
 
 ## Cinematic sound cues · M5 update, 2026-09-27
 
-The opening now has five original synthesized sound sketches: a morning alarm, HR notification, Mom's ringtone, fabric, and a soft motorcycle/air memory bridge. Thirteen events are timed in the authored shots, including waking cloth, laptop packing, strap tightening and the bike-touch wipe described below. The four-second motorcycle cue begins 0.6 seconds before the father/child insert, continues through its two seconds, and fades over the first 1.4 seconds of the present-day title shot. Location ambience continues underneath; no new music or voice acting is added.
+The opening now has five original synthesized sound sketches: a morning alarm, HR notification, Mom's ringtone, fabric, and a soft motorcycle/air memory bridge. Fourteen events are timed in the authored shots, including waking cloth, laptop packing, strap tightening, bike touch and mounting. The four-second motorcycle cue begins 0.6 seconds before the father/child insert, continues through its two seconds, and fades over the first 1.4 seconds of present-day mounting. Location ambience continues underneath; no new music or voice acting is added.
 
 Cinematic sound follows **Sound effects** and **Master** volume. Pause and backgrounding freeze picture and sound together. Skip, sequence replacement, cancellation and completion clear active sounds; muted or expired events never replay when volume returns. A two-voice pool keeps overlapping tails bounded. Continue uses the existing stable checkpoint and can replay its sequence normally; sound adds no save fields.
 
 Cue timing lives in `data/cutscenes/opening.json`, with asset paths/gains in `data/audio/cinematic.json`. Regenerate the five nonlooping WAVs with `python tools/generate_cinematic_audio.py`. These are prototype synthesis, with final recordings, contact timing and human listening review still pending in the [M5 cinematic guide](docs/test/M5_CINEMATIC_PLAYTEST.md#cinematic-sound-pass).
 
 Local validation: **693 combined checks passed** at fixed 30 render cadence, including **39 cinematic audio checks**. The native cinematic audio suite passed **45 checks** at a 30 FPS cap, including actual SFX output and playback pause/resume. The resource PCK exports and boots independently. Human listening and real Web/Android acceptance remain pending.
+
+## Motorcycle mounting · M5 update, 2026-09-29
+
+After the father memory, helmeted Raka now lifts his right leg across the seat and settles onto the motorcycle before departure. The five-second `mount` shot brings the opening to **27 shots / 123 authored seconds**, including a 46-second departure sequence. A reused fabric cue brings the sound timeline to **fourteen events** across the existing five assets.
+
+The articulated legs, level shoes, torso and hands share the director's clock. The final pose carries into departure with both hands at the grips and feet over the cinematic footrests. The luggage sits farther back to leave room for Raka; the strap-check pose follows its new position. Pause/background, rewind, reduced camera motion and Skip preserve the performance. Saves and checkpoints are unchanged.
+
+Helmet donning, cloth storage, carrying/fastening luggage and remaining sitting transitions are still editorial cuts or unfinished actions. Production weight transfer, complete mesh contact, fingers, rig animation and recorded foley need further review. See the [mounting review checklist](docs/test/M5_CINEMATIC_PLAYTEST.md#motorcycle-mounting-pass).
+
+Local validation: **1,143 combined headless checks passed**, including **329 Cinematic and 49 CinematicAudio checks**. Native runs passed **329 Cinematic and 55 CinematicAudio checks** at a 30 FPS cap. Standing, lift, crossing, seated and shifted strap-check views were inspected; the resource PCK exports and boots independently. Human animation review and real Web/Android acceptance remain pending.
 
 ## Bike touch and memory · M5 update, 2026-09-29
 
@@ -390,7 +400,7 @@ Based on the [Development Roadmap v1](../PULANG_Development_Roadmap_v1.md). Stat
 - [x] Connect Jakarta opening → commute → layoff → mother's call → departure → first road segment.
 - [x] Connect optional stops → rain shelter/conversation → guesthouse → journal → chapter ending.
 - [x] Test the compact desktop flow, checkpoint recovery, and Continue through completion.
-- [x] Expand the opening to 26 authored shots with interior/parking sets, readable phone/laptop inserts, post-meeting sign-out, and departure/title reveal.
+- [x] Expand the opening to 27 authored shots with interior/parking sets, readable phone/laptop inserts, post-meeting sign-out, mounting, and departure/title reveal.
 - [x] Add per-shot framing/FOV, restrained camera travel, reduced-motion behavior, deterministic skip, pause and stable-checkpoint regression checks.
 - [x] Add articulated prototype actors, eight director-sampled AnimationPlayer clips, phone prop handoff, and a father/young-Raka memory insert.
 - [x] Test deterministic actor poses after seeking/skipping, pause, dialogue handoff and memory-to-present restoration.
@@ -400,11 +410,12 @@ Based on the [Development Roadmap v1](../PULANG_Development_Roadmap_v1.md). Stat
 - [x] Add laptop closure, two-handed transfer and stowage after route planning, with synchronized fabric cues and prop/contact/Skip regression checks.
 - [x] Add standing two-strap tightening, visible buckles/bands/tails, synchronized fabric cues and secured-luggage continuity through memory, Skip and departure.
 - [x] Add the GDD bike-touch insert with tank wiping, held cloth, sampled hand contact and sound bridge into the father memory; verify pause/Skip, scene cleanup and secured luggage continuity.
+- [x] Add a helmeted mounting performance between memory and departure, with articulated legs, final grip/footrest placement and continuous seated pose; verify pause/background, rewind, reduced motion, Skip and secured luggage.
 - [ ] Animate remaining individual packing actions, preparation movements, carrying/mounting luggage and initial strap fastening; refine fingers, cloth, posture, visible dust and recorded contact sound with production assets.
 - [ ] Refine waking bed/hand contact, facial expression, cloth and final recorded bedsheet sound with production assets.
-- [ ] Refine planted feet, mounting/sitting transitions and final walking performances/footsteps with production character rigs.
+- [ ] Refine mounting weight transfer and full mesh contact, helmet donning, remaining sitting transitions and final walking performances/footsteps with production character rigs.
 - [x] Connect the prototype UI sound set across story/practice menus, phone sections, authored choices and keyboard navigation.
-- [x] Add five original cinematic sound prototypes and thirteen timed events, including waking fabric and a motorcycle sound bridge through the father memory.
+- [x] Add five original cinematic sound prototypes and fourteen timed events, including mounting fabric and a motorcycle sound bridge through the father memory.
 - [x] Test sound timing/tails, activation, SFX/Master mute, pause/background, skip/replacement cleanup and save isolation, including native playback.
 - [ ] Review cinematic sound/contact timing on headphones and phone speakers; replace prototypes with final recordings.
 - [ ] Expand and playtest pacing toward the planned 30–60 minute slice.

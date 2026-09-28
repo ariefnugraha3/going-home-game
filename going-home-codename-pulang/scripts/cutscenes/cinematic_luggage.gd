@@ -9,7 +9,7 @@ var grips: Array[Vector3] = []
 var tensions: Array[float] = []
 
 func build() -> void:
-	position = Vector3(0, 0.995, 0.65)
+	position = Vector3(0, 0.995, 0.82)
 	LowPoly.box(self, Vector3.ZERO, Vector3(0.78, 0.28, 0.52), Color("66735b"))
 	LowPoly.box(self, Vector3(0, 0.145, 0), Vector3(0.78, 0.025, 0.52), Color("758365"))
 	for z in STRAP_Z:
@@ -48,7 +48,7 @@ func sample(weight: float) -> void:
 
 func pose_actor(actor: CinematicActor, weight: float) -> void:
 	var p := clampf(weight, 0, 1)
-	actor.position = Vector3(-0.65, 0, 0.75)
+	actor.position = Vector3(-0.82, 0, 0.75)
 	actor.rotation = Vector3.ZERO
 	actor.sample("walk", 0)
 	# Neutral standing legs stay planted while the arms reach the strap tails.

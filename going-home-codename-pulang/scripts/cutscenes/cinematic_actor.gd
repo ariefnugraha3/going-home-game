@@ -172,6 +172,7 @@ func sample(id: String, progress: float) -> bool:
 	seated_legs.visible = not walking_legs.visible
 	for shoe in shoes:
 		shoe.visible = id != "wake"
+		shoe.transform = Transform3D(Basis.IDENTITY, Vector3(0, -0.47, -0.055))
 	for foot in bare_feet:
 		foot.visible = id == "wake"
 	handset.visible = id == "phone" and progress >= 0.3
@@ -196,6 +197,24 @@ func reach_hand(left: bool, world_target: Vector3) -> void:
 	var lower := arm.basis.inverse() * (direction * distance - elbow)
 	forearm.quaternion = Quaternion(Vector3.DOWN, lower.normalized())
 
+func reach_foot(left: bool, world_target: Vector3, pole: Vector3) -> void:
+	var hip: Node3D = walking_legs.get_node("LeftHip" if left else "RightHip")
+	var knee: Node3D = hip.get_node("Knee")
+	hip.rotation = Vector3.ZERO
+	knee.rotation = Vector3.ZERO
+	var target := walking_legs.to_local(world_target) - hip.position
+	var distance := clampf(target.length(), 0.025, 0.879)
+	var direction := target.normalized()
+	var bend := (pole - direction * pole.dot(direction)).normalized()
+	var along := (0.43 * 0.43 - 0.45 * 0.45 + distance * distance) / (2 * distance)
+	var joint := direction * along + bend * sqrt(maxf(0, 0.43 * 0.43 - along * along))
+	hip.quaternion = Quaternion(Vector3.DOWN, joint.normalized())
+	knee.quaternion = Quaternion(Vector3.DOWN, (hip.basis.inverse() * (direction * distance - joint)).normalized())
+	# Keep shoe soles level independently of shin articulation.
+	var shoe: MeshInstance3D = shoes[0 if left else 1]
+	shoe.global_basis = global_basis
+	shoe.global_position = knee.to_global(Vector3(0, -0.45, 0)) + global_basis * Vector3(0, -0.02, -0.055)
+
 func pose_snapshot() -> Array:
 	var pose := [body.transform, head.transform, left_arm.transform, right_arm.transform, left_forearm.transform, right_forearm.transform, handset.visible, helmet.visible, walking_legs.visible, seated_legs.visible]
 	# Hidden gait joints are excluded: previous walks must not affect comparison
@@ -206,4 +225,6 @@ func pose_snapshot() -> Array:
 		for hip in walking_legs.get_children():
 			pose.append(hip.transform)
 			pose.append(hip.get_node("Knee").transform)
+		for shoe in shoes:
+			pose.append(shoe.transform)
 	return pose
