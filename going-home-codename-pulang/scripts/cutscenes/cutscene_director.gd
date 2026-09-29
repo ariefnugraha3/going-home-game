@@ -3,6 +3,8 @@ extends Node3D
 
 signal caption_changed(title: String, subtitle: String, text: String)
 signal finished(id: String)
+@export_file("*.json") var definitions_path := "res://data/cutscenes/opening.json"
+@export var write_story_state := true
 var definitions: Dictionary = {}
 var camera: Camera3D
 var sound: CinematicAudio
@@ -15,7 +17,7 @@ var stage_id: String = ""
 var origin := Vector3(3000, 0, 0)
 
 func _ready() -> void:
-	definitions = JSON.parse_string(FileAccess.get_file_as_string("res://data/cutscenes/opening.json"))
+	definitions = ContentText.load_bundle(definitions_path)
 	sound = CinematicAudio.new()
 	add_child(sound)
 	camera = Camera3D.new()
@@ -108,7 +110,8 @@ func finish() -> void:
 	_show_shot(false)
 	_apply_shot(1.0)
 	for flag in definitions[id].flags:
-		GameState.set_flag(flag, definitions[id].flags[flag])
+		if write_story_state:
+			GameState.set_flag(flag, definitions[id].flags[flag])
 	active_id = ""
 	finished.emit(id)
 

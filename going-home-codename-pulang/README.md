@@ -426,12 +426,13 @@ Based on the [Development Roadmap v1](../PULANG_Development_Roadmap_v1.md). Stat
 
 **Production gate:** do not begin full chapter production until the M5 riding, platform, narrative, and art issues are resolved.
 
-### M6 — Production Toolkit · Not started
+### M6 — Production Toolkit · In progress
 
-- [ ] Create reusable authoring templates for chapters, NPCs, and cutscenes.
-- [ ] Expand the existing basic content checks into the full reference/localization/audio validator.
-- [ ] Add a development-only menu for chapter jumps, weather/time, flags, checkpoints, and performance.
-- [ ] Verify that a new encounter can be authored without changing global core code.
+- [x] Create reusable chapter, NPC and cutscene templates with an isolated [encounter preview](docs/M6_AUTHORING.md).
+- [x] Add a read-only JSON/reference/audio validator, English text inventory and fault-injection tests; integrate `-Suite Content` and preflight validation into `-Suite All`.
+- [x] Validate 195 stable JSON text keys and the English catalog; add runtime resolution and static authoring-template checks (`Content`/`Toolkit` suites).
+- [x] Add an opt-in [development menu](docs/M6_DEVELOPMENT_MENU.md) for chapter/checkpoint jumps, weather/time, flags, teleport and performance, with temporary sessions that preserve journey saves.
+- [x] Verify a new preview encounter through data and Inspector properties without global core changes; test dialogue, Skip, events and save isolation.
 
 ### M7 — Chapter Production Wave 1 · Not started
 

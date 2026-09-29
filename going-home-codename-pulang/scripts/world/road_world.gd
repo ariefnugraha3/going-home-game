@@ -152,7 +152,7 @@ func _build_landscape() -> void:
 		hill.rotation.y = i
 
 func _build_stops() -> void:
-	var chapter: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://data/chapters/karawang.json"))
+	var chapter: Dictionary = ContentText.load_bundle("res://data/chapters/karawang.json")
 	for stop in chapter.stops:
 		stops.append(stop.duplicate(true))
 	for stop in stops:

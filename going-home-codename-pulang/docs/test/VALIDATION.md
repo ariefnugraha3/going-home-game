@@ -1,5 +1,39 @@
 # Validation record
 
+## M6 development menu and temporary journey sessions - 2026-09-29
+
+- **Headless:** `tools/test.ps1 -Suite All -FixedFps 30` passed **45 Python tests and 1,377 runtime checks across 17 Godot suites**, including **93 Development checks**, with 0 failures. Ordinary launches reject session entry and expose no development menu. Existing story, save, phone, lifecycle, rendering and interface regressions pass.
+- **Native Windows / Compatibility:** **93 Development checks passed** at a 30 FPS cap, including the final performance-toggle wiring. Reviewed the menu, scrolled flags section and gameplay overlay at 1280×720. Moved the overlay away from the normal HUD. The encounter test now waits for actual process frames after teleport, so the interaction scanner observes the position even when native rendering batches physics ticks.
+- **Coverage:** seven implemented chapter/checkpoint fixtures and prerequisites, transition guard, F8/Escape dispatch, pause/dialogue preservation, released riding input, focus guard, weather override/automatic, finite bounded teleport, JSON flag validation/unset and live performance counters. Primary, backup and temporary journey files remain byte-for-byte unchanged through jumps and a real shelter encounter. Session exit and scene teardown restore the original state; normal Continue/saving works afterward.
+- **Evidence:** `.godot-test/M6Development-all30.log`, `.godot-test/Development-native.log`; captures `tests/screenshots/development_menu.png`, `development_flags.png`, `development_overlay.png`. Final logs have no script/parse/compile errors, failed checks or resource-leak errors. The known certificate-store startup message remains environmental.
+- **Scope:** editor-only opt-in enforced by debug/editor feature and `--dev-tools` checks. Actual release-template, Web and Android execution remains unverified; no new platform acceptance or benchmark claim is made. Journey isolation does not suppress settings persistence. M5 human/art/platform gates still precede mass chapter production. See [development menu usage](../M6_DEVELOPMENT_MENU.md).
+
+## M6 localization and static template contracts - 2026-09-29
+
+- **Headless:** `tools/test.ps1 -Suite All -FixedFps 30` passed **45 Python tests and 1,281 runtime checks across 16 Godot suites**, including **43 Toolkit checks**, with 0 failures. Content validation covers 12 JSON files, 303 inventoried text fields and 195 stable localization keys; only the known Cirebon boundary warning remains.
+- **Catalog coverage:** missing/duplicate/invalid bindings, missing/unused catalog entries, source drift, enum bindings, optional translation completeness and locale identity. Choice/shot reorder preserves keys; seeding is dry-run by default, additive, idempotent and never overwrites existing catalog text. Runtime verifies nested resolution, fallback, source immutability and actual dialogue-loader use. All seven pre-existing JSON content files were compared to HEAD with metadata removed: every original value is unchanged.
+- **Static templates:** four source scenes are parsed/instantiated off-tree; 16 broken fixtures cover missing anchors/markers/resources, invalid event bounds/weather/audio/radius, wrong dialogue/arrival IDs, unsafe preview flag settings, transformed cutscene roots, orphan shot groups and coincident camera targets. Valid JSON-only framing is accepted. Inspection preserves state/weather and frees all orphan nodes.
+- **Resource pack:** exported the Web resource PCK and booted it from outside the project directory for 120 headless frames, exit 0. Export log confirms `data/localization/en.json` is included. This checks packaged resources, not an HTML5 distribution or browser acceptance.
+- **Evidence:** `.godot-test/M6Toolkit-all30.log`, `toolkit-export-console.log`, `toolkit-pack-boot.log`. No script/parse/compile or game runtime errors; the known certificate-store startup message remains environmental. No new visual changes or native-render acceptance are claimed in this pass.
+- **Remaining:** general development menu, broader GDScript/UI localization and M5 human/target-platform gates. See [workflow and scope](../M6_LOCALIZATION.md).
+
+## M6 encounter authoring templates - 2026-09-29
+
+- **Headless:** `tools/test.ps1 -Suite All -FixedFps 30` passed **30 Python tests and 1,238 runtime checks across 15 Godot suites**, including **49 Authoring checks**, with 0 failures. Content preflight covers 11 JSON files / 303 text fields; the known missing Cirebon chapter remains the single warning.
+- **Native Windows / Compatibility:** **49 Authoring checks passed** at a 30 FPS cap. Reviewed road, arrival cinematic and dialogue captures at 1280×720; corrected reversed NPC labels with billboarding. Deferred render initialization/disposal fixed the initial test fixture's native sky-texture shutdown warnings; final logs contain no resource-leak or script/parse/compile errors.
+- **Coverage:** road collision, marker placement, threshold weather/ambience, once-only checkpoint/restart, distance/speed/busy interaction guards, NPC animation, pause/focus, natural/Skip handoffs, both dialogue choices, local node/choice flags and conditions, reduced motion, camera-marker override, missing reference diagnostics, scene release and audio restoration. A new bundle/ID and changed NPC/weather/camera properties run through the unchanged preview host. Campaign state and save bytes are unchanged.
+- **Reproduce:** [Authoring guide](../M6_AUTHORING.md). Logs: `.godot-test/M6Authoring-all30.log` and `.godot-test/Authoring-native.log`. Captures: `tests/screenshots/authoring_road.png`, `authoring_cutscene.png`, `authoring_dialogue.png`. Godot 4.7.2; Python 3.11. The existing certificate-store startup message is unrelated to offline test results.
+- **Scope:** standalone authoring proof with prototype art; no new campaign chapter, platform export or M5 acceptance. Static scene validation, localization catalog and the general development menu remain open.
+
+## M6 content validation toolkit - 2026-09-29
+
+- Current content: **9 JSON files, 0 errors, 1 expected warning, 287 inventoried text fields**. The warning is the existing Karawang-to-Cirebon slice boundary; `--strict` exits 1 for it.
+- **30 Python fault-injection tests passed** through `tools/test.ps1 -Suite All -FixedFps 30`, followed by **1,189 Godot runtime checks across 14 suites, 0 failures**. Log: `.godot-test/M6Content-all30.log`. Python 3.11 and Godot 4.7.2 Compatibility on Windows.
+- Covered duplicate keys/IDs, broken dialogue edges and trapped cycles, conditional-choice fallback, blank text, malformed JSON/types, missing/escaping resources, corrupt/truncated WAV, missing cue/weather/phone references, ordered timings, chapter boundaries, route bounds, deterministic reporting and byte-for-byte read-only behavior.
+- `Content` runs without Godot; `All` stops on invalid content before importing the project. JSON reporting and strict/non-strict exit behavior were tested. Test fixtures are disposable copies under `.godot-test`; no player saves or source content are modified.
+- Runtime/game data are unchanged. No new native-render, PCK, browser or Android acceptance is claimed for this tooling pass. Existing sandbox certificate-store startup messages remain unrelated to the offline runtime checks.
+- M6 remains in progress: templates, runtime bundle registration, development controls, localization keys/catalog validation and the new-encounter gate are pending. See [tool usage and limits](../M6_CONTENT_TOOLS.md).
+
 ## M5 chin-strap fastening - 2026-09-29
 
 - **Headless:** all 14 suites passed, 1,188 checks. The final loose-buckle clearance correction and added assertion passed the Cinematic rerun: **371 checks**, yielding **1,189 checks / 0 failures** across final suite results (53 CinematicAudio).

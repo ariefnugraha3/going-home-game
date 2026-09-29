@@ -6,6 +6,11 @@
     "direction": "Incoming call",
     "dialogue": "mother",
     "note": "Mom asked whether I had eaten. I told her about the team being cut. She said I could come home. Dad still leaves the gate key in the same place.",
-    "remembered_node": "home"
+    "remembered_node": "home",
+    "text_keys": {
+      "from": "phone.calls.0.from",
+      "note": "phone.calls.0.note",
+      "when": "phone.calls.0.when"
+    }
   }
 ]

@@ -6,3 +6,4 @@ tests/screenshots/
 *.keystore
 *.jks
 .godot-test/
+__pycache__/

@@ -1,6 +1,58 @@
 [
-  {"id": "mom_departure", "from": "Mom", "type": "Messages", "condition": "story.prologue.departed", "delay_seconds": 5.0, "text": "Let me know when you stop. Dad says check the tire pressure before you leave.", "reply": "I will. Taking it slowly."},
-  {"id": "dimas", "from": "Dimas", "type": "Messages", "condition": "story.prologue.laid_off", "delay_seconds": 2.0, "text": "Heard what happened. I'm around if you want to talk. Or just complain about the coffee.", "reply": "Thanks. I'm heading home for a bit."},
-  {"id": "recruiter", "from": "Maya · Recruitment", "type": "Email", "condition": "story.prologue.laid_off", "delay_seconds": 7.0, "text": "Hi Raka, a colleague recommended you for a senior engineering role. Your experience looks relevant. Would you be open to a conversation next week?", "reply": "Thank you. Could we arrange a time next week?"},
-  {"id": "dad", "from": "Dad", "type": "Messages", "condition": "story.karawang.sheltered", "delay_seconds": 3.0, "text": "Rain here too. Don't leave your gloves on the seat. They take forever to dry.", "reply": "They're inside. The bike is doing fine."}
+  {
+    "id": "mom_departure",
+    "from": "Mom",
+    "type": "Messages",
+    "condition": "story.prologue.departed",
+    "delay_seconds": 5.0,
+    "text": "Let me know when you stop. Dad says check the tire pressure before you leave.",
+    "reply": "I will. Taking it slowly.",
+    "text_keys": {
+      "from": "phone.messages.0.from",
+      "reply": "phone.messages.0.reply",
+      "text": "phone.messages.0.text"
+    }
+  },
+  {
+    "id": "dimas",
+    "from": "Dimas",
+    "type": "Messages",
+    "condition": "story.prologue.laid_off",
+    "delay_seconds": 2.0,
+    "text": "Heard what happened. I'm around if you want to talk. Or just complain about the coffee.",
+    "reply": "Thanks. I'm heading home for a bit.",
+    "text_keys": {
+      "from": "phone.messages.1.from",
+      "reply": "phone.messages.1.reply",
+      "text": "phone.messages.1.text"
+    }
+  },
+  {
+    "id": "recruiter",
+    "from": "Maya · Recruitment",
+    "type": "Email",
+    "condition": "story.prologue.laid_off",
+    "delay_seconds": 7.0,
+    "text": "Hi Raka, a colleague recommended you for a senior engineering role. Your experience looks relevant. Would you be open to a conversation next week?",
+    "reply": "Thank you. Could we arrange a time next week?",
+    "text_keys": {
+      "from": "phone.messages.2.from",
+      "reply": "phone.messages.2.reply",
+      "text": "phone.messages.2.text"
+    }
+  },
+  {
+    "id": "dad",
+    "from": "Dad",
+    "type": "Messages",
+    "condition": "story.karawang.sheltered",
+    "delay_seconds": 3.0,
+    "text": "Rain here too. Don't leave your gloves on the seat. They take forever to dry.",
+    "reply": "They're inside. The bike is doing fine.",
+    "text_keys": {
+      "from": "phone.messages.3.from",
+      "reply": "phone.messages.3.reply",
+      "text": "phone.messages.3.text"
+    }
+  }
 ]

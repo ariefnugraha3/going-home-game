@@ -13,10 +13,12 @@ var commute: bool = false
 var pending_encounter: String = ""
 var elapsed: float = 0
 var chapter_data: Dictionary = {}
+var development_menu: Node
+var development_weather := ""
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
-	chapter_data = JSON.parse_string(FileAccess.get_file_as_string("res://data/chapters/karawang.json"))
+	chapter_data = ContentText.load_bundle("res://data/chapters/karawang.json")
 	_build_world(false)
 	bike = preload("res://scenes/bike/BikePlayer.tscn").instantiate()
 	bike.process_mode = Node.PROCESS_MODE_PAUSABLE
@@ -46,6 +48,10 @@ func _ready() -> void:
 	SaveManager.save_completed.connect(func(): ui.toast("Checkpoint saved"))
 	SaveManager.save_failed.connect(func(reason: String): ui.toast(reason))
 	ui.main_menu()
+	if SaveManager.development_available():
+		development_menu = preload("res://scripts/development/development_menu.gd").new()
+		development_menu.host = self
+		add_child(development_menu)
 
 func _build_world(city: bool) -> void:
 	if is_instance_valid(world):
@@ -359,6 +365,8 @@ func _process(delta: float) -> void:
 	_advance_phone(delta)
 
 func _road_profile(distance: float) -> String:
+	if SaveManager.development_active and not development_weather.is_empty():
+		return development_weather
 	var id := "morning"
 	for entry in chapter_data.atmosphere:
 		if distance >= entry.distance:
@@ -387,5 +395,7 @@ func _notification(what: int) -> void:
 			_pause()
 
 func _exit_tree() -> void:
+	SaveManager.end_development_session()
+	get_tree().paused = false
 	AudioManager.reset_scene_audio()
 	LowPoly.materials.clear()

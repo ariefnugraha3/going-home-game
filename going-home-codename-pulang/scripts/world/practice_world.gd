@@ -6,7 +6,7 @@ var definition: Dictionary
 
 func build(_is_city: bool = false) -> void:
 	route.practice = true
-	definition = JSON.parse_string(FileAccess.get_file_as_string("res://data/chapters/practice.json"))
+	definition = ContentText.load_bundle("res://data/chapters/practice.json")
 	_build_environment()
 	_build_surface(8.0, -0.09, Color("a49f82"), false)
 	_build_surface(5.0, 0.0, Color("555954"), true)

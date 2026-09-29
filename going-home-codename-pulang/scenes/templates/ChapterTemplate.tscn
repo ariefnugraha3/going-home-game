@@ -1,0 +1,10 @@
+[gd_scene load_steps=3 format=3]
+[ext_resource type="Script" path="res://scripts/authoring/encounter_chapter.gd" id="1"]
+[ext_resource type="PackedScene" path="res://scenes/templates/NPCTemplate.tscn" id="2"]
+[node name="ChapterTemplate" type="Node3D"]
+script = ExtResource("1")
+[node name="NPC" parent="." instance=ExtResource("2")]
+[node name="Markers" type="Node3D" parent="."]
+[node name="Weather" type="Marker3D" parent="Markers"]
+[node name="Ambience" type="Marker3D" parent="Markers"]
+[node name="Checkpoint" type="Marker3D" parent="Markers"]

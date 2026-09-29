@@ -39,6 +39,7 @@ func _ready() -> void:
 	add_child(app)
 	await frames(5)
 	check(app.ui.mode == "menu", "Boot presents main menu")
+	check(app.development_menu == null, "Ordinary launch exposes no development menu")
 	await capture("menu")
 	app._on_action("new_confirmed")
 	await settle()

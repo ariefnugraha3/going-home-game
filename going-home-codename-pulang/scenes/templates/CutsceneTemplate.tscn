@@ -1,0 +1,14 @@
+[gd_scene load_steps=2 format=3]
+[ext_resource type="Script" path="res://scripts/authoring/encounter_cutscene.gd" id="1"]
+[node name="CutsceneTemplate" type="Node3D"]
+script = ExtResource("1")
+definitions_path = "res://data/cutscenes/authoring_example.json"
+write_story_state = false
+[node name="Shots" type="Node3D" parent="."]
+[node name="arrival" type="Node3D" parent="Shots"]
+[node name="Camera" type="Marker3D" parent="Shots/arrival"]
+position = Vector3(3.8, 1.8, 4.7)
+[node name="Target" type="Marker3D" parent="Shots/arrival"]
+position = Vector3(0, 1, 0)
+[node name="End" type="Marker3D" parent="Shots/arrival"]
+position = Vector3(3.5, 1.8, 4.7)

@@ -1,0 +1,51 @@
+{
+  "authoring.greeting": {
+    "nodes": {
+      "start": {
+        "speaker": "Roadside host",
+        "text": "There is room in the shade. Have you come far?",
+        "choices": [
+          {
+            "text": "Just taking a short break.",
+            "next": "rest",
+            "set": {
+              "authoring.accepted": true
+            },
+            "text_keys": {
+              "text": "dialogue.authoring_example.authoring.greeting.nodes.start.choices.0.text"
+            }
+          },
+          {
+            "text": "Only stopping to say hello.",
+            "next": "hello",
+            "text_keys": {
+              "text": "dialogue.authoring_example.authoring.greeting.nodes.start.choices.1.text"
+            }
+          }
+        ],
+        "text_keys": {
+          "speaker": "dialogue.authoring_example.authoring.greeting.nodes.start.speaker",
+          "text": "dialogue.authoring_example.authoring.greeting.nodes.start.text"
+        }
+      },
+      "rest": {
+        "speaker": "Roadside host",
+        "text": "Take your time. The road will still be there.",
+        "next": "end",
+        "text_keys": {
+          "speaker": "dialogue.authoring_example.authoring.greeting.nodes.rest.speaker",
+          "text": "dialogue.authoring_example.authoring.greeting.nodes.rest.text"
+        }
+      },
+      "hello": {
+        "speaker": "Roadside host",
+        "text": "Then have a good journey.",
+        "next": "end",
+        "text_keys": {
+          "speaker": "dialogue.authoring_example.authoring.greeting.nodes.hello.speaker",
+          "text": "dialogue.authoring_example.authoring.greeting.nodes.hello.text"
+        }
+      }
+    }
+  }
+}

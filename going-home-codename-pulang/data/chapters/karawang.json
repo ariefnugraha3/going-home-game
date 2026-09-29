@@ -6,32 +6,134 @@
   "end_location": "Karawang",
   "main_route_length": 1800,
   "next_chapter_id": "cirebon",
-  "mandatory_events": ["warung", "rest"],
+  "mandatory_events": [
+    "warung",
+    "rest"
+  ],
   "weather_at_distance": 920,
   "weather_end_distance": 1430,
   "atmosphere": [
-    {"distance": 0, "profile": "morning"},
-    {"distance": 650, "profile": "overcast"},
-    {"distance": 920, "profile": "drizzle"},
-    {"distance": 1050, "profile": "rain"},
-    {"distance": 1250, "profile": "heavy_rain"},
-    {"distance": 1350, "profile": "drizzle"},
-    {"distance": 1430, "profile": "golden_hour"}
+    {
+      "distance": 0,
+      "profile": "morning"
+    },
+    {
+      "distance": 650,
+      "profile": "overcast"
+    },
+    {
+      "distance": 920,
+      "profile": "drizzle"
+    },
+    {
+      "distance": 1050,
+      "profile": "rain"
+    },
+    {
+      "distance": 1250,
+      "profile": "heavy_rain"
+    },
+    {
+      "distance": 1350,
+      "profile": "drizzle"
+    },
+    {
+      "distance": 1430,
+      "profile": "golden_hour"
+    }
   ],
   "stops": [
-    {"id": "fuel", "distance": 390.0, "label": "Refuel", "title": "A little fuel, a little air"},
-    {"id": "scenic", "distance": 720.0, "label": "Switch off the engine", "title": "Beside the rice fields"},
-    {"id": "warung", "distance": 1130.0, "label": "Take shelter", "title": "Rain at Sari's warung"},
-    {"id": "rest", "distance": 1700.0, "label": "Rest for the night", "title": "A room in Karawang"}
+    {
+      "id": "fuel",
+      "distance": 390.0,
+      "label": "Refuel",
+      "title": "A little fuel, a little air",
+      "text_keys": {
+        "label": "chapters.karawang.stops.0.label",
+        "title": "chapters.karawang.stops.0.title"
+      }
+    },
+    {
+      "id": "scenic",
+      "distance": 720.0,
+      "label": "Switch off the engine",
+      "title": "Beside the rice fields",
+      "text_keys": {
+        "label": "chapters.karawang.stops.1.label",
+        "title": "chapters.karawang.stops.1.title"
+      }
+    },
+    {
+      "id": "warung",
+      "distance": 1130.0,
+      "label": "Take shelter",
+      "title": "Rain at Sari's warung",
+      "text_keys": {
+        "label": "chapters.karawang.stops.2.label",
+        "title": "chapters.karawang.stops.2.title"
+      }
+    },
+    {
+      "id": "rest",
+      "distance": 1700.0,
+      "label": "Rest for the night",
+      "title": "A room in Karawang",
+      "text_keys": {
+        "label": "chapters.karawang.stops.3.label",
+        "title": "chapters.karawang.stops.3.title"
+      }
+    }
   ],
   "journal": {
     "id": "journal.karawang.first_night",
     "prompt": "The first night away. What stays with me?",
     "options": [
-      {"id": "unfinished", "text": "I still reached for my work phone at every stop."},
-      {"id": "tea", "text": "Someone made tea. I didn't have to explain much."},
-      {"id": "road", "text": "For a little while, all I had to do was ride."}
-    ]
+      {
+        "id": "unfinished",
+        "text": "I still reached for my work phone at every stop.",
+        "text_keys": {
+          "text": "chapters.karawang.journal.options.0.text"
+        }
+      },
+      {
+        "id": "tea",
+        "text": "Someone made tea. I didn't have to explain much.",
+        "text_keys": {
+          "text": "chapters.karawang.journal.options.1.text"
+        }
+      },
+      {
+        "id": "road",
+        "text": "For a little while, all I had to do was ride.",
+        "text_keys": {
+          "text": "chapters.karawang.journal.options.2.text"
+        }
+      }
+    ],
+    "text_keys": {
+      "prompt": "chapters.karawang.journal.prompt"
+    }
   },
-  "route": ["Jakarta", "Karawang", "Cirebon", "Tegal", "Pekalongan", "Semarang", "Salatiga", "Solo", "Ngawi", "Madiun", "Kediri", "Malang", "Lumajang", "Jember", "Banyuwangi"]
+  "route": [
+    "Jakarta",
+    "Karawang",
+    "Cirebon",
+    "Tegal",
+    "Pekalongan",
+    "Semarang",
+    "Salatiga",
+    "Solo",
+    "Ngawi",
+    "Madiun",
+    "Kediri",
+    "Malang",
+    "Lumajang",
+    "Jember",
+    "Banyuwangi"
+  ],
+  "text_keys": {
+    "display_name": "chapters.karawang.display_name",
+    "end_location": "chapters.karawang.end_location",
+    "start_location": "chapters.karawang.start_location"
+  }
 }

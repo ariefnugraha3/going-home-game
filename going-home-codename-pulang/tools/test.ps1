@@ -1,7 +1,8 @@
 param(
     [string]$Godot = 'D:\Godot_v4.7.2-stable_win64.exe\Godot_v4.7.2-stable_win64_console.exe',
     [switch]$Visual,
-    [ValidateSet('Story', 'Practice', 'Cockpit', 'RoadRender', 'Lifecycle', 'TouchLayout', 'Input', 'Narrative', 'Mood', 'Audio', 'Cinematic', 'CinematicAudio', 'Phone', 'Interface', 'All')][string]$Suite = 'All',
+    [ValidateSet('Content', 'Development', 'Toolkit', 'Authoring', 'Story', 'Practice', 'Cockpit', 'RoadRender', 'Lifecycle', 'TouchLayout', 'Input', 'Narrative', 'Mood', 'Audio', 'Cinematic', 'CinematicAudio', 'Phone', 'Interface', 'All')][string]$Suite = 'All',
+    [string]$Python = 'python',
     [ValidateRange(1, 100)][int]$SoakCycles = 3,
     [switch]$StoryDebug,
     [ValidateSet(30, 60)][int]$FixedFps = 60
@@ -14,10 +15,20 @@ $previousAppData = $env:APPDATA
 try {
     # Keep test saves entirely separate from the player's real journey.
     $env:APPDATA = $testStorage
+    if ($Suite -in @('Content', 'All')) {
+        & $Python (Join-Path $PSScriptRoot 'validate_content.py') --project $projectRoot
+        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+        & $Python -m unittest discover -s (Join-Path $PSScriptRoot 'tests') -p 'test_content_validator.py' -v
+        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+        if ($Suite -eq 'Content') { exit 0 }
+    }
     & $Godot --headless --path $projectRoot --editor --import --quit --log-file (Join-Path $testStorage 'import.log')
     if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
     if (Select-String -Path (Join-Path $testStorage 'import.log') -Pattern 'SCRIPT ERROR:|Parse Error:|Compile Error:' -Quiet) { exit 1 }
     $scenes = @()
+    if ($Suite -in @('Development', 'All')) { $scenes += 'DevelopmentTests' }
+    if ($Suite -in @('Toolkit', 'All')) { $scenes += 'ToolkitTests' }
+    if ($Suite -in @('Authoring', 'All')) { $scenes += 'AuthoringTests' }
     if ($Suite -in @('Story', 'All')) { $scenes += 'TestRunner' }
     if ($Suite -in @('Practice', 'All')) { $scenes += 'PracticeTests' }
     if ($Suite -in @('Cockpit', 'All')) { $scenes += 'CockpitTests' }
@@ -39,6 +50,7 @@ try {
         if (-not $Visual) { $testArgs += @('--headless', '--fixed-fps', [string]$FixedFps) }
         $testArgs += ('res://tests/' + $scene + '.tscn')
         $testArgs += '--'
+        if ($scene -eq 'DevelopmentTests') { $testArgs += '--dev-tools' }
         if ($scene -eq 'LifecycleTests') { $testArgs += ('--soak-cycles=' + $SoakCycles) }
         if ($Visual) { $testArgs += '--visual' }
         if ($StoryDebug) { $testArgs += '--story-debug' }

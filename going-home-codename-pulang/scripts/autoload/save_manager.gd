@@ -6,6 +6,27 @@ signal settings_applied
 const SAVE_PATH := "user://journey.json"
 const SETTINGS_PATH := "user://settings.cfg"
 var last_error: String = ""
+var development_active := false
+var _development_original: Dictionary = {}
+
+func development_available() -> bool:
+	return OS.is_debug_build() and OS.has_feature("editor") and "--dev-tools" in OS.get_cmdline_user_args()
+
+func begin_development_session() -> bool:
+	if not development_available():
+		return false
+	if not development_active:
+		_development_original = GameState.snapshot()
+		development_active = true
+	return true
+
+func end_development_session() -> void:
+	if not development_active:
+		return
+	# Keep writes blocked while restore signals notify narrative services.
+	GameState.restore(_development_original)
+	_development_original = {}
+	development_active = false
 
 func _ready() -> void:
 	load_settings()
@@ -82,9 +103,13 @@ func read_save(path: String = SAVE_PATH) -> Dictionary:
 	return migrate(raw)
 
 func has_save() -> bool:
+	if development_active:
+		return false
 	return not read_save().is_empty() or not read_save(SAVE_PATH + ".bak").is_empty()
 
 func save_game(announce: bool = true) -> bool:
+	if development_active:
+		return true # Successful transient checkpoint; no disk write or save toast.
 	var data := GameState.snapshot()
 	if not validate(data):
 		return _fail("The checkpoint could not be saved.")
@@ -108,6 +133,8 @@ func save_game(announce: bool = true) -> bool:
 	return true
 
 func load_game() -> bool:
+	if development_active:
+		return false
 	var data := read_save()
 	if data.is_empty():
 		data = read_save(SAVE_PATH + ".bak")

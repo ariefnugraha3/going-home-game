@@ -8,9 +8,9 @@ var photos: Array = []
 const CHANNELS := ["Messages", "Email"]
 
 func _ready() -> void:
-	messages = JSON.parse_string(FileAccess.get_file_as_string("res://data/phone/messages.json"))
-	calls = JSON.parse_string(FileAccess.get_file_as_string("res://data/phone/calls.json"))
-	photos = JSON.parse_string(FileAccess.get_file_as_string("res://data/phone/photos.json"))
+	messages = ContentText.load_bundle("res://data/phone/messages.json")
+	calls = ContentText.load_bundle("res://data/phone/calls.json")
+	photos = ContentText.load_bundle("res://data/phone/photos.json")
 	GameState.flag_changed.connect(_flag_changed)
 	GameState.journey_changed.connect(reconcile)
 	reconcile()

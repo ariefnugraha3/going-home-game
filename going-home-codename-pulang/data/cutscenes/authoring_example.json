@@ -1,0 +1,44 @@
+{
+  "authoring.arrival": {
+    "location": "parking",
+    "title": "A ROADSIDE PAUSE",
+    "subtitle": "Encounter preview",
+    "purpose": "Reusable arrival-to-dialogue handoff example outside the campaign.",
+    "characters": [
+      "Raka"
+    ],
+    "audio_priority": "Quiet exterior ambience",
+    "shots": [
+      {
+        "shot_id": "arrival",
+        "camera": [
+          3.8,
+          1.8,
+          4.7
+        ],
+        "target": [
+          0,
+          1,
+          0
+        ],
+        "duration": 3,
+        "text": "A moment in the shade.",
+        "fov": 45,
+        "framing": "medium wide",
+        "movement": "dolly",
+        "transition": "cut",
+        "performance": "ride",
+        "text_keys": {
+          "text": "cutscenes.authoring_example.authoring.arrival.shots.0.text"
+        }
+      }
+    ],
+    "flags": {
+      "authoring.arrived": true
+    },
+    "text_keys": {
+      "subtitle": "cutscenes.authoring_example.authoring.arrival.subtitle",
+      "title": "cutscenes.authoring_example.authoring.arrival.title"
+    }
+  }
+}

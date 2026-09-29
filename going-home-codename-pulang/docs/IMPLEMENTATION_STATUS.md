@@ -1,4 +1,4 @@
-# Implementation status · M5 chin-strap update, 2026-09-29
+# Implementation status · M6 development menu, 2026-09-29
 
 This is a **prototype milestone delivery**, not a declaration that M0–M5 are accepted. Follow the original roadmap's human playtest and platform gates before chapter production.
 
@@ -10,9 +10,12 @@ This is a **prototype milestone delivery**, not a declaration that M0–M5 are a
 | M3 Narrative | Branches/conditions/flags, delayed phone delivery and banner queue, unread/read/reply persistence, legacy phone migration, read-only opt-in flag viewer; phone home with separate Messages/Email, completed-call recollections, three-photo story album and Route/Journal shortcuts; journal, checkpoint save and backup, cutscene director/skip | Real Web/Android save and lifecycle validation; outgoing/voice calls and full localization key table remain broader production work |
 | M4 Mood | Low-poly environment kit with chunked story/practice road-marking MultiMeshes and native draw-call comparison; eight authored lighting/weather resources with interruptible blends; variable rain/fog/wetness; night beam/stop lamps; practice comparison menu and reports; synthetic insect/rain/bird/location ambience; shelter rain; ignition/cooldown; first-night music phrase; Music/SFX controls, three UI feedback tones and lifecycle tests | Human art/audio acceptance, hero bike/character refinement, authored animation, real motorcycle/regional recordings, final music/mix review, terrain/LOD and target-platform profiling |
 | M5 Slice | Complete compact Jakarta-to-Karawang playable loop; 29-shot opening with readable inserts, bedside alarm/waking, raincoat/laptop packing and bag closure, standing luggage-strap tightening, tank-wiping bike touch, helmet donning, chin-strap fastening and mounting, parking set, post-meeting sign-out, restrained camera motion, departure/title reveal; articulated actors and eight AnimationPlayer clips, including lying-to-seated waking and authored walks to the parked bike and meeting table; father-memory insert, sixteen timed cinematic sound events with a bounded audio pool and memory sound bridge, cinematic and transition-lifecycle regression suites | 30–60 minute pacing, production-quality required shots, final assets/animations, all platform/comfort acceptance tests |
-| M6–M14 | Not begun | Production tools, all remaining chapters, alpha/beta, optimization, releases |
+| M6 Toolkit | Content/catalog validation, 195 stable JSON text keys, static template checks, reusable encounter templates and opt-in development menu with temporary journey sessions | Human authoring review; broader UI localization remains future polish; M5 gates still block mass chapter production |
+| M7–M14 | Not begun | All remaining chapters, alpha/beta, optimization, releases |
 
 ## Concrete follow-up tasks
+
+**Latest M6 pass:** The [development menu](M6_DEVELOPMENT_MENU.md) provides implemented chapter/checkpoint fixtures, combined weather/time presets, story flag edits, bounded teleport and a performance overlay. It requires explicit editor opt-in; temporary sessions suppress journey writes and restore the original in-memory state on exit. Ordinary launches retain normal persistence. The M6 implementation checklist is covered; M5 human/platform/production-art gates remain open before mass chapter production. The known Karawang-to-Cirebon boundary remains a validator warning.
 
 **Latest M5 pass:** Added a four-second chin-strap check after helmet donning: Raka joins the buckle halves, pulls the free tail and releases into mounting. Reusable webbing follows the held helmet and stays secured during mounting, departure and memory riding. Opening: 29 shots / 132 seconds, sixteen sound events. Pause/focus, rewind, reduced motion, Skip and save/checkpoint contracts are preserved. Helmet retrieval, cloth storage, final mesh/finger/strap contact and recorded buckle/foley review remain open.
 

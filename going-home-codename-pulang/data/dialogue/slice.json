@@ -1,43 +1,383 @@
 {
-  "layoff": {"nodes": {
-    "start": {"speaker": "Nadia · People team", "text": "Thanks for coming in, Raka. Please, sit down.", "next": "news"},
-    "news": {"speaker": "Nadia", "text": "The restructuring includes your team. Your role is being removed. This isn't a performance decision.", "next": "reply", "set": {"story.prologue.laid_off": true}},
-    "reply": {"speaker": "Raka", "text": "Right.", "choices": [{"text": "What happens to the project?", "next": "project"}, {"text": "Can you email me the details?", "next": "details"}]},
-    "project": {"speaker": "Nadia", "text": "Another team will take it over. You've left it in good shape. I know that doesn't make this easier.", "next": "close"},
-    "details": {"speaker": "Nadia", "text": "Of course. The notice period, severance, and reference letter. You don't have to remember all of this now.", "next": "close"},
-    "close": {"speaker": "Raka", "text": "Okay. I'll hand over my notes.", "next": "end"}
-  }},
-  "mother": {"nodes": {
-    "start": {"speaker": "Mom · Calling", "text": "Have you eaten?", "next": "answer"},
-    "answer": {"speaker": "Raka", "choices": [{"text": "Not yet. It's been a strange day.", "next": "honest", "set": {"story.prologue.open_with_mom": true}}, {"text": "I'll get something in a minute.", "next": "quiet"}]},
-    "honest": {"speaker": "Raka", "text": "The company let my team go. There are other jobs. I just... haven't opened the messages yet.", "next": "mom"},
-    "quiet": {"speaker": "Mom", "text": "You sound tired. Is work keeping you late again?", "next": "admit"},
-    "admit": {"speaker": "Raka", "text": "Not anymore. They cut the team today.", "next": "mom"},
-    "mom": {"speaker": "Mom", "text": "Oh, Raka. Have something to eat first.", "next": "home"},
-    "home": {"speaker": "Mom", "text": "You can just come home if you're tired.", "next": "bike"},
-    "bike": {"speaker": "Raka", "text": "Is Dad still keeping the gate key in the same place?", "next": "key"},
-    "key": {"speaker": "Mom", "text": "Yes. And he still thinks I don't know.", "next": "end", "set": {"story.prologue.called_mom": true}}
-  }},
-  "warung": {"nodes": {
-    "start": {"speaker": "Sari", "text": "Move your bag in a bit. The water comes off that corner.", "next": "tea"},
-    "tea": {"speaker": "Sari", "text": "Tea? The kettle's still hot.", "choices": [{"text": "Please. Less sugar, if that's okay.", "next": "sugar", "set": {"story.karawang.tea": "less_sugar"}}, {"text": "Yes, thank you. I'll wait here a while.", "next": "wait", "set": {"story.karawang.tea": "sweet"}}]},
-    "sugar": {"speaker": "Sari", "text": "You and my husband. He says that, then steals my drink.", "next": "rider"},
-    "wait": {"speaker": "Sari", "text": "Take that chair. The other one's got a short leg.", "next": "rider"},
-    "rider": {"speaker": "Delivery rider", "text": "That a Thunder outside? My uncle had one. Yours looks better.", "next": "father"},
-    "father": {"speaker": "Raka", "text": "Dad helped me keep it that way.", "next": "where"},
-    "where": {"speaker": "Sari", "text": "Where are you headed?", "choices": [{"text": "Banyuwangi. Home.", "next": "far", "set": {"story.karawang.said_home": true}}, {"text": "Karawang tonight. Then east.", "next": "room"}]},
-    "far": {"speaker": "Delivery rider", "text": "That's a few more cups of tea from here.", "next": "room"},
-    "room": {"speaker": "Sari", "text": "There's a guesthouse down the road. Green sign, just after the fields. They'll have a dry place for your bike.", "next": "end", "set": {"story.karawang.sheltered": true}}
-  }},
-  "fuel": {"nodes": {
-    "start": {"speaker": "Attendant", "text": "Full tank?", "next": "yes"},
-    "yes": {"speaker": "Raka", "text": "Please. And could I check the front tire?", "next": "air"},
-    "air": {"speaker": "Attendant", "text": "Air hose is beside the pump. No hurry.", "next": "end", "set": {"story.karawang.refueled": true}}
-  }},
-  "guesthouse": {"nodes": {
-    "start": {"speaker": "Guesthouse owner", "text": "One night?", "next": "night"},
-    "night": {"speaker": "Raka", "text": "Yes. Somewhere I can park the bike under a roof?", "next": "roof"},
-    "roof": {"speaker": "Guesthouse owner", "text": "Right beside the kitchen. Tea in the morning, if you're up.", "next": "thanks"},
-    "thanks": {"speaker": "Raka", "text": "That sounds good.", "next": "end"}
-  }}
+  "layoff": {
+    "nodes": {
+      "start": {
+        "speaker": "Nadia · People team",
+        "text": "Thanks for coming in, Raka. Please, sit down.",
+        "next": "news",
+        "text_keys": {
+          "speaker": "dialogue.slice.layoff.nodes.start.speaker",
+          "text": "dialogue.slice.layoff.nodes.start.text"
+        }
+      },
+      "news": {
+        "speaker": "Nadia",
+        "text": "The restructuring includes your team. Your role is being removed. This isn't a performance decision.",
+        "next": "reply",
+        "set": {
+          "story.prologue.laid_off": true
+        },
+        "text_keys": {
+          "speaker": "dialogue.slice.layoff.nodes.news.speaker",
+          "text": "dialogue.slice.layoff.nodes.news.text"
+        }
+      },
+      "reply": {
+        "speaker": "Raka",
+        "text": "Right.",
+        "choices": [
+          {
+            "text": "What happens to the project?",
+            "next": "project",
+            "text_keys": {
+              "text": "dialogue.slice.layoff.nodes.reply.choices.0.text"
+            }
+          },
+          {
+            "text": "Can you email me the details?",
+            "next": "details",
+            "text_keys": {
+              "text": "dialogue.slice.layoff.nodes.reply.choices.1.text"
+            }
+          }
+        ],
+        "text_keys": {
+          "speaker": "dialogue.slice.layoff.nodes.reply.speaker",
+          "text": "dialogue.slice.layoff.nodes.reply.text"
+        }
+      },
+      "project": {
+        "speaker": "Nadia",
+        "text": "Another team will take it over. You've left it in good shape. I know that doesn't make this easier.",
+        "next": "close",
+        "text_keys": {
+          "speaker": "dialogue.slice.layoff.nodes.project.speaker",
+          "text": "dialogue.slice.layoff.nodes.project.text"
+        }
+      },
+      "details": {
+        "speaker": "Nadia",
+        "text": "Of course. The notice period, severance, and reference letter. You don't have to remember all of this now.",
+        "next": "close",
+        "text_keys": {
+          "speaker": "dialogue.slice.layoff.nodes.details.speaker",
+          "text": "dialogue.slice.layoff.nodes.details.text"
+        }
+      },
+      "close": {
+        "speaker": "Raka",
+        "text": "Okay. I'll hand over my notes.",
+        "next": "end",
+        "text_keys": {
+          "speaker": "dialogue.slice.layoff.nodes.close.speaker",
+          "text": "dialogue.slice.layoff.nodes.close.text"
+        }
+      }
+    }
+  },
+  "mother": {
+    "nodes": {
+      "start": {
+        "speaker": "Mom · Calling",
+        "text": "Have you eaten?",
+        "next": "answer",
+        "text_keys": {
+          "speaker": "dialogue.slice.mother.nodes.start.speaker",
+          "text": "dialogue.slice.mother.nodes.start.text"
+        }
+      },
+      "answer": {
+        "speaker": "Raka",
+        "choices": [
+          {
+            "text": "Not yet. It's been a strange day.",
+            "next": "honest",
+            "set": {
+              "story.prologue.open_with_mom": true
+            },
+            "text_keys": {
+              "text": "dialogue.slice.mother.nodes.answer.choices.0.text"
+            }
+          },
+          {
+            "text": "I'll get something in a minute.",
+            "next": "quiet",
+            "text_keys": {
+              "text": "dialogue.slice.mother.nodes.answer.choices.1.text"
+            }
+          }
+        ],
+        "text_keys": {
+          "speaker": "dialogue.slice.mother.nodes.answer.speaker"
+        }
+      },
+      "honest": {
+        "speaker": "Raka",
+        "text": "The company let my team go. There are other jobs. I just... haven't opened the messages yet.",
+        "next": "mom",
+        "text_keys": {
+          "speaker": "dialogue.slice.mother.nodes.honest.speaker",
+          "text": "dialogue.slice.mother.nodes.honest.text"
+        }
+      },
+      "quiet": {
+        "speaker": "Mom",
+        "text": "You sound tired. Is work keeping you late again?",
+        "next": "admit",
+        "text_keys": {
+          "speaker": "dialogue.slice.mother.nodes.quiet.speaker",
+          "text": "dialogue.slice.mother.nodes.quiet.text"
+        }
+      },
+      "admit": {
+        "speaker": "Raka",
+        "text": "Not anymore. They cut the team today.",
+        "next": "mom",
+        "text_keys": {
+          "speaker": "dialogue.slice.mother.nodes.admit.speaker",
+          "text": "dialogue.slice.mother.nodes.admit.text"
+        }
+      },
+      "mom": {
+        "speaker": "Mom",
+        "text": "Oh, Raka. Have something to eat first.",
+        "next": "home",
+        "text_keys": {
+          "speaker": "dialogue.slice.mother.nodes.mom.speaker",
+          "text": "dialogue.slice.mother.nodes.mom.text"
+        }
+      },
+      "home": {
+        "speaker": "Mom",
+        "text": "You can just come home if you're tired.",
+        "next": "bike",
+        "text_keys": {
+          "speaker": "dialogue.slice.mother.nodes.home.speaker",
+          "text": "dialogue.slice.mother.nodes.home.text"
+        }
+      },
+      "bike": {
+        "speaker": "Raka",
+        "text": "Is Dad still keeping the gate key in the same place?",
+        "next": "key",
+        "text_keys": {
+          "speaker": "dialogue.slice.mother.nodes.bike.speaker",
+          "text": "dialogue.slice.mother.nodes.bike.text"
+        }
+      },
+      "key": {
+        "speaker": "Mom",
+        "text": "Yes. And he still thinks I don't know.",
+        "next": "end",
+        "set": {
+          "story.prologue.called_mom": true
+        },
+        "text_keys": {
+          "speaker": "dialogue.slice.mother.nodes.key.speaker",
+          "text": "dialogue.slice.mother.nodes.key.text"
+        }
+      }
+    }
+  },
+  "warung": {
+    "nodes": {
+      "start": {
+        "speaker": "Sari",
+        "text": "Move your bag in a bit. The water comes off that corner.",
+        "next": "tea",
+        "text_keys": {
+          "speaker": "dialogue.slice.warung.nodes.start.speaker",
+          "text": "dialogue.slice.warung.nodes.start.text"
+        }
+      },
+      "tea": {
+        "speaker": "Sari",
+        "text": "Tea? The kettle's still hot.",
+        "choices": [
+          {
+            "text": "Please. Less sugar, if that's okay.",
+            "next": "sugar",
+            "set": {
+              "story.karawang.tea": "less_sugar"
+            },
+            "text_keys": {
+              "text": "dialogue.slice.warung.nodes.tea.choices.0.text"
+            }
+          },
+          {
+            "text": "Yes, thank you. I'll wait here a while.",
+            "next": "wait",
+            "set": {
+              "story.karawang.tea": "sweet"
+            },
+            "text_keys": {
+              "text": "dialogue.slice.warung.nodes.tea.choices.1.text"
+            }
+          }
+        ],
+        "text_keys": {
+          "speaker": "dialogue.slice.warung.nodes.tea.speaker",
+          "text": "dialogue.slice.warung.nodes.tea.text"
+        }
+      },
+      "sugar": {
+        "speaker": "Sari",
+        "text": "You and my husband. He says that, then steals my drink.",
+        "next": "rider",
+        "text_keys": {
+          "speaker": "dialogue.slice.warung.nodes.sugar.speaker",
+          "text": "dialogue.slice.warung.nodes.sugar.text"
+        }
+      },
+      "wait": {
+        "speaker": "Sari",
+        "text": "Take that chair. The other one's got a short leg.",
+        "next": "rider",
+        "text_keys": {
+          "speaker": "dialogue.slice.warung.nodes.wait.speaker",
+          "text": "dialogue.slice.warung.nodes.wait.text"
+        }
+      },
+      "rider": {
+        "speaker": "Delivery rider",
+        "text": "That a Thunder outside? My uncle had one. Yours looks better.",
+        "next": "father",
+        "text_keys": {
+          "speaker": "dialogue.slice.warung.nodes.rider.speaker",
+          "text": "dialogue.slice.warung.nodes.rider.text"
+        }
+      },
+      "father": {
+        "speaker": "Raka",
+        "text": "Dad helped me keep it that way.",
+        "next": "where",
+        "text_keys": {
+          "speaker": "dialogue.slice.warung.nodes.father.speaker",
+          "text": "dialogue.slice.warung.nodes.father.text"
+        }
+      },
+      "where": {
+        "speaker": "Sari",
+        "text": "Where are you headed?",
+        "choices": [
+          {
+            "text": "Banyuwangi. Home.",
+            "next": "far",
+            "set": {
+              "story.karawang.said_home": true
+            },
+            "text_keys": {
+              "text": "dialogue.slice.warung.nodes.where.choices.0.text"
+            }
+          },
+          {
+            "text": "Karawang tonight. Then east.",
+            "next": "room",
+            "text_keys": {
+              "text": "dialogue.slice.warung.nodes.where.choices.1.text"
+            }
+          }
+        ],
+        "text_keys": {
+          "speaker": "dialogue.slice.warung.nodes.where.speaker",
+          "text": "dialogue.slice.warung.nodes.where.text"
+        }
+      },
+      "far": {
+        "speaker": "Delivery rider",
+        "text": "That's a few more cups of tea from here.",
+        "next": "room",
+        "text_keys": {
+          "speaker": "dialogue.slice.warung.nodes.far.speaker",
+          "text": "dialogue.slice.warung.nodes.far.text"
+        }
+      },
+      "room": {
+        "speaker": "Sari",
+        "text": "There's a guesthouse down the road. Green sign, just after the fields. They'll have a dry place for your bike.",
+        "next": "end",
+        "set": {
+          "story.karawang.sheltered": true
+        },
+        "text_keys": {
+          "speaker": "dialogue.slice.warung.nodes.room.speaker",
+          "text": "dialogue.slice.warung.nodes.room.text"
+        }
+      }
+    }
+  },
+  "fuel": {
+    "nodes": {
+      "start": {
+        "speaker": "Attendant",
+        "text": "Full tank?",
+        "next": "yes",
+        "text_keys": {
+          "speaker": "dialogue.slice.fuel.nodes.start.speaker",
+          "text": "dialogue.slice.fuel.nodes.start.text"
+        }
+      },
+      "yes": {
+        "speaker": "Raka",
+        "text": "Please. And could I check the front tire?",
+        "next": "air",
+        "text_keys": {
+          "speaker": "dialogue.slice.fuel.nodes.yes.speaker",
+          "text": "dialogue.slice.fuel.nodes.yes.text"
+        }
+      },
+      "air": {
+        "speaker": "Attendant",
+        "text": "Air hose is beside the pump. No hurry.",
+        "next": "end",
+        "set": {
+          "story.karawang.refueled": true
+        },
+        "text_keys": {
+          "speaker": "dialogue.slice.fuel.nodes.air.speaker",
+          "text": "dialogue.slice.fuel.nodes.air.text"
+        }
+      }
+    }
+  },
+  "guesthouse": {
+    "nodes": {
+      "start": {
+        "speaker": "Guesthouse owner",
+        "text": "One night?",
+        "next": "night",
+        "text_keys": {
+          "speaker": "dialogue.slice.guesthouse.nodes.start.speaker",
+          "text": "dialogue.slice.guesthouse.nodes.start.text"
+        }
+      },
+      "night": {
+        "speaker": "Raka",
+        "text": "Yes. Somewhere I can park the bike under a roof?",
+        "next": "roof",
+        "text_keys": {
+          "speaker": "dialogue.slice.guesthouse.nodes.night.speaker",
+          "text": "dialogue.slice.guesthouse.nodes.night.text"
+        }
+      },
+      "roof": {
+        "speaker": "Guesthouse owner",
+        "text": "Right beside the kitchen. Tea in the morning, if you're up.",
+        "next": "thanks",
+        "text_keys": {
+          "speaker": "dialogue.slice.guesthouse.nodes.roof.speaker",
+          "text": "dialogue.slice.guesthouse.nodes.roof.text"
+        }
+      },
+      "thanks": {
+        "speaker": "Raka",
+        "text": "That sounds good.",
+        "next": "end",
+        "text_keys": {
+          "speaker": "dialogue.slice.guesthouse.nodes.thanks.speaker",
+          "text": "dialogue.slice.guesthouse.nodes.thanks.text"
+        }
+      }
+    }
+  }
 }
