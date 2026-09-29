@@ -204,7 +204,7 @@ class ContentValidationTests(unittest.TestCase):
 
     def test_localization_coverage(self):
         report = self.report()
-        self.assertEqual(len(report["localization_keys"]), 195)
+        self.assertEqual(len(report["localization_keys"]), 196)
         self.assertTrue(all("/type" not in field and "/direction" not in field for field in report["localization_keys"]))
 
     def test_missing_text_binding(self):

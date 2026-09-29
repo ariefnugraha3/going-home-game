@@ -225,6 +225,8 @@ func pose(shot: Dictionary, weight: float) -> void:
 		props.bike.position.x = travel
 		if props.has("young_raka"):
 			props.rider.position.x = travel
+		elif shot.get("helmet_pickup", false):
+			CinematicHelmet.pickup(props.rider, props.bike, weight)
 		elif shot.get("helmet_donning", false):
 			CinematicHelmet.sample(props.rider, props.bike, weight)
 		elif shot.get("chin_strap", false):

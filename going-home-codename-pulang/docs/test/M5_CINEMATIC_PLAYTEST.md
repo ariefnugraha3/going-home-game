@@ -1,10 +1,10 @@
 # M5 opening cinematic review
 
-The current opening is a blocking prototype with 29 authored shots, not final character animation or an accepted vertical slice. All captions and device text are English. Raka remains competent, loses his role through restructuring, has professional alternatives, and chooses to go home.
+The current opening is a blocking prototype with 30 authored shots, not final character animation or an accepted vertical slice. All captions and device text are English. Raka remains competent, loses his role through restructuring, has professional alternatives, and chooses to go home.
 
 ## Play the opening
 
-Begin a new journey, watch the apartment and parking shots, ride to the office, finish the restructuring conversation, watch the sign-out/evening sequence, answer Mom, and watch packing/departure. The shot durations total 132 seconds: morning 24, office 19, sign-out 11, evening 23, departure 55. Dialogue, commute, transitions and pauses add to this time; it is not a measured player-session length.
+Begin a new journey, watch the apartment and parking shots, ride to the office, finish the restructuring conversation, watch the sign-out/evening sequence, answer Mom, and watch packing/departure. The shot durations total 136 seconds: morning 24, office 19, sign-out 11, evening 23, departure 59. Dialogue, commute, transitions and pauses add to this time; it is not a measured player-session length.
 
 Hold Space for more than 0.8 seconds or select Skip scene. This finishes the current sequence, not the whole prologue. Pause freezes the shot clock and movement. Reduced camera motion makes camera travel static; the departing motorcycle still moves through the set.
 
@@ -77,8 +77,21 @@ The five-second `departure/helmet` insert follows memory. Raka begins holding th
 Checks cover two-hand target contact, connected shoulder geometry, stationary feet/bike, framing and node stability at 101 samples, plus pause/focus, rewind, reduced motion, scene reset, exact mounting handoff and all-shot Skip equivalence. Captures: `helmet_held.png`, `helmet_lift.png`, `helmet_above.png`, `helmet_worn.png`.
 
 - [x] Add sampled helmet lift, placement and release before mounting.
-- [ ] Add helmet retrieval; refine shell opening, head/finger contact, shoulder deformation and recorded foley with production assets.
+- [x] Add helmet retrieval from the seat with continuous two-hand contact and a matching held-pose handoff.
+- [ ] Refine shell opening, head/finger contact, shoulder deformation and recorded foley with production assets.
 - [ ] Review natural-speed motion, phone-size readability and actual Web/Android pause/Skip/audio behavior. Point-contact checks do not certify complete mesh clearance.
+
+## Helmet retrieval pass
+
+The four-second `departure/helmet_pickup` shot returns from the father memory to a helmet resting on the front of the motorcycle seat. Raka reaches both rim targets before lifting, raises the helmet clear of the seat, then draws it toward his body. The existing helmet is repositioned rather than duplicated or reparented. Webbing stays folded above the seat until the helmet clears the bike, then settles into the loose donning pose. The last sample exactly matches the first sample of `departure/helmet`, including hands, feet and strap state.
+
+The camera views the seat from the opposite side so the tank does not hide the pickup. A reused fabric cue at 1.6 seconds follows the memory sound tail without restarting it. One new stable English caption key is included in the catalog. No save schema or checkpoint changes are introduced.
+
+- [x] Sample 101 positions for two-hand targets, planted feet, helmet/seat/luggage bounds, folded webbing, caption framing and constant node count.
+- [x] Cover pause/background, rewind, reduced motion, natural handoff and Skip from the new shot.
+- [ ] Review natural-speed weight transfer, full mesh/torso contact, fingers and physical strap behavior with production rigs and final foley; point samples are not a full collision simulation.
+
+Captures: `helmet_pickup_seat.png`, `helmet_pickup_grip.png`, `helmet_pickup_lift.png`, `helmet_pickup_held.png`. The actor begins beside the parked motorcycle after an editorial cut; carrying the packed luggage to the bike and putting away the wiping cloth remain separate unfinished actions.
 
 ## Chin-strap fastening pass
 
@@ -173,6 +186,7 @@ Five original mono 22,050 Hz PCM sketches are synthesized by `tools/generate_cin
 | Departure / bike_touch | fabric | 1.6 s and 3.0 s | 0.85 s each |
 | Departure / bike_touch | memory_motor | 4.4 s | 4.0 s, across the next two cuts |
 | Departure / mount | fabric | 2.5 s | 0.85 s |
+| Departure / helmet_pickup | fabric | 1.6 s | 0.85 s |
 | Departure / helmet | fabric | 2.8 s | 0.85 s |
 | Departure / chin_strap | fabric | 2.5 s | 0.85 s |
 

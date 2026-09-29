@@ -1,5 +1,14 @@
 # Validation record
 
+## M5 helmet retrieval - 2026-09-30
+
+- **Headless:** `tools/test.ps1 -Suite All -FixedFps 30` passed **45 Python tests and 1,401 runtime checks across 17 Godot suites**, with 0 failures, including **392 Cinematic and 56 CinematicAudio checks**. Content validation covers 12 JSON files, 307 inventoried text fields and 196 localization keys; the existing Cirebon slice-boundary warning remains.
+- **Native Windows / Compatibility:** **392 Cinematic and 62 CinematicAudio checks passed** at a 30 FPS cap. Inspected seat, grip and lift captures at 1280×720; moved the pickup camera to the opposite side after the initial view hid the resting helmet behind the tank. Actual native audio playback is covered; final human listening acceptance remains open.
+- **Coverage:** 101 sampled pickup poses verify hand contact after gripping, fixed feet/bike, helmet clearance from seat/luggage, parked strap clearance and caption-safe framing. Pause/focus, rewind/reset, reduced motion, natural handoff, all-shot Skip, prop/node stability, audio timing and save isolation pass. The final pickup pose exactly matches the existing helmet-donning start.
+- **Content:** one four-second shot and one reused fabric cue bring the opening to **30 shots / 136 authored seconds and 17 audio events** across the same five sound assets. A stable English catalog key covers the new caption. Webbing rests folded above the seat and unfolds once the helmet clears the motorcycle.
+- **Evidence:** `.godot-test/HelmetPickup-all30.log`, `HelmetPickup-native.log`, `HelmetPickupAudio-native.log`; captures `tests/screenshots/helmet_pickup_seat.png`, `helmet_pickup_grip.png`, `helmet_pickup_lift.png`, `helmet_pickup_held.png`. Final logs have no failed checks or script/parse/compile errors. The known certificate-store startup message remains environmental.
+- **Scope:** prototype opening continuity toward the M5 prerequisite for M7; production rigs/full mesh contact, remaining preparation actions and M5 human/art/platform gates remain open. No new export, Web/Android acceptance or milestone completion is claimed.
+
 ## M6 development menu and temporary journey sessions - 2026-09-29
 
 - **Headless:** `tools/test.ps1 -Suite All -FixedFps 30` passed **45 Python tests and 1,377 runtime checks across 17 Godot suites**, including **93 Development checks**, with 0 failures. Ordinary launches reject session entry and expose no development menu. Existing story, save, phone, lifecycle, rendering and interface regressions pass.

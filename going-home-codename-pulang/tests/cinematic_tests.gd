@@ -83,6 +83,7 @@ func _ready() -> void:
 	await _test_bike_touch(director)
 	await _test_mount(director)
 	await _test_helmet(director)
+	await _test_helmet_pickup(director)
 	await _test_chin_strap(director)
 	director.play("departure")
 	director.shot_index = director.definitions.departure.shots.size() - 1
@@ -562,7 +563,8 @@ func _test_straps(director: CutsceneDirector) -> void:
 	director._process(5)
 	check(director.stage_id == "memory" and not director.room.props.luggage.visible and not is_instance_valid(luggage), "Memory cut frees checked luggage and omits it from the past")
 	director._process(2)
-	check(director.room.props.luggage.pose_snapshot() == final_luggage and not director.room.props.walker.visible and director.room.props.rider.visible, "Present-day mounting restores the same secured luggage and a single rider")
+	check(director.room.props.luggage.pose_snapshot() == final_luggage and not director.room.props.walker.visible and director.room.props.rider.visible, "Present-day helmet retrieval restores the same secured luggage and a single rider")
+	director._process(4)
 	director._process(5)
 	director._process(4)
 	director._process(5)
@@ -584,7 +586,7 @@ func _test_helmet(director: CutsceneDirector) -> void:
 		if director.definitions.departure.shots[i].shot_id == "helmet":
 			director.shot_index = i
 	var shots: Array = director.definitions.departure.shots
-	check(shots[director.shot_index - 1].shot_id == "father_memory" and shots[director.shot_index + 1].shot_id == "chin_strap", "Helmet preparation connects memory to the strap check")
+	check(shots[director.shot_index - 1].shot_id == "helmet_pickup" and shots[director.shot_index + 1].shot_id == "chin_strap", "Helmet preparation connects retrieval to the strap check")
 	director._show_shot()
 	var stage := director.room
 	var actor: CinematicActor = stage.props.rider
@@ -656,6 +658,89 @@ func _test_helmet(director: CutsceneDirector) -> void:
 	check(stage.actor_snapshot() == final_pose, "Strap check begins with the exact helmet, hand and standing pose")
 	director.play("night")
 	check(not director.room.props.raka.helmet.visible and director.room.props.raka.helmet.position == Vector3(0, 0.26, 0.015), "Other scenes restore the default hidden helmet position")
+
+func _test_helmet_pickup(director: CutsceneDirector) -> void:
+	var saved := GameState.snapshot()
+	director.play("departure")
+	for i in range(director.definitions.departure.shots.size()):
+		if director.definitions.departure.shots[i].shot_id == "helmet_pickup":
+			director.shot_index = i
+	var shots: Array = director.definitions.departure.shots
+	check(shots[director.shot_index - 1].shot_id == "father_memory" and shots[director.shot_index + 1].shot_id == "helmet", "Helmet retrieval connects memory to donning")
+	director._show_shot()
+	var stage := director.room
+	var actor: CinematicActor = stage.props.rider
+	var shot: Dictionary = shots[director.shot_index]
+	var initial := stage.actor_snapshot()
+	var props := stage.prop_snapshot()
+	var feet := [actor.shoes[0].global_transform, actor.shoes[1].global_transform]
+	var node_count := get_tree().get_node_count()
+	check(actor.visible and actor.helmet.visible and not stage.props.walker.visible, "Retrieval uses one Raka and the existing helmet")
+	check(stage.props.bike.to_local(actor.helmet.global_position).distance_to(CinematicHelmet.PARKED) < 0.002, "Helmet starts resting on the front of the seat")
+	check(absf(stage.props.bike.to_local(actor.helmet.to_global(Vector3(0, -0.5, 0))).y - 0.855) < 0.002, "Helmet lower surface rests on the seat height")
+	await capture("helmet_pickup_seat")
+	stage.pose(shot, 0.28)
+	check(stage.props.bike.to_local(actor.helmet.global_position).distance_to(CinematicHelmet.PARKED) < 0.002, "Both hands reach the helmet before it leaves the seat")
+	await capture("helmet_pickup_grip")
+	stage.pose(shot, 0.65)
+	var held := stage.actor_snapshot()
+	await capture("helmet_pickup_lift")
+	var elapsed := director.elapsed
+	director.set_process(true)
+	get_tree().paused = true
+	await frames(6)
+	check(stage.actor_snapshot() == held and director.elapsed == elapsed, "Pause freezes retrieval and the shared shot clock")
+	get_tree().paused = false
+	AudioManager.focus_suspended = true
+	await frames(6)
+	check(stage.actor_snapshot() == held, "Focus loss freezes retrieval")
+	AudioManager.focus_suspended = false
+	director.set_process(false)
+	stage.pose(shot, 1)
+	stage.pose(shot, 0.65)
+	check(stage.actor_snapshot() == held, "Backward seeking reconstructs retrieval exactly")
+	var contact := true
+	var planted := true
+	var clear := true
+	var framed := true
+	var size := get_viewport().get_visible_rect().size
+	var bag := AABB(Vector3(-0.39, 0.855, 0.56), Vector3(0.78, 0.30, 0.52))
+	for step in range(101):
+		var p := float(step) / 100
+		stage.pose(shot, p)
+		for i in range(2):
+			planted = planted and actor.shoes[i].global_transform.is_equal_approx(feet[i])
+			if p >= 0.28:
+				var hand := actor.left_forearm if i == 0 else actor.right_forearm
+				var rim := actor.head.to_global(actor.helmet.position + Vector3(-0.18 if i == 0 else 0.18, -0.07, 0))
+				contact = contact and hand.to_global(Vector3(0, -0.29, 0)).distance_to(rim) < 0.002
+		for corner in [Vector3(-0.5, -0.5, -0.5), Vector3(0.5, 0.5, 0.5), Vector3(0, -0.5, 0)]:
+			var point := actor.helmet.to_global(corner)
+			var local: Vector3 = stage.props.bike.to_local(point)
+			clear = clear and local.y >= 0.853 and not bag.has_point(local)
+			var pixel := director.camera.unproject_position(point)
+			framed = framed and not director.camera.is_position_behind(point) and pixel.x > 0 and pixel.x < size.x and pixel.y > size.y * 0.15 and pixel.y < size.y * 0.78
+		if p <= 0.30:
+			for end in actor.chin_strap.ends:
+				clear = clear and stage.props.bike.to_local(actor.chin_strap.to_global(end)).y >= 0.855
+	check(contact, "Both hands maintain helmet contact within 2 mm after gripping")
+	check(planted and stage.props.bike.position == Vector3.ZERO, "Pickup keeps feet planted and motorcycle stationary")
+	check(clear, "Sampled helmet bounds clear seat/luggage and resting webbing stays above the seat")
+	check(framed, "Helmet remains within caption-safe framing throughout retrieval")
+	check(stage.prop_snapshot() == props and get_tree().get_node_count() == node_count, "Pickup preserves luggage and creates no per-frame nodes")
+	var final_pose := stage.actor_snapshot()
+	await capture("helmet_pickup_held")
+	stage.pose(shot, 0)
+	check(stage.actor_snapshot() == initial, "Rewind returns the same helmet to its seat position")
+	director._apply_shot(0.65)
+	held = stage.actor_snapshot()
+	var reduced: bool = GameState.settings.reduced_motion
+	GameState.settings.reduced_motion = not reduced
+	director._apply_shot(0.65)
+	check(stage.actor_snapshot() == held and GameState.snapshot() == saved, "Reduced motion preserves pickup and journey state")
+	GameState.settings.reduced_motion = reduced
+	director._process(4)
+	check(stage.actor_snapshot() == final_pose, "Donning starts with the exact held helmet, hands, webbing and stance")
 
 func _test_chin_strap(director: CutsceneDirector) -> void:
 	var saved := GameState.snapshot()

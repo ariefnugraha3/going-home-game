@@ -830,6 +830,23 @@
         }
       },
       {
+        "shot_id": "helmet_pickup",
+        "camera": [-0.3, 2.8, 2.6],
+        "target": [-0.16, 1.08, 0.2],
+        "duration": 4,
+        "text": "I pick up my helmet.",
+        "fov": 50,
+        "framing": "medium wide",
+        "movement": "static",
+        "transition": "cut",
+        "location": "parking",
+        "luggage": true,
+        "helmet_pickup": true,
+        "performance": "ride",
+        "audio": [{"cue": "fabric", "at": 1.6}],
+        "text_keys": {"text": "cutscenes.opening.departure.helmet_pickup.text"}
+      },
+      {
         "shot_id": "helmet",
         "camera": [
           2.4,

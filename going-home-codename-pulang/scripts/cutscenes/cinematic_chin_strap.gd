@@ -34,6 +34,22 @@ func _segment(mesh: MeshInstance3D, from: Vector3, to: Vector3) -> void:
 	basis.y *= direction.length()
 	mesh.transform = Transform3D(basis, (from + to) * 0.5)
 
+func sample_resting(unfold: float) -> void:
+	# Keep loose webbing folded above the seat until the lifted helmet clears it.
+	sample(0)
+	for band in bands:
+		var from := band.transform * Vector3(0, -0.5, 0)
+		var to := band.transform * Vector3(0, 0.5, 0)
+		_segment(band, _fold(from, unfold), _fold(to, unfold))
+	for i in range(2):
+		ends[i] = _fold(ends[i], unfold)
+		buckles[i].position = ends[i]
+	tail_end = _fold(tail_end, unfold)
+	_segment(tail, ends[1], tail_end)
+
+func _fold(point: Vector3, unfold: float) -> Vector3:
+	return Vector3(point.x, maxf(point.y, 0.16), point.z).lerp(point, unfold)
+
 func snapshot() -> Array:
 	var state := [transform, visible, ends.duplicate(), tail_end]
 	for band in bands:
