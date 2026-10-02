@@ -20,7 +20,8 @@ func _ready() -> void:
 	needle_material = _material(Color("f3a66b"))
 	for side in [-1, 1]:
 		var center := Vector3(side * 0.15, 0, 0)
-		LowPoly.cylinder(self, center, .14, .085, Color("a9b5b0"), -1, 32)
+		var housing := LowPoly.mesh(self,BikeForms.lathe([Vector2(.105,-.043),Vector2(.127,-.037),Vector2(.14,-.021),Vector2(.14,.032),Vector2(.136,.043)],32),center,Color("a9b5b0"))
+		housing.rotation.x = -PI/2
 		var face := LowPoly.cylinder(self, center + Vector3(0, .049, 0), .126, .012, Color.WHITE, -1, 32)
 		face.material_override = face_material
 		for i in range(11):

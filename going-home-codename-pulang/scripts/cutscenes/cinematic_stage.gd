@@ -140,8 +140,6 @@ func _parking(memory: bool = false) -> void:
 	props.rider = rider
 	if not memory:
 		props.walker = _seated(Vector3.ZERO, 0, Color("65715d"))
-		for side in [-1, 1]:
-			LowPoly.beam(bike, Vector3(side * 0.18, 0.16, -0.10), Vector3(side * 0.40, 0.16, -0.10), 0.025, Color("29312e"))
 	if memory:
 		var child := _seated(Vector3(-0.57, 0.48, 0), -PI / 2, Color("b39864"))
 		child.scale = Vector3.ONE * 0.65
@@ -244,7 +242,7 @@ func pose(shot: Dictionary, weight: float) -> void:
 		var travel: float = shot.get("travel", 0.0) * weight
 		props.bike.position.x = travel
 		if props.has("young_raka"):
-			props.rider.position.x = travel
+			CinematicMount.sample(props.rider, props.bike, 1.0)
 		elif shot.get("helmet_pickup", false):
 			CinematicHelmet.pickup(props.rider, props.bike, weight)
 		elif shot.get("helmet_donning", false):

@@ -386,6 +386,10 @@ Based on the [Development Roadmap v1](../PULANG_Development_Roadmap_v1.md). Stat
 - [x] Replace broken shoulder slabs with continuous ribbons, add shrubs/stones and distant hills, and revise warm daylight/shadows; batch static art by material while preserving vertex colors and animated parts.
 - [x] Rebuild Nadia as a woman; refine character faces, limbs, hands and shoes, grounded walking and elbow hinges; detail the motorcycle, laptop, ID card and cups, including safe closed-lid clearance and visible-only static batching.
 - [x] Correct helmet/hair, packed laptop/flap, ID strap/mug and family/porch intersections found in rendered review; validate actual mesh bounds, foot placement and deterministic Skip with 531 cinematic and 60 staging checks.
+- [x] Rebalance motorcycle proportions (wheels, tank, saddle, engine, forks, lamp, instruments, bars and mirrors); align rider/ignition/footpeg contacts, add five-view BikeReview, and pass 630 focused native checks.
+- [x] Sculpt curved tank/seat/side panels, round engine fins and lamp/gauge housings, and bend exhaust/grab rails continuously; preserve rider contacts and make tank wiping follow the actual curved mesh, with 630 focused native checks passing.
+- [x] Rebuild frame-mounted rubber footrests with a right rear-brake pedal and left gear lever; align seated boots, verify toe clearance, and pass 539 native cinematic plus 95 headless staging/cockpit checks.
+- [x] Rebuild traffic as shaped hatchbacks/wagons with wheel arches, liners, detailed lights/glazing/trim and rolling wheels; review seven native views and pass 49 RoadRender plus 60 CampaignStaging checks.
 - [x] Implement authored morning, overcast, golden-hour, and night profiles plus drizzle, rain, heavy rain, and mist.
 - [x] Blend sky/light/fog/wetness/rain; add a practice comparison menu, night headlight/stop lamps, and synthetic insect ambience.
 - [x] Test transition interruption/pause, rain quality limits, chapter profile restoration, and practice save isolation.

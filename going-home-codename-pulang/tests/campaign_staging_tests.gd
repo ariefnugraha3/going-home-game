@@ -53,7 +53,7 @@ func _ready() -> void:
 				var action: String = shot.get("action", "")
 				if id == "banyuwangi" and action in ["bike", "odometer", "engine_off"]:
 					var actor: CinematicActor = stage.actors[0 if action == "engine_off" else 1]
-					var expected := stage.parked.to_global(Vector3(.18, 1.16, -.38) if action == "engine_off" else Vector3(-.55, 1.15, -.33))
+					var expected := stage.parked.to_global(BikeVisual.IGNITION if action == "engine_off" else BikeVisual.hand_grip(-1))
 					contact_ok = contact_ok and actor.right_forearm.to_global(Vector3(0, -.29, 0)).distance_to(expected) < .002
 				if id == "epilogue" and action == "bike":
 					var hand: Vector3 = stage.actors[1].right_forearm.to_global(Vector3(0, -.29, 0))

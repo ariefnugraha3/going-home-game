@@ -1,5 +1,34 @@
 # Validation record
 
+## Traffic car shapes and rolling wheels - 2026-10-02
+
+- **Implemented:** original hatchback/wagon bodies with tapered shoulders, curved hood/roof crowns, framed glazing, closed cabin seams, real wheel openings and recessed liners; detailed rims, mirrors, lights, wipers, handles, grille and bumpers. Four wheel pivots follow distance travelled through the production road traffic update.
+- **Validation:** **49 native RoadRender checks** at a 30 FPS cap and **60 headless CampaignStaging checks**, zero failures. The traffic assertions inspect actual rendered wheel vertices for road contact, preserve independent wheel pivots after batching, verify route/speed/rotation, quality visibility and stable node count. Existing repeated world disposal and save-isolation checks pass. Logs: `.godot-test/RoadRenderTests.log` and `CampaignStagingTests.log`.
+- **Visual review:** `tools/CarReview.tscn` captures seven native Compatibility views, including both silhouettes and the production road (`.godot-test/car-review.log`, `CAR REVIEW COMPLETE`). Reviewed front, side, rear and road images after correcting see-through wheel houses and hood/cabin seams. PNGs remain ignored local artifacts under `tests/screenshots/car_*.png`.
+- **Scope:** focused visual/traffic regression; no new full-route or full-suite acceptance run. The existing sandbox root-certificate-store message remains; final logs contain no script, parse or compile errors. No Web/Android changes.
+
+## Rider footrests, rear brake and gear lever - 2026-10-02
+
+- **Implemented:** short frame-mounted rubber footrests with hinge/bolt detail, right rear-brake lever/pad/linkage, and left gearbox lever with rubber toe peg. Shared raised/rearward ankle targets update mounting, departure, father memory and homecoming poses.
+- **Validation:** **539 native Cinematic checks** at 30 FPS, plus **60 CampaignStaging and 35 Cockpit headless checks**, all zero failures. Logs: `.godot-test/CinematicTests.log`, `CampaignStagingTests.log`, `CockpitTests.log`. Four added assertions verify side assignment, forward pedal placement, no resting boot/pedal bounds overlap, a small brake-pad gap and shift-toe clearance. Existing sole-to-peg, mounting/luggage, pause, Skip, rewind, save-isolation and instrument tests remain passing.
+- **Rendered review:** `bike-foot-controls-review.log` completes successfully. BikeReview now captures nine views, including both foot-control assemblies with and without boots. Native mounting and father-memory shots use the new pose. No manual-shifting gameplay, pedal actuation animation or new input bindings are claimed. The existing sandbox certificate-store message remains; final test logs have no script/parse/compile failures.
+
+## Motorcycle curved surfaces - 2026-10-02
+
+- **Implemented:** spline-shaped tank, cushioned saddle, rounded side/tail panels, radiused engine fins/cover, domed headlamp, rounded gauge housings/indicators/mirrors, bent header/grab-rail tubes and tapered muffler. `BikeForms` generates scene-owned meshes with shared surface normals. Existing proportions and riding controls remain.
+- **Native regression:** **535 Cinematic, 60 CampaignStaging and 35 Cockpit checks**, zero failures, Windows Compatibility at 30 FPS. Logs: `.godot-test/CinematicTests.log`, `CampaignStagingTests.log`, `CockpitTests.log`. Tank wipe contact now tests actual mesh triangles rather than an ellipsoid equation; normals interpolate across triangle edges. Helmet/seat support, mounted soles/grips, pause, Skip, rewind, homecoming and instrument calibration still pass.
+- **Visual review:** refreshed the five `bike_*.png` review views; inspected body contours, rear lamp/body separation, cockpit and tank wiping. A final end-cap winding correction removed hollow-looking caps and was verified by rerendering BikeReview (`bike-curves-review.log`). Existing screenshots are generated local artifacts, not replacement assets.
+- **Final follow-up:** after the cap correction, 535 headless Cinematic checks passed again (`bike-curves-final-contact.log`), and the configured native project entry exited successfully after 120 frames (`bike-curves-boot.log`).
+- **Scope:** no changes to story data, player-save schema or physics, and no Web/Android work. This is focused art/contact validation, not exhaustive collision or final art acceptance. The existing sandbox certificate-store warning remains.
+
+## Motorcycle proportions and contact revision - 2026-10-02
+
+- **Implemented:** a coherent 1.42 m wheelbase / .63 m tire layout; narrower tank and saddle; smaller lamp, gauges, controls, mirrors, engine and exhaust; connected brackets, rear mudguard and shared footpegs. Details and authored dimensions are in [art direction](../ART_DIRECTION.md#motorcycle-proportion-revision--2026-10-02).
+- **Final native checks:** **535 Cinematic + 60 CampaignStaging + 35 Cockpit = 630**, all with zero failures, Windows Compatibility renderer at a 30 FPS cap. Logs: `.godot-test/CinematicTests.log`, `CampaignStagingTests.log`, `bike-final-cockpit.log`. CampaignStaging also passed 60 headless checks after the ignition correction. This is focused regression coverage, not a new full-suite or full-route run.
+- **Contact correction:** the first revised ignition placement exceeded the seated arm's reach and failed the homecoming contact check. The connected ignition housing moved closer to the rider; final headless and native staging reruns pass the original 2 mm tolerance. The father's memory pose now uses the same mounted grip anchors. Helmet support is measured against actual saddle triangles; both shoe soles are checked against the rendered footpegs.
+- **Visual evidence:** `tools/BikeReview.tscn` exits successfully and produces five native model views; inspected side, front, front/rear three-quarter and seated rider. Also reviewed `mount_seated`, `performance_memory`, daytime cockpit/ordinary downward glance, and homecoming ignition captures. Screenshots remain ignored local artifacts and can be regenerated. The normal configured project entry exits successfully after 120 frames (`bike-boot-smoke.log`).
+- **Scope:** no external models or textures, no save-schema or riding-physics changes, and no Web/Android work. No claim of exact manufacturer dimensions or exhaustive intersection-free animation. Final logs contain no failed checks or script/parse/compile errors; the existing sandbox certificate-store message remains.
+
 ## Character anatomy, hero props and contact revision - 2026-10-02
 
 - **Implemented:** female Nadia and mother variants; shaped faces, limbs, hands, shoes/bare feet; single-axis elbow reach and grounded walking; a detailed motorcycle with thin crossed spokes, engine components and shaped controls; an open-front helmet; detailed laptop, ID card/strap and cups. Static roadside people share the revised anatomy. See [art revision](../ART_DIRECTION.md#character-and-close-up-revision--2026-10-02).

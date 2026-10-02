@@ -21,11 +21,23 @@ The shared 3D kit now uses sculpted faceted forms, chamfered furniture/props and
 
 ## Native review
 
+`tools/CarReview.tscn` (F6) captures the production hatchback and wagon from front/rear three-quarter and orthographic side views, plus one in-road view. Seven `car_*.png` images are written under `tests/screenshots/`. It exits after capture without saving the journey. Use F5 for normal play.
+
+`tools/BikeReview.tscn` (F6) renders the production motorcycle from orthographic side/front, perspective front/rear and seated-rider views. It writes `bike_side`, `bike_front`, `bike_three_quarter`, `bike_rear` and `bike_rider` PNGs under the same ignored screenshot folder and exits without touching the journey. Use these neutral views to assess the entire silhouette before judging environment lighting.
+
+Four additional close-ups show `bike_right_controls`, `bike_left_controls`, `bike_right_boot` and `bike_left_boot`: review the brake/gear lever assembly both uncovered and with the seated rider's shoes.
+
 Launch `tools/ArtReview.tscn` in Godot with F6 to capture nine native views under `tests/screenshots/`: six `cozy_*.png` views (warung, motorcycle, riding environment, home, character and room), plus `hero_laptop`, `hero_id_card` and `hero_nadia`. The scene does not load or save the journey; its quality settings are temporary in memory. It exits after rendering the gallery. Use F5 for the normal game.
 
 The image files are ignored local artifacts. Reproduce them after art changes instead of treating old screenshots as current. `tools/test.ps1 -Suite CampaignStaging -Visual -FixedFps 30` additionally captures every region and story staging; Cinematic checks the opening performances, and RoadRender measures native draw calls and resource disposal.
 
 This pass changes the common art language; it does not claim that all artist/narrative/audio acceptance gates in the original roadmap have been signed off. No external models, texture packs or generated images were introduced.
+
+## Traffic car revision · 2026-10-02
+
+- `TrafficCar` replaces the stacked-box traffic model through the existing `CozyDressing.vehicle` factory. Two original compact/family silhouettes share ochre, sage, muted blue and clay paint, sloped glazing and softly crowned hood/roof surfaces. Body length is 3.63/3.87 m, wheelbase 2.18/2.34 m and tire diameter .64 m.
+- Body shoulders taper toward the front and rear. Actual semicircular openings, recessed wheel-house liners and thin painted arch lips clear the tires. Matched hood/end-cap vertices and cabin skirts close visible seams. Six-spoke rims, rounded bumpers, grille slats, indicators, tail/reverse lights, door handles, mirrors, wipers and number plates add detail at road-view scale.
+- Four wheel pivots rotate from traffic travel distance. Static body and individual wheels are batched separately; scene-owned meshes release with the road. Existing traffic count, path, quality visibility and decorative behavior remain in use. No external car assets or textures are required.
 
 ## Character and close-up revision · 2026-10-02
 
@@ -37,3 +49,34 @@ This pass changes the common art language; it does not claim that all artist/nar
 - The helmet is an open-front shell with an inner surface, a raised brow opening and a lower rear rim. Hair visibility follows retrieval/donning so it cannot protrude through the worn crown. Bare feet have shaped insteps and toes. Helmet framing/seat/luggage checks use all eight actual mesh-bounds corners, replacing the former unit-sphere assumptions.
 - Homecoming foot placement accounts for the raised foundation and both porch steps, including the mother's starting position and the family entrance. This corrects feet previously hidden inside the decorative step meshes.
 - Static baking now copies visible mesh children before freeing originals and excludes hidden alternate limbs/helmets. Art review remains required for performances and untested contact pairs; sampled contact tests are not a guarantee that no mesh can ever intersect in any frame.
+
+## Motorcycle proportion revision · 2026-10-02
+
+Rebuilt the component layout after the oversized tank, lamp, instruments and controls made the earlier model read as disconnected primitives. The [Thunder side-view reference](https://www.autofun.co.id/berita-motor/harga-bekas-makin-terjangkau-suzuki-thunder-250-bisa-jadi-alternatif-tiger-dan-scorpio-47147) informed the visual balance; the dimensions below are authored game proportions, not manufacturer specifications. No reference image is bundled.
+
+| Component | Previous | Revised (model metres) |
+| --- | --- | --- |
+| Wheelbase / tire diameter | 1.54 / .68 | 1.42 / .63 |
+| Tank width / length | .64 / .91 | .46 / .70 |
+| Headlamp diameter | .34 | .216 |
+| Distance between hand contacts | 1.02 | .76 |
+| Mirror outer span | 1.45 | .955 |
+| Twin instrument span | .58 | .307 |
+
+The saddle now has a narrow nose and longitudinal sections with a raised passenger end; the rear bodywork supports the lamp and mudguard. Crowned fenders follow the tire, sliders fit the stanchions, and smaller engine fins, crankcase, shocks, bent headers and silencer retain space within the frame. Indicator brackets, ignition support and footpegs connect to the assembly. Existing teal, warm metal and charcoal materials remain.
+
+Shared handlebar/ignition anchors drive Raka, the memory father and the homecoming contacts. The headlight emitter follows the lamp; wheel rotation uses the new tire radius. The cloth stroke follows the resized tank, the helmet check raycasts the actual saddle triangles, and mounted sole bounds meet the rendered footpegs. The cockpit keeps the existing camera and calibrated instrument behavior.
+
+## Motorcycle curved bodywork revision · 2026-10-02
+
+`BikeForms` adds scene-owned spline cross-sections, rounded plates, turned housings and continuous swept tubes. The tank has broad shoulders, a restrained upper crown and a narrowing rear knee recess. The saddle gains a cushioned crown and rounded nose/tail, side panels have soft teardrop contours, and the rear shell curves into the seat. Engine fins and the rocker cover have radiused corners; crankcase covers, the headlight shell and gauge housings have rounded shoulders. Indicators and mirrors use modest-resolution curved shells. Headers, handlebars, upholstery seams and the grab rail follow continuous curves rather than a chain of visibly mitered cylinders. The muffler tapers into its end rim.
+
+Shared vertex normals soften broad surfaces without changing the low-poly palette, wheelbase, grip anchors or seat contact height. The tail lens and mesh end caps were inspected from the rear to catch missing faces and bodywork intersections. Existing five-view BikeReview renders show the new silhouettes with the same camera and light for comparison.
+
+Both tank-wiping performances now intersect the actual tank triangles, with barycentrically interpolated surface normals so the cloth turns smoothly across triangle edges. The cinematic contact assertion checks the mesh itself instead of the old ellipsoid equation. Contact-face data is cached on each tank node and released with that scene.
+
+## Footrest and pedal revision · 2026-10-02
+
+The rider pegs sit on short frame brackets with hinge pins, mounting bolts, rounded rubber pads and tread ribs. Their support surface is .305 m above the road, replacing the former .18 m surface on long diagonal stalks. The new shared ankle targets place the boots on these pads and bend the knees naturally behind the engine.
+
+With the bike facing local -Z, the right (+X) side has a frame-pivoted curved rear-brake lever, a broad serrated toe pad and a rod to the rear drum brake arm. The left (-X) side has a selector shaft at the gearbox, a short curved gear lever and a transverse ribbed rubber toe peg. The resting right toe clears the brake pad vertically; the left toe clears the shift peg longitudinally. Both are checked against actual shoe/sole and pedal mesh bounds. These are model and rider-pose changes; the game's existing automatic transmission and input behavior remain.

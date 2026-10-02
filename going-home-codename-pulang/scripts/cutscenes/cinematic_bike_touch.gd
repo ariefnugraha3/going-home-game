@@ -25,13 +25,13 @@ func sample(actor: CinematicActor, weight: float) -> void:
 	actor.position = Vector3(0, 0, 0.50)
 	actor.rotation = Vector3.ZERO
 	actor.sample("walk", 0)
-	# Follow the ellipsoid of the existing low-poly tank, away from its cap.
+	# Follow the sculpted tank triangles, away from its cap.
 	# The rigid cloth is blocking geometry, not simulated or deforming fabric.
-	var z := -0.20 * cos(TAU * smoothstep(0.22, 0.70, p))
+	var z := -0.30 * cos(TAU * smoothstep(0.22, 0.70, p))
 	var q := Vector3(0.72, sqrt(1 - 0.72 * 0.72 - z * z), z)
-	var radii := tank.mesh.get_aabb().size * 0.5
-	surface_point = tank.to_global(q * radii)
-	surface_normal = (tank.global_basis.inverse().transposed() * (q / radii)).normalized()
+	var contact_frame := BikeForms.tank_contact(tank,q)
+	surface_point = contact_frame.origin
+	surface_normal = contact_frame.basis.y
 	var rest := actor.right_forearm.to_global(Vector3(0, -0.29, 0))
 	var contact := smoothstep(0.06, 0.22, p) * (1 - smoothstep(0.82, 1, p))
 	var hand := rest.lerp(surface_point + surface_normal * 0.065, contact)

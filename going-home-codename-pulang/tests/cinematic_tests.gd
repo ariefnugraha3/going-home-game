@@ -139,6 +139,9 @@ func _ready() -> void:
 			director.shot_index = i
 	director._show_shot()
 	check(director.stage_id == "memory" and director.room.props.young_raka.scale.x < 1 and director.room.props.young_raka.position.x < director.room.props.rider.position.x, "Memory places young Raka behind father")
+	for side in [-1, 1]:
+		var arm: Node3D = director.room.props.rider.left_forearm if side < 0 else director.room.props.rider.right_forearm
+		check(arm.to_global(Vector3(0,-.29,0)).distance_to(director.room.props.bike.to_global(BikeVisual.hand_grip(side))) < .002, "Father's memory pose uses the resized handlebar grip: " + str(side))
 	check(director.room.props.young_raka.active_clip == "passenger" and director.room.props.young_raka.helmet.visible and director.room.props.rider.helmet.visible and not director.room.props.luggage.visible, "Memory uses helmeted father/passenger poses without departure luggage")
 	check(director.audio_context() == "fields", "Memory uses quiet exterior ambience")
 	await capture("performance_memory")
@@ -1129,7 +1132,12 @@ func _test_helmet_pickup(director: CutsceneDirector) -> void:
 	var node_count := get_tree().get_node_count()
 	check(actor.visible and actor.helmet.visible and not stage.props.walker.visible, "Retrieval uses one Raka and the existing helmet")
 	check(stage.props.bike.to_local(actor.helmet.global_position).distance_to(CinematicHelmet.PARKED) < 0.002, "Helmet starts resting on the front of the seat")
-	check(absf(stage.props.bike.to_local(actor.helmet.to_global(Vector3(0,actor.helmet.mesh.get_aabb().position.y,0))).y - 0.855) < 0.002, "Helmet lower surface rests on the seat height")
+	var seat_faces: PackedVector3Array = stage.props.bike.seat.mesh.get_faces()
+	var seat_height := -INF
+	for i in range(0, seat_faces.size(), 3):
+		var hit = Geometry3D.segment_intersects_triangle(Vector3(0,2,CinematicHelmet.PARKED.z), Vector3(0,0,CinematicHelmet.PARKED.z), seat_faces[i], seat_faces[i+1], seat_faces[i+2])
+		if hit != null: seat_height = maxf(seat_height, hit.y)
+	check(absf(stage.props.bike.to_local(actor.helmet.to_global(Vector3(0,actor.helmet.mesh.get_aabb().position.y,0))).y - seat_height) < 0.002, "Helmet lower surface rests on the actual seat mesh")
 	await capture("helmet_pickup_seat")
 	stage.pose(shot, 0.28)
 	check(stage.props.bike.to_local(actor.helmet.global_position).distance_to(CinematicHelmet.PARKED) < 0.002, "Both hands reach the helmet before it leaves the seat")
@@ -1346,7 +1354,22 @@ func _test_mount(director: CutsceneDirector) -> void:
 	check(bike.to_local(actor.shoes[0].global_position).x < 0 and bike.to_local(actor.shoes[1].global_position).x > 0, "Seated feet finish on opposite sides of the motorcycle")
 	for side in [-1, 1]:
 		var hand := actor.left_forearm if side == -1 else actor.right_forearm
-		check(hand.to_global(Vector3(0, -0.29, 0)).distance_to(bike.to_global(Vector3(side * 0.51, 1.165, -0.29))) < 0.002, "Seated hand reaches its handlebar grip: " + str(side))
+		check(hand.to_global(Vector3(0, -0.29, 0)).distance_to(bike.to_global(BikeVisual.hand_grip(side))) < 0.002, "Seated hand reaches its handlebar grip: " + str(side))
+		var index := 0 if side < 0 else 1
+		var sole: MeshInstance3D = actor.shoes[index].get_child(0)
+		var sole_bounds: AABB = (bike.global_transform.affine_inverse() * sole.global_transform) * sole.mesh.get_aabb()
+		var peg: MeshInstance3D = bike.footrests[index]
+		var peg_bounds: AABB = peg.transform * peg.mesh.get_aabb()
+		check(absf(sole_bounds.position.y - peg_bounds.end.y) < .003 and sole_bounds.position.x < peg_bounds.end.x and sole_bounds.end.x > peg_bounds.position.x, "Seated sole rests on the rendered footpeg: " + str(side))
+		var pedal: MeshInstance3D = bike.shift_toe_peg if side < 0 else bike.brake_pedal
+		var pedal_bounds: AABB = pedal.transform * pedal.mesh.get_aabb()
+		var shoe: MeshInstance3D = actor.shoes[index]
+		var shoe_bounds: AABB = (bike.global_transform.affine_inverse() * shoe.global_transform) * shoe.mesh.get_aabb()
+		check(pedal.position.x * side > .20 and pedal_bounds.end.z < peg_bounds.position.z and not pedal_bounds.intersects(shoe_bounds) and not pedal_bounds.intersects(sole_bounds), "Correct-side foot control sits ahead of its peg without intersecting the resting boot: " + str(side))
+		if side > 0:
+			check(sole_bounds.position.y - pedal_bounds.end.y > .008 and sole_bounds.position.y - pedal_bounds.end.y < .025, "Right brake pad rests just below the toe, with room to press")
+		else:
+			check(sole_bounds.position.z - pedal_bounds.end.z > .015 and sole_bounds.position.z - pedal_bounds.end.z < .045, "Left rubber shift peg leaves toe clearance for selecting gears")
 	await capture("mount_seated")
 	var seated := stage.actor_snapshot()
 	stage.pose(shot, 0)
@@ -1409,16 +1432,23 @@ func _test_bike_touch(director: CutsceneDirector) -> void:
 	var planted := true
 	var framed := true
 	var size := get_viewport().get_visible_rect().size
-	var radii := touch.tank.mesh.get_aabb().size * 0.5
+	var tank_faces := touch.tank.mesh.get_faces()
 	for step in range(101):
 		var p := float(step) / 100
 		stage.pose(shot, p)
 		contact = contact and actor.right_forearm.to_global(Vector3(0, -0.29, 0)).distance_to(touch.cloth.to_global(Vector3(0, 0.055, 0))) < 0.002
 		if p >= 0.22 and p <= 0.82:
-			var q := touch.tank.to_local(touch.surface_point) / radii
-			surface = surface and absf(q.length_squared() - 1) < 0.001 and touch.cloth.global_position.distance_to(touch.surface_point + touch.surface_normal * 0.01) < 0.002
+			var local_point := touch.tank.to_local(touch.surface_point)
+			var on_mesh := false
+			for i in range(0,tank_faces.size(),3):
+				var probe := touch.tank.global_basis.inverse()*touch.surface_normal*.005
+				var hit = Geometry3D.segment_intersects_triangle(local_point+probe,local_point-probe,tank_faces[i],tank_faces[i+1],tank_faces[i+2])
+				if hit != null and hit.distance_to(local_point) < .001:
+					on_mesh = true
+					break
+			surface = surface and on_mesh and touch.cloth.global_position.distance_to(touch.surface_point + touch.surface_normal * 0.01) < 0.002
 			var on_bike: Vector3 = stage.props.bike.to_local(touch.cloth.global_position)
-			surface = surface and on_bike.x > 0.20
+			surface = surface and on_bike.x > 0.12 # Beyond the 47 mm cap plus half the cloth width.
 			var torso := AABB(Vector3(-0.215, 0.66, -0.14), Vector3(0.43, 0.58, 0.28))
 			unobstructed = unobstructed and torso.intersects_segment(actor.body.to_local(director.camera.global_position), actor.body.to_local(touch.cloth.global_position)) == null
 		for i in range(2):
@@ -1429,7 +1459,7 @@ func _test_bike_touch(director: CutsceneDirector) -> void:
 				var pixel := director.camera.unproject_position(point)
 				framed = framed and not director.camera.is_position_behind(point) and pixel.x > 0 and pixel.x < size.x and pixel.y > size.y * 0.15 and pixel.y < size.y * 0.78
 	check(contact, "Right hand retains cloth contact within 2 mm through approach, wipe and withdrawal")
-	check(surface, "Wipe tracks the tank ellipsoid on its side clear of the central fuel cap")
+	check(surface, "Wipe tracks the sculpted tank triangles clear of the central fuel cap")
 	check(unobstructed, "Actor torso never blocks the camera's view of the wiping cloth")
 	check(planted and stage.props.bike.position == Vector3.ZERO, "Wiping keeps both feet and motorcycle stationary")
 	check(framed, "Cloth remains between caption bars throughout the wipe")

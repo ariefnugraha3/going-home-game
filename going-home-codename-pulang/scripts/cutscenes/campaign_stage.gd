@@ -144,7 +144,7 @@ func sample(camera: Camera3D, shot: Dictionary, progress: float) -> void:
 		CinematicMount.sample(actors[0], parked, 1)
 	elif home and shot.get("action", "") == "engine_off":
 		CinematicMount.sample(actors[0], parked, 1)
-		actors[0].reach_hand(false, parked.to_global(Vector3(.18, 1.16, -.38)))
+		actors[0].reach_hand(false, parked.to_global(BikeVisual.IGNITION))
 	elif home and shot.get("action", "") == "mother":
 		actors[2].position = Vector3(0, 0, -2.7).lerp(actor_positions[2], smoothstep(0, 1, progress))
 		actors[2].sample("walk", progress)
@@ -190,15 +190,15 @@ func _pose_father(action: String, progress: float) -> void:
 		# both the hand and cloth, including Pause, Skip and backward sampling.
 		var z := -.20 * cos(TAU * progress)
 		var unit := Vector3(-.65, sqrt(1 - .65 * .65 - z * z), z)
-		var radii := parked.tank.mesh.get_aabb().size * .5
-		var point := parked.tank.to_global(unit * radii)
-		var normal := (parked.tank.global_basis.inverse().transposed() * (unit / radii)).normalized()
+		var contact_frame := BikeForms.tank_contact(parked.tank,unit)
+		var point := contact_frame.origin
+		var normal := contact_frame.basis.y
 		father.reach_hand(false, point + normal * .065)
 		cloth.global_position = point + normal * .01
 		cloth.global_basis = Basis(Quaternion(Vector3.UP, normal))
 		cloth.visible = true
 	else:
-		father.reach_hand(false, parked.to_global(Vector3(-.55, 1.15, -.33)))
+		father.reach_hand(false, parked.to_global(BikeVisual.hand_grip(-1)))
 
 func frame_dialogue(camera: Camera3D, speaker: String) -> void:
 	var position := Vector3(3.8, 1.95, 5.3)

@@ -63,29 +63,8 @@ static func shelter(parent: Node3D, id: String) -> void:
 			LowPoly.box(root,Vector3(-3.3+i*.38,1.6,-2.7),Vector3(.32,1.4,.04),Color("a96e58") if i%2 else Color("788e96"))
 	LowPoly.bake(root,160)
 
-static func vehicle(parent: Node3D, variant: int) -> Node3D:
-	var root := Node3D.new()
-	parent.add_child(root)
-	var paint := Color("82a99b") if variant%2 else Color("cab17c")
-	LowPoly.box(root,Vector3(0,.69,0),Vector3(1.65,.60,3.5),paint)
-	LowPoly.box(root,Vector3(0,1.08,.13),Vector3(1.48,.40,1.95),paint)
-	LowPoly.mesh(root,CozyForms.loft([Vector4(.74,1.12,1.01,.12),Vector4(.63,1.69,.70,.21)],8),Vector3.ZERO,Color("567a7b"))
-	LowPoly.box(root,Vector3(0,1.70,.21),Vector3(1.34,.10,1.50),paint)
-	for side in [-1,1]:
-		LowPoly.box(root,Vector3(side*.72,1.4,.14),Vector3(.10,.52,.12),paint)
-		LowPoly.box(root,Vector3(side*.83,1.1,-.70),Vector3(.19,.12,.23),paint)
-		LowPoly.box(root,Vector3(side*.827,.92,.1),Vector3(.025,.035,.25),Color("d5cfb7"))
-		for z in [-1.1,1.1]:
-			var tire := LowPoly.cylinder(root,Vector3(side*.8,.37,z),.34,.19,Color("3b4039"),-1,12)
-			tire.rotation.z = PI/2
-			var hub := LowPoly.cylinder(root,Vector3(side*.91,.37,z),.19,.02,Color("acae9b"),-1,10)
-			hub.rotation.z = PI/2
-		LowPoly.box(root,Vector3(side*.55,.78,-1.76),Vector3(.35,.16,.025),Color("f5ddaa"))
-		LowPoly.box(root,Vector3(side*.56,.8,1.76),Vector3(.3,.14,.025),Color("b66d50"))
-	for z in [-1.77,1.77]: LowPoly.box(root,Vector3(0,.48,z),Vector3(1.6,.10,.10),Color("768278"))
-	LowPoly.box(root,Vector3(0,.75,-1.77),Vector3(.48,.12,.035),Color("47594f"))
-	LowPoly.bake(root,240)
-	return root
+static func vehicle(parent: Node3D, variant: int) -> TrafficCar:
+	return TrafficCar.create(parent,variant)
 
 static func town_building(parent: Node3D, pos: Vector3, height: float, side: int) -> Node3D:
 	var root := Node3D.new()

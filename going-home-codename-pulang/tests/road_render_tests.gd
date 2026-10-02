@@ -19,12 +19,14 @@ func _ready() -> void:
 		world.build(false)
 		world.set_process(false)
 		_verify_markings(world, practice)
+		_verify_traffic(world, practice)
 		var resource: WeakRef = weakref(world.marking_batches[0].multimesh)
 		for quality in [0, 1]:
 			GameState.settings.quality = quality
 			world._process(0)
 			await frames(4)
 			check(world.sun.shadow_enabled == (quality > 0), "Render probe applies requested quality")
+			check(world.traffic.all(func(item): return item.node.visible == (quality > 0)), "Traffic follows the existing quality visibility setting")
 			for distance in ([20.0, 260.0, 650.0] if practice else [20.0, 650.0, 1100.0]):
 				var route := RidingRoute.new()
 				route.practice = practice
@@ -69,6 +71,43 @@ func _ready() -> void:
 	await frames(2)
 	print("ROAD RENDER TEST RESULT: %d checks, %d failures" % [checks, failures])
 	get_tree().quit(1 if failures else 0)
+
+func _verify_traffic(world: RoadWorld, practice: bool) -> void:
+	check(world.traffic.size() == (0 if practice else 4), "Detailed traffic stays on story roads; practice remains clear")
+	if practice: return
+	var car: TrafficCar = world.traffic[0].node
+	var wheel_mesh: WeakRef = weakref(car.wheels[0].get_child(0).mesh)
+	var grounded := true
+	var finite_geometry := true
+	var pivots_intact := true
+	for item in world.traffic:
+		var vehicle: TrafficCar = item.node
+		pivots_intact = pivots_intact and vehicle.wheels.size() == 4
+		for wheel in vehicle.wheels:
+			pivots_intact = pivots_intact and wheel.get_parent() == vehicle and wheel.get_child_count() > 0
+			var lowest := INF
+			var highest := -INF
+			for mesh: MeshInstance3D in wheel.get_children():
+				for surface in range(mesh.mesh.get_surface_count()):
+					for vertex: Vector3 in mesh.mesh.surface_get_arrays(surface)[Mesh.ARRAY_VERTEX]:
+						var point: Vector3 = wheel.transform * mesh.transform * vertex
+						lowest = minf(lowest,point.y)
+						highest = maxf(highest,point.y)
+						finite_geometry = finite_geometry and point.is_finite()
+			grounded = grounded and absf(lowest) < .002 and absf(highest-.64) < .002
+	check(pivots_intact, "Static batching preserves four independent rendered wheels on every car")
+	check(grounded and finite_geometry, "Actual wheel meshes have finite vertices and rest on the road with a 64 cm tire diameter")
+	var distance: float = world.traffic[0].distance
+	var angle := car.wheels[0].rotation.x
+	var nodes := get_tree().get_node_count()
+	world._process(.1)
+	check(is_equal_approx(world.traffic[0].distance,distance-.9) and car.position.is_equal_approx(world.sample_route(distance-.9)+Vector3(2.5,0,0)), "Detailed cars retain the route and 9 m/s oncoming motion")
+	check(is_equal_approx(angle_difference(angle,car.wheels[0].rotation.x),-.9/.32), "Wheel rotation follows distance travelled in the forward rolling direction")
+	var body_pose := car.body.transform
+	var center := car.wheels[0].position
+	car.roll(.25)
+	check(car.body.transform == body_pose and car.wheels[0].position == center and get_tree().get_node_count() == nodes, "Rolling preserves body and axle transforms without allocating scene nodes")
+	check(wheel_mesh.get_ref() != null, "Animated wheel geometry remains live after traffic updates")
 
 func _verify_markings(world: RoadWorld, practice: bool) -> void:
 	var expected := {"CenterMarkings": [], "EdgeMarkings": []}

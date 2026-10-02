@@ -315,7 +315,8 @@ func _process(delta: float) -> void:
 			detail.visible = active_quality > 0
 	for item in traffic:
 		item.distance = fposmod(item.distance - delta * 9, LENGTH)
-		var car: Node3D = item.node
+		var car: TrafficCar = item.node
+		car.roll(delta * 9)
 		car.position = sample_route(item.distance) + Vector3(2.5, 0, 0)
 		car.rotation.y = route_heading(item.distance) + PI
 		car.visible = GameState.settings.quality > 0

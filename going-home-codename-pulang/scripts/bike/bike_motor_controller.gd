@@ -41,7 +41,7 @@ func _ready() -> void:
 	camera.far = 900
 	camera.rotation.x = -0.14
 	headlight = SpotLight3D.new()
-	headlight.position = Vector3(0, 1.0, -0.85)
+	headlight.position = BikeVisual.HEADLIGHT + Vector3(0, 0, -.085)
 	headlight.rotation_degrees.x = -8
 	headlight.light_color = Color("ffe1aa")
 	headlight.spot_range = 42

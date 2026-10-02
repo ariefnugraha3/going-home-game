@@ -32,6 +32,7 @@ func _ready() -> void:
 	var parked := BikeVisual.new()
 	parked.show_rider_arms = false
 	add_child(parked)
+	_test_bike_proportions(parked)
 	cluster.update_readings(40, 4000, true, 1)
 	check(cluster.face_material != parked.instruments.face_material and parked.instruments.illumination == 0 and parked.instruments.speed_needle.rotation.y == 2.25, "Parked bike starts at zero and cannot inherit riding-bike illumination")
 	var geometry_count := cluster.get_child_count()
@@ -135,3 +136,22 @@ func _ready() -> void:
 func physics_frames(count: int) -> void:
 	for i in range(count):
 		await get_tree().physics_frame
+
+func _test_bike_proportions(bike: BikeVisual) -> void:
+	var base := bike.wheels[0].position.distance_to(bike.wheels[1].position)
+	var tank_size := bike.tank.mesh.get_aabb().size * bike.tank.scale
+	check(base > 1.35 and base < 1.5 and tank_size.z / base > .43 and tank_size.z / base < .53, "Tank length and wheelbase retain compact road-bike proportions")
+	var grip_width := BikeVisual.hand_grip(1).x * 2
+	check(tank_size.x < grip_width * .65 and grip_width < .85, "Tank stays narrower than a human-scale handlebar")
+	check(bike.instruments.scale.x * .58 < tank_size.x * .75, "Twin instruments stay within the tank width")
+	var grounded := true
+	for wheel in bike.wheels:
+		for child in wheel.get_children():
+			if child is MeshInstance3D:
+				var bounds: AABB = child.transform * child.mesh.get_aabb()
+				if bounds.size.y > .60:
+					grounded = grounded and absf(wheel.position.y + bounds.position.y) < .002
+	check(grounded, "Rendered tire bounds touch the ground at both axles")
+	var before := bike.wheels[0].rotation.x
+	bike.roll_wheels(BikeVisual.WHEEL_RADIUS * PI)
+	check(absf(angle_difference(before, bike.wheels[0].rotation.x)) > PI - .001, "Half a tire circumference rolls the visible wheel by half a turn")
