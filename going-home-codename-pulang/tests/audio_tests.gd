@@ -26,13 +26,23 @@ func _ready() -> void:
 	check(AudioManager.ui_player.bus == "UI" and AudioServer.get_bus_send(AudioServer.get_bus_index("UI")) == "SFX" and AudioManager.ui_player.max_polyphony == 1, "UI routes through SFX with a single playback voice")
 	var state_before := GameState.snapshot()
 	check(not AudioManager.ui_event("missing") and ui_events.is_empty(), "Unknown UI event remains silent")
+	if visual_test:
+		# Let the first rendered frame and audio device initialize before the
+		# 180 ms cue; shader/window startup can otherwise outlast the whole sound.
+		await frames(3)
 	get_tree().paused = true
 	check(AudioManager.ui_event("confirm") and ui_events == ["confirm"], "UI confirmation is allowed while the game is paused")
 	if visual_test:
 		check(AudioManager.ui_player.playing and not AudioManager.ui_player.stream_paused, "Native mixer plays UI feedback in a paused menu")
-		await frames(2)
-		check(AudioManager.ui_player.get_playback_position() > 0, "Native UI playback clock advances while gameplay is paused")
-		check(AudioServer.get_bus_peak_volume_left_db(AudioServer.get_bus_index("SFX"), 0) > -60, "Native UI samples actually reach the SFX bus")
+		var position := 0.0
+		var peak := -200.0
+		var deadline := Time.get_ticks_msec() + 300
+		while Time.get_ticks_msec() < deadline:
+			await get_tree().process_frame
+			position = maxf(position, AudioManager.ui_player.get_playback_position())
+			peak = maxf(peak, AudioServer.get_bus_peak_volume_left_db(AudioServer.get_bus_index("SFX"), 0))
+		check(position > 0, "Native UI playback clock advances while gameplay is paused")
+		check(peak > -60, "Native UI samples actually reach the SFX bus")
 	check(not AudioManager.ui_event("select") and ui_events.size() == 1, "Rapid UI requests cannot layer or retrigger the tone")
 	AudioManager.update_mix(0.1)
 	check(AudioManager.ui_event("back") and ui_events.back() == "back", "UI feedback becomes available again after the short interval")

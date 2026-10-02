@@ -54,5 +54,75 @@
       "reply": "phone.messages.3.reply",
       "text": "phone.messages.3.text"
     }
+  },
+  {
+    "id": "dimas_dinner",
+    "from": "Dimas",
+    "type": "Messages",
+    "condition": "story.semarang.entered",
+    "delay_seconds": 8,
+    "text": "If you're still coming through, I'll be at the little place near the corner tonight. We don't need an occasion.",
+    "reply": "I'll stop by. It will be good to see you.",
+    "text_keys": {
+      "from": "phone.messages.4.from",
+      "reply": "phone.messages.4.reply",
+      "text": "phone.messages.4.text"
+    }
+  },
+  {
+    "id": "interview_time",
+    "from": "Maya · Recruitment",
+    "type": "Email",
+    "condition": "story.kediri.entered",
+    "delay_seconds": 8,
+    "text": "Our conversation is confirmed for this evening. A quiet connection is enough; no presentation needed. We'll talk through your recent work and leave time for your questions.",
+    "reply": "Thank you. I've found a room with a desk. I'll join from here.",
+    "text_keys": {
+      "from": "phone.messages.5.from",
+      "reply": "phone.messages.5.reply",
+      "text": "phone.messages.5.text"
+    }
+  },
+  {
+    "id": "interview_followup",
+    "from": "Maya · Recruitment",
+    "type": "Email",
+    "condition": "story.kediri.encounter",
+    "delay_seconds": 8,
+    "text": "Thank you for the thoughtful conversation. We'd like to arrange the next round after your trip. Please let us know a suitable day once you're settled.",
+    "reply": "Thank you. I'll review the details when I get home.",
+    "text_keys": {
+      "from": "phone.messages.6.from",
+      "reply": "phone.messages.6.reply",
+      "text": "phone.messages.6.text"
+    }
+  },
+  {
+    "id": "gate",
+    "from": "Dad",
+    "type": "Messages",
+    "condition": "story.jember.entered",
+    "delay_seconds": 8,
+    "text": "The gate latch still sticks. Pull it toward you before lifting it. No hurry.",
+    "reply": "I remember. I'll message when I've stopped.",
+    "text_keys": {
+      "from": "phone.messages.7.from",
+      "reply": "phone.messages.7.reply",
+      "text": "phone.messages.7.text"
+    }
+  },
+  {
+    "id": "home_checkin",
+    "from": "Dimas",
+    "type": "Messages",
+    "condition": "story.banyuwangi.complete",
+    "delay_seconds": 8,
+    "text": "Made it? No need for a long reply. Just checking.",
+    "reply": "Made it. We're having dinner.",
+    "text_keys": {
+      "from": "phone.messages.8.from",
+      "reply": "phone.messages.8.reply",
+      "text": "phone.messages.8.text"
+    }
   }
 ]

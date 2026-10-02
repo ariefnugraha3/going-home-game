@@ -1,0 +1,167 @@
+{
+  "chapter_id": "lumajang",
+  "display_name": "The long horizon",
+  "theme": "Scale",
+  "start_location": "Malang",
+  "end_location": "Lumajang",
+  "main_route_length": 1800,
+  "next_chapter_id": "jember",
+  "mandatory_events": [
+    "encounter",
+    "rest"
+  ],
+  "biome": "mountain",
+  "road_shape": {"bend": 31, "wavelength": 175, "detail": 2, "rise": 4.5, "grade_length": 280, "phase": 0.8},
+  "encounter_speaker": "Raka",
+  "audio_context": "fields",
+  "atmosphere": [
+    {
+      "distance": 0,
+      "profile": "morning"
+    }
+  ],
+  "stops": [
+    {
+      "id": "fuel",
+      "distance": 390,
+      "label": "Refuel",
+      "title": "Fuel and a short break",
+      "text_keys": {
+        "label": "chapters.lumajang.stops.0.label",
+        "title": "chapters.lumajang.stops.0.title"
+      }
+    },
+    {
+      "id": "scenic",
+      "distance": 720,
+      "label": "Switch off engine",
+      "title": "A place to pause",
+      "text_keys": {
+        "label": "chapters.lumajang.stops.1.label",
+        "title": "chapters.lumajang.stops.1.title"
+      }
+    },
+    {
+      "id": "encounter",
+      "distance": 1130,
+      "label": "Stop here",
+      "title": "The long horizon",
+      "text_keys": {
+        "label": "chapters.lumajang.stops.2.label",
+        "title": "chapters.lumajang.stops.2.title"
+      }
+    },
+    {
+      "id": "rest",
+      "distance": 1700,
+      "label": "Rest and reflect",
+      "title": "A quiet page",
+      "text_keys": {
+        "label": "chapters.lumajang.stops.3.label",
+        "title": "chapters.lumajang.stops.3.title"
+      }
+    }
+  ],
+  "journal": {
+    "id": "journal.lumajang.reflection",
+    "prompt": "What changed at the turnout?",
+    "options": [
+      {
+        "id": "a",
+        "text": "My problems were still there. So was everything beyond them.",
+        "text_keys": {
+          "text": "chapters.lumajang.journal.options.0.text"
+        }
+      },
+      {
+        "id": "b",
+        "text": "I watched the light reach the other side of the valley.",
+        "text_keys": {
+          "text": "chapters.lumajang.journal.options.1.text"
+        }
+      }
+    ],
+    "text_keys": {
+      "prompt": "chapters.lumajang.journal.prompt"
+    }
+  },
+  "route": [
+    "Jakarta",
+    "Karawang",
+    "Cirebon",
+    "Tegal",
+    "Pekalongan",
+    "Semarang",
+    "Salatiga",
+    "Solo",
+    "Ngawi",
+    "Madiun",
+    "Kediri",
+    "Malang",
+    "Lumajang",
+    "Jember",
+    "Banyuwangi"
+  ],
+  "arrival_shots": [
+    {
+      "camera": [
+        7,
+        3,
+        9
+      ],
+      "target": [
+        0,
+        1,
+        1
+      ],
+      "duration": 7,
+      "text": "",
+      "action": "",
+      "text_keys": {
+        "text": "chapters.lumajang.arrival_shots.0.text"
+      }
+    },
+    {
+      "camera": [
+        0,
+        1.5,
+        4
+      ],
+      "target": [
+        -70,
+        10,
+        -90
+      ],
+      "duration": 12,
+      "text": "",
+      "action": "",
+      "text_keys": {
+        "text": "chapters.lumajang.arrival_shots.1.text"
+      }
+    },
+    {
+      "camera": [
+        3,
+        2,
+        5
+      ],
+      "target": [
+        0,
+        1,
+        1.7
+      ],
+      "duration": 8,
+      "text": "",
+      "action": "",
+      "text_keys": {
+        "text": "chapters.lumajang.arrival_shots.2.text"
+      }
+    }
+  ],
+  "text_keys": {
+    "display_name": "chapters.lumajang.display_name",
+    "encounter_speaker": "chapters.lumajang.encounter_speaker",
+    "end_location": "chapters.lumajang.end_location",
+    "start_location": "chapters.lumajang.start_location"
+  }
+}

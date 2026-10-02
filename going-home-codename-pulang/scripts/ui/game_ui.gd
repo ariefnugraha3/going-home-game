@@ -161,7 +161,7 @@ func _button(parent: Node, title: String, callback: Callable, cue: String = "sel
 func _clear(next_mode: String) -> void:
 	phone_origin = false
 	capture_action = ""
-	if phone_toast and next_mode not in ["riding", "scenic", "complete"]:
+	if next_mode == "menu" or (phone_toast and next_mode not in ["riding", "scenic", "complete"]):
 		toast_timer = 0
 		toast_label.hide()
 	mode = next_mode
@@ -244,11 +244,11 @@ func main_menu() -> void:
 		_button(box, "Story debug", func(): action_requested.emit("story_debug"))
 	if not OS.has_feature("web"):
 		_button(box, "Quit", func(): action_requested.emit("quit"))
-	var place := _paragraph(screen, "01  /  THE FIRST STRETCH", 18, CREAM)
+	var place := _paragraph(screen, "A JOURNEY ACROSS JAVA", 18, CREAM)
 	place.anchor_left = 0.53
 	place.anchor_right = 0.97
 	place.anchor_top = 0.73
-	var trip := _paragraph(screen, "JAKARTA  —  KARAWANG", 30, CREAM)
+	var trip := _paragraph(screen, "JAKARTA  —  BANYUWANGI", 30, CREAM)
 	trip.anchor_left = 0.53
 	trip.anchor_right = 0.97
 	trip.anchor_top = 0.80
@@ -277,7 +277,7 @@ func _build_hud() -> void:
 	var info := VBoxContainer.new()
 	top.add_child(info)
 	_label(info, "P U L A N G    /    EASTBOUND", 15, GOLD)
-	route_label = _label(info, "Jakarta → Karawang", 22)
+	route_label = _label(info, "Jakarta > Karawang", 22)
 	toolbar = HBoxContainer.new()
 	toolbar.grow_horizontal = Control.GROW_DIRECTION_BEGIN
 	hud.add_child(toolbar)
@@ -286,7 +286,7 @@ func _build_hud() -> void:
 	toolbar.offset_left = -428
 	toolbar.offset_right = -30
 	toolbar.offset_top = 28
-	for item in [["Phone", "phone"], ["Journal", "journal"], ["Route", "map"], ["Ⅱ", "pause"]]:
+	for item in [["Phone", "phone"], ["Journal", "journal"], ["Route", "map"], ["Pause", "pause"]]:
 		var button := _button(toolbar, item[0], func(): action_requested.emit(item[1]))
 		if item[1] == "phone":
 			phone_button = button
@@ -321,7 +321,7 @@ func riding() -> void:
 func update_hud(kph: float, distance: float, context: String, can_interact: bool, commute: bool) -> void:
 	speed_label.text = "%02d" % int(kph)
 	status_label.text = "KM/H   ·   FUEL %.1f L" % GameState.bike.fuel
-	route_label.text = "Jakarta · Morning commute" if commute else "Karawang    ·    %.1f km ahead" % (maxf(0, 1700 - distance) / 1000)
+	route_label.text = "Jakarta · Morning commute" if commute else "%s    ·    %.1f km ahead" % [chapter_data.end_location, maxf(0, 1700 - distance) / 1000]
 	prompt.text = context
 	prompt.visible = not context.is_empty()
 	prompt.disabled = not can_interact
@@ -523,7 +523,7 @@ func _input(event: InputEvent) -> void:
 func show_credits() -> void:
 	_clear("credits")
 	var box := _panel("PULANG", "A long ride home across Java.")
-	_paragraph(box, "Based on the PULANG GDD v2, TDD v1, and Development Roadmap v1.\n\nBuilt with Godot Engine 4.7.2.\nOriginal low-poly geometry and synthesized placeholder audio created for this project.\nGodot's bundled font: Noto Sans.\n\nMotorcycle design reference: Suzuki Thunder 250 (2000). No affiliation or endorsement.\n\nThis playable development slice follows Raka from Jakarta to his first night in Karawang. The remaining journey is still in development.", 22)
+	_paragraph(box, "Based on the PULANG GDD v2, TDD v1, and Development Roadmap v1.\n\nBuilt with Godot Engine 4.7.2.\nOriginal low-poly geometry and synthesized placeholder audio created for this project.\nGodot's bundled font: Noto Sans.\n\nMotorcycle design reference: Suzuki Thunder 250 (2000). No affiliation or endorsement.\n\nThis development campaign follows Raka from Jakarta to Banyuwangi and the next morning at home. Character performances, environments, audio and pacing are still being developed.", 22)
 	_button(box, "Back", func(): action_requested.emit("back"), "back")
 
 func show_phone(section: String = "Home", photo_id: String = "") -> void:
@@ -684,11 +684,12 @@ func _debug_flags(query: String) -> String:
 func show_map(from_phone: bool = false) -> void:
 	_clear("map")
 	phone_origin = from_phone
-	var box := _panel("A long way east", "JAKARTA → BANYUWANGI   /   Your journey across Java")
+	var box := _panel("A long way east", "JAKARTA > BANYUWANGI   /   Your journey across Java")
 	box.add_child(RouteMap.new())
-	_paragraph(box, "Today: Jakarta → Karawang", 28, GOLD)
-	_paragraph(box, "Fuel station  ·  Rice-field turnout  ·  Sari's warung  ·  Guesthouse\n\nStop by the warung when the rain comes. The guesthouse is just beyond the fields.", 22)
-	_paragraph(box, "Beyond this chapter\n" + "  →  ".join(chapter_data.route.slice(2)), 18, MUTED)
+	_paragraph(box, "Today: %s > %s" % [chapter_data.start_location, chapter_data.end_location], 28, GOLD)
+	for stop in chapter_data.stops:
+		_paragraph(box, "%s · %d m" % [stop.title, stop.distance], 20)
+	_paragraph(box, "Across Java\n" + "  >  ".join(chapter_data.route), 18, MUTED)
 	if from_phone:
 		_button(box, "Back to phone", func(): show_phone(), "back")
 	else:
@@ -698,14 +699,17 @@ func show_journal(write: bool = false, from_phone: bool = false) -> void:
 	_clear("reflection" if write else "journal")
 	phone_origin = from_phone and not write
 	var data: Dictionary = chapter_data.journal
-	var box := _panel("The travel journal", "KARAWANG   /   The first night")
+	var box := _panel("The travel journal", "%s   /   %s" % [chapter_data.end_location.to_upper(), chapter_data.display_name])
 	if write:
 		_paragraph(box, data.prompt, 27, GOLD)
 		for option in data.options:
 			_button(box, option.text, func(): journal_selected.emit(option.id, option.text), "confirm")
-	elif GameState.journal.has(data.id):
-		_paragraph(box, data.prompt, 24, GOLD)
-		_paragraph(box, GameState.journal[data.id].text, 26)
+	elif not GameState.journal.is_empty():
+		for chapter_id in Campaign.CHAPTERS:
+			for entry in GameState.journal.values():
+				if entry.get("chapter_id", "karawang") == chapter_id:
+					_paragraph(box, chapter_id.capitalize(), 22, GOLD)
+					_paragraph(box, entry.text, 24)
 	else:
 		_paragraph(box, "An empty page. I'll write something when I stop for the night.", 25, MUTED)
 	if not write:
@@ -769,7 +773,7 @@ func show_dialogue(line: Dictionary) -> void:
 	_label(dialogue_box, line.get("speaker", ""), 19, GOLD)
 	dialogue_label = _paragraph(dialogue_box, line.get("text", ""), GameState.settings.text_size)
 	if line.choices.is_empty():
-		_button(dialogue_box, "Continue  →", func(): DialogueManager.advance()).grab_focus()
+		_button(dialogue_box, "Continue  >", func(): DialogueManager.advance()).grab_focus()
 	else:
 		for i in range(line.choices.size()):
 			var button := _button(dialogue_box, line.choices[i].text, func(): DialogueManager.advance(i), "confirm")
@@ -789,9 +793,13 @@ func show_scenic() -> void:
 
 func show_end() -> void:
 	_clear("complete")
-	var box := _panel("One day closer to home", "KARAWANG   /   The first night")
-	_paragraph(box, "The gloves hang by the window. The bike is under a roof.\n\nI tell Mom I've stopped for the night.\n\nTomorrow, east again.", 27)
-	_paragraph(box, "End of the first playable chapter.\nRaka's journey continues toward Banyuwangi in the chapters to come.", 20, GOLD)
+	var finished: bool = chapter_data.get("next_chapter_id", "").is_empty()
+	var box := _panel("There is time" if finished else "One day closer to home", "%s   /   %s" % [chapter_data.end_location.to_upper(), chapter_data.display_name])
+	_paragraph(box, "The bike is outside. Breakfast is on the table.\n\nI don't have all the answers. I can be here anyway." if finished else "The bike can rest. So can I.\n\nI'll carry a little of this place with me.", 27)
+	if not finished:
+		_button(box, "The next morning" if GameState.chapter == "banyuwangi" else "Continue the journey", func(): action_requested.emit("next_chapter"), "confirm")
+	else:
+		_paragraph(box, "PULANG\nThank you for taking the journey.", 26, GOLD)
 	_button(box, "Read the journal", func(): action_requested.emit("journal"))
 	_button(box, "Return to title", func(): action_requested.emit("menu"))
 

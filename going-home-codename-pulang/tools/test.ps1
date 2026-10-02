@@ -1,7 +1,7 @@
 param(
     [string]$Godot = 'D:\Godot_v4.7.2-stable_win64.exe\Godot_v4.7.2-stable_win64_console.exe',
     [switch]$Visual,
-    [ValidateSet('Content', 'Development', 'Toolkit', 'Authoring', 'Story', 'Practice', 'Cockpit', 'RoadRender', 'Lifecycle', 'TouchLayout', 'Input', 'Narrative', 'Mood', 'Audio', 'Cinematic', 'CinematicAudio', 'Phone', 'Interface', 'All')][string]$Suite = 'All',
+    [ValidateSet('Content', 'CampaignStaging', 'NativeJourney', 'Campaign', 'Development', 'Toolkit', 'Authoring', 'Story', 'Practice', 'Cockpit', 'RoadRender', 'Lifecycle', 'TouchLayout', 'Input', 'Narrative', 'Mood', 'Audio', 'Cinematic', 'CinematicAudio', 'Phone', 'Interface', 'All')][string]$Suite = 'All',
     [string]$Python = 'python',
     [ValidateRange(1, 100)][int]$SoakCycles = 3,
     [switch]$StoryDebug,
@@ -26,6 +26,10 @@ try {
     if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
     if (Select-String -Path (Join-Path $testStorage 'import.log') -Pattern 'SCRIPT ERROR:|Parse Error:|Compile Error:' -Quiet) { exit 1 }
     $scenes = @()
+    # Long no-teleport acceptance ride is explicit; keep All useful for iteration.
+    if ($Suite -eq 'NativeJourney') { $scenes += 'NativeJourneyTests' }
+    if ($Suite -in @('CampaignStaging', 'All')) { $scenes += 'CampaignStagingTests' }
+    if ($Suite -in @('Campaign', 'All')) { $scenes += 'CampaignTests' }
     if ($Suite -in @('Development', 'All')) { $scenes += 'DevelopmentTests' }
     if ($Suite -in @('Toolkit', 'All')) { $scenes += 'ToolkitTests' }
     if ($Suite -in @('Authoring', 'All')) { $scenes += 'AuthoringTests' }
@@ -46,6 +50,7 @@ try {
     foreach ($scene in $scenes) {
         $logPath = Join-Path $testStorage ($scene + '.log')
         $frameBudget = if ($scene -eq 'LifecycleTests') { [string](3600 * $SoakCycles + 600) } else { '60000' }
+        if ($scene -eq 'NativeJourneyTests') { $frameBudget = '300000' }
         $testArgs = @('--path', $projectRoot, '--log-file', $logPath, '--quit-after', $frameBudget)
         if (-not $Visual) { $testArgs += @('--headless', '--fixed-fps', [string]$FixedFps) }
         $testArgs += ('res://tests/' + $scene + '.tscn')

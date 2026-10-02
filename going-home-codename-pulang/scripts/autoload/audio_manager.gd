@@ -167,11 +167,11 @@ func update_mix(delta: float) -> void:
 	_set_bus_level("Music", GameState.settings.music)
 	_set_bus_level("SFX", GameState.settings.sfx)
 	var suspended := get_tree().paused or focus_suspended
-	music.stream_paused = suspended
-	ignition.stream_paused = suspended
-	cooldown.stream_paused = suspended
+	set_player_paused(music, suspended)
+	set_player_paused(ignition, suspended)
+	set_player_paused(cooldown, suspended)
 	for player in ambient_players():
-		player.stream_paused = focus_suspended
+		set_player_paused(player, focus_suspended)
 	if not suspended and not current_cue.is_empty():
 		cue_remaining = maxf(0, cue_remaining - delta)
 		if cue_remaining <= 0:
@@ -193,6 +193,12 @@ func update_mix(delta: float) -> void:
 
 func rain_volume_target() -> float:
 	return -60.0 if rain_target <= 0 else -20.0 + linear_to_db(clampf(rain_target, 0.001, 1))
+
+func set_player_paused(player: AudioStreamPlayer, paused: bool) -> void:
+	# The Web sample backend recreates an AudioBuffer on unpause. Repeating the
+	# setter each frame can exhaust browser memory even with a fixed player pool.
+	if player.stream_paused != paused:
+		player.stream_paused = paused
 
 func _exit_tree() -> void:
 	for player in ambient_players() + [music, ignition, cooldown, ui_player]:

@@ -1,0 +1,194 @@
+{
+  "chapter_id": "epilogue",
+  "display_name": "The next morning",
+  "theme": "Permission",
+  "start_location": "Banyuwangi",
+  "end_location": "Family home",
+  "main_route_length": 1800,
+  "next_chapter_id": "",
+  "mandatory_events": [
+    "encounter",
+    "rest"
+  ],
+  "biome": "home",
+  "road_shape": {
+    "bend": 8,
+    "wavelength": 350,
+    "detail": 1,
+    "rise": 0.4,
+    "grade_length": 420,
+    "phase": 0.6
+  },
+  "encounter_speaker": "Dad",
+  "audio_context": "warung",
+  "atmosphere": [
+    {
+      "distance": 0,
+      "profile": "morning"
+    }
+  ],
+  "stops": [
+    {
+      "id": "fuel",
+      "distance": 390,
+      "label": "Refuel",
+      "title": "Fuel and a short break",
+      "text_keys": {
+        "label": "chapters.epilogue.stops.0.label",
+        "title": "chapters.epilogue.stops.0.title"
+      }
+    },
+    {
+      "id": "scenic",
+      "distance": 720,
+      "label": "Switch off engine",
+      "title": "A place to pause",
+      "text_keys": {
+        "label": "chapters.epilogue.stops.1.label",
+        "title": "chapters.epilogue.stops.1.title"
+      }
+    },
+    {
+      "id": "encounter",
+      "distance": 1130,
+      "label": "Stop here",
+      "title": "The next morning",
+      "text_keys": {
+        "label": "chapters.epilogue.stops.2.label",
+        "title": "chapters.epilogue.stops.2.title"
+      }
+    },
+    {
+      "id": "rest",
+      "distance": 1700,
+      "label": "Rest and reflect",
+      "title": "A quiet page",
+      "text_keys": {
+        "label": "chapters.epilogue.stops.3.label",
+        "title": "chapters.epilogue.stops.3.title"
+      }
+    }
+  ],
+  "journal": {
+    "id": "journal.epilogue.reflection",
+    "prompt": "What can I allow myself this morning?",
+    "options": [
+      {
+        "id": "a",
+        "text": "I can be here without having all the answers.",
+        "text_keys": {
+          "text": "chapters.epilogue.journal.options.0.text"
+        }
+      },
+      {
+        "id": "b",
+        "text": "There is time for breakfast before the next decision.",
+        "text_keys": {
+          "text": "chapters.epilogue.journal.options.1.text"
+        }
+      }
+    ],
+    "text_keys": {
+      "prompt": "chapters.epilogue.journal.prompt"
+    }
+  },
+  "route": [
+    "Jakarta",
+    "Karawang",
+    "Cirebon",
+    "Tegal",
+    "Pekalongan",
+    "Semarang",
+    "Salatiga",
+    "Solo",
+    "Ngawi",
+    "Madiun",
+    "Kediri",
+    "Malang",
+    "Lumajang",
+    "Jember",
+    "Banyuwangi"
+  ],
+  "arrival_shots": [
+    {
+      "camera": [
+        8,
+        3,
+        9
+      ],
+      "target": [
+        0,
+        1,
+        -2
+      ],
+      "duration": 8,
+      "text": "",
+      "action": "",
+      "text_keys": {
+        "text": "chapters.epilogue.arrival_shots.0.text"
+      }
+    },
+    {
+      "camera": [
+        4.5,
+        1.9,
+        1.8
+      ],
+      "target": [
+        2.7,
+        1.35,
+        2.8
+      ],
+      "duration": 7,
+      "text": "",
+      "action": "bike",
+      "text_keys": {
+        "text": "chapters.epilogue.arrival_shots.1.text"
+      }
+    },
+    {
+      "camera": [
+        0,
+        1.8,
+        5
+      ],
+      "target": [
+        0,
+        1,
+        1.7
+      ],
+      "duration": 6,
+      "text": "",
+      "action": "",
+      "text_keys": {
+        "text": "chapters.epilogue.arrival_shots.2.text"
+      }
+    }
+  ],
+  "closing_shots": [
+    {
+      "camera": [
+        8,
+        3,
+        10
+      ],
+      "target": [
+        0,
+        1,
+        -1
+      ],
+      "duration": 12,
+      "text": "",
+      "action": "enter",
+      "text_keys": {
+        "text": "chapters.epilogue.closing_shots.0.text"
+      }
+    }
+  ],
+  "text_keys": {
+    "display_name": "chapters.epilogue.display_name",
+    "encounter_speaker": "chapters.epilogue.encounter_speaker",
+    "end_location": "chapters.epilogue.end_location",
+    "start_location": "chapters.epilogue.start_location"
+  }
+}

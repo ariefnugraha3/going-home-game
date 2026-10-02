@@ -1,10 +1,10 @@
 # M5 opening cinematic review
 
-The current opening is a blocking prototype with 30 authored shots, not final character animation or an accepted vertical slice. All captions and device text are English. Raka remains competent, loses his role through restructuring, has professional alternatives, and chooses to go home.
+The current opening is a blocking prototype with 36 authored shots, not final character animation or an accepted vertical slice. All captions and device text are English. Raka remains competent, loses his role through restructuring, has professional alternatives, and chooses to go home.
 
 ## Play the opening
 
-Begin a new journey, watch the apartment and parking shots, ride to the office, finish the restructuring conversation, watch the sign-out/evening sequence, answer Mom, and watch packing/departure. The shot durations total 136 seconds: morning 24, office 19, sign-out 11, evening 23, departure 59. Dialogue, commute, transitions and pauses add to this time; it is not a measured player-session length.
+Begin a new journey, watch the apartment and parking shots, ride to the office, finish the restructuring conversation, watch the sign-out/evening sequence, answer Mom, and watch packing/departure. The shot durations total 167 seconds: morning 24, office 19, sign-out 11, evening 23, departure 90. Dialogue, commute, transitions and pauses add to this time; it is not a measured player-session length.
 
 Hold Space for more than 0.8 seconds or select Skip scene. This finishes the current sequence, not the whole prologue. Pause freezes the shot clock and movement. Reduced camera motion makes camera travel static; the departing motorcycle still moves through the set.
 
@@ -58,7 +58,7 @@ Automated checks cover start/mid/end root position, facing, deterministic backwa
 
 ## Packing performance pass
 
-The existing five-second `departure/packing` insert now shows a folded raincoat lifted over the bag wall, lowered into the opening and released, followed by the right hand closing the flap. Clothes, charger and toolkit are preplaced inside. The following route insert retains the closed bag and the laptop on the desk. The badge, label and lanyard hide together. No extra shots, sounds or save fields are added.
+The existing five-second `departure/packing` insert shows a folded raincoat lifted over the bag wall, lowered into the opening and released, followed by the right hand closing the flap. Clothes, charger and toolkit remain inside after the three supply inserts described below. The following route insert retains the closed bag and the laptop on the desk. The badge, label and lanyard hide together. No save fields are added.
 
 `PackingProps` owns the replaceable geometry and samples absolute prop transforms. `CinematicActor.reach_hand` solves the upper arm/forearm against sampled contact points. The director calls both after the actor clip; there is no item reparenting, tween, physics simulation or independent timer. The reach clamps targets outside the blocking arm's length. One hundred and one samples check raincoat grip (within 2 mm), flap contact during closure and clearance above the bag's side wall. These checks cover authored contact points, not all mesh intersections or production finger/cloth contact.
 
@@ -68,7 +68,19 @@ The Cinematic suite covers open/closed endpoints, ordered placement/closure, pau
 - [ ] Review hand/forearm visibility, elbow shape and mesh contact on phone-size framing and actual Web/Android builds.
 - [ ] Replace blocking raincoat/bag/rig assets, add finger grips and cloth deformation, and record final fabric/fastener foley.
 - [x] Add laptop stowage after route planning, as described below.
-- [ ] Add remaining item placement and fastening luggage to the motorcycle.
+- [x] Add clothes, charger and toolkit placement before the raincoat.
+- [ ] Add preparation movements, transitions to parking and routing luggage straps around the motorcycle frame.
+
+## Clothes, charger and toolkit pass
+
+Three three-second inserts (`packing_clothes`, `packing_charger`, `packing_toolkit`) precede the raincoat shot. Raka reaches, lifts above the bag wall, transfers, lowers and releases each item. Fold edges, bundled charging lead and tool-roll bands distinguish the props. The same three nodes remain inside through raincoat packing, route planning and laptop stowage. Clothes sit at the back-left and the raincoat at the front-left, avoiding their former overlapping placement.
+
+`PackingProps.sample_supplies` reconstructs all waiting, active and packed items from the selected insert and its sampled progress. Editorial cuts reposition Raka and his chair beside the bag; the opposing camera angles expose each hand while keeping the upright flap away from his head. Moving the chair between inserts is not animated. One existing fabric cue plays at 1.5 seconds in each insert, synchronized with the eased transfer motion. Three new stable English keys cover captions; existing keys remain unchanged.
+
+The Cinematic suite checks 101 poses per insert for hand contact within 2 mm, table/bag-wall/item clearance, ordered placement, head/flap separation, caption framing and node stability. Raincoat regression also checks clearance from the packed supplies. Pause/focus, backward seek, reset, reduced motion, natural prop continuity, all-shot Skip and journey-state isolation are covered. Native captures: `supplies_ready_0.png` through `supplies_ready_2.png`, `supplies_lift_0.png` through `supplies_lift_2.png`, and `supplies_stowed_0.png` through `supplies_stowed_2.png` in `tests/screenshots/`.
+
+- [ ] Review the three short inserts at natural speed on desktop and phone-size displays; assess readability and camera cuts.
+- [ ] Replace blocking meshes/rigs with final cloth, fingers and grip deformation; review complete mesh contacts and record final foley.
 
 ## Helmet preparation pass
 
@@ -130,6 +142,43 @@ The Cinematic suite samples 101 times to check palm/cloth contact, modeled surfa
 - [ ] Add standing-position transitions and cloth retrieval/storage, then replace synthesized cloth with recorded wiping foley.
 - [ ] Inspect both cloth and caption readability at phone sizes and in real Web/Android builds.
 
+## Closed-bag table pickup pass
+
+The six-second `departure/luggage_pickup` shot follows laptop stowage. Raka is standing in front of the table after an editorial cut, with his chair moved aside. He reaches both sides of the closed bag, lifts it vertically by 21 cm, draws it 38 cm toward his body and finishes upright holding it. The original bag, flap, raincoat, clothes, charger and toolkit move as one assembly; the closed laptop follows the same offset while retaining its position inside. No contents are duplicated or left on the desk.
+
+`PackingProps.sample_pickup` uses the director's sampled progress for lift, draw, torso/shoulder reach and hand contact. All other packing shots reset the assembly offset. Re-entering the route restores the desk laptop, chair and actor. The subsequent cut releases the apartment stage and starts the established parking carry. Standing up, moving the chair, traveling downstairs and changing the bag's carrying orientation across that cut remain unanimated.
+
+One hundred and one samples check two-hand contact within 2 mm, packed-item continuity, closed flap/laptop, stationary feet, lift-before-draw order, table/torso clearance and projected head/feet/bag positions. Pause/focus, backward seek, direct-entry resets, reduced motion, natural stage cleanup, all-shot Skip and save isolation are covered. Two existing fabric cues play at 2.3 seconds during the lift and 3.7 seconds during the draw. Native captures: `bag_pickup_ready.png`, `bag_pickup_lift.png`, `bag_pickup_draw.png`, `bag_pickup_held.png` in `tests/screenshots/`.
+
+- [x] Add the bounded table-pickup prototype with all packed contents.
+- [ ] Animate standing/chair preparation and the apartment-to-parking transition; refine weight, full mesh contact, fingers and cloth with production assets.
+- [ ] Review natural-speed pacing, recorded foley and actual Web/Android framing.
+
+## Luggage carrying and loading pass
+
+The eight-second `departure/luggage_loading` insert follows table pickup and precedes buckle threading and strap checks. Raka enters already holding the closed bag, walks 1.15 meters toward the motorcycle, plants his feet, moves the bag above the rear seat, lowers it, releases both hands and returns upright. The same parking luggage node follows both hands and finishes at its canonical seat anchor. The threading shot retains that position; loosely draped bands appear at the editorial cut with their upper ends outside the buckles. The trip downstairs and routing straps around the frame remain unanimated.
+
+`CinematicLuggage.sample_loading` samples the existing walk clip, root travel, mild shoulder reach, hand targets and bag placement from the shared shot clock. Attachment bands/buckles are grouped separately and hidden during carrying. Normal shots restore the bag anchor and rigging, including direct entry, backward seek from the moving departure shot and Skip. One fabric cue accompanies carrying at 2.0 seconds; another accompanies seat placement at 5.9 seconds. No physical cargo simulation, additional save fields or asset copies are introduced.
+
+One hundred and one samples check both hand grips within 2 mm, bag clearance above seat height and in front of the torso, stationary motorcycle, planted feet during lowering, head/feet/luggage framing and stable node count. Pause/focus, rewind, reduced motion, final seat/strap continuity and journey isolation are covered alongside all-shot Skip and audio regressions. Native captures: `luggage_carry_start.png`, `luggage_carry_step.png`, `luggage_lowering.png`, `luggage_loaded.png` in `tests/screenshots/`.
+
+- [x] Add the bounded carry and seat-placement prototype before strap checks.
+- [ ] Animate apartment-to-parking transitions and routing straps around the frame.
+- [ ] Review weight, stride/foot sliding, finger grips, complete body contact, cloth deformation and recorded handling/seat foley with production assets.
+- [ ] Review natural-speed pacing and framing on actual Web/Android builds.
+
+## Luggage buckle threading pass
+
+The eight-second `departure/luggage_threading` insert sits between seat placement and tightening. The bands are already draped around the bag/frame at the opening cut, but their upper ends remain outside the buckles. Raka reaches with his left hand, guides the first end into its buckle, feeds it through and releases the emerging tail. His right hand repeats this for the other buckle. Both bands remain slack until the following check; the final webbing and actor pose exactly match that shot's starting state.
+
+`CinematicLuggage.sample_threading` reconstructs both upper segments, emerging tails and hands from sampled progress. The lower frame endpoints, bag, motorcycle and feet remain fixed. Existing meshes are reused; hidden tails reset on every sample and appear only after insertion begins. Two fabric cues at 2.7 and 5.4 seconds accompany feeding. This is a blocking representation of webbing insertion, not simulated fabric or a detailed buckle mechanism.
+
+One hundred and one samples check feeding hand contact within 2 mm, grip clearance from bag/torso, fixed endpoints and feet, caption-safe grip positions and constant node count. Ordered completion before tightening, pause/focus, rewind/reset, reduced motion, exact natural handoff, all-shot Skip and save isolation are covered. Audio checks verify once-only cues and early Skip dropping the second buckle's cue. Native captures: `threading_ready.png`, `threading_first.png`, `threading_second.png`, `threading_complete.png` in `tests/screenshots/`.
+
+- [x] Add sequential threading of both buckles before the existing tightening check.
+- [ ] Animate draping/routing the bands around the frame and bag before threading.
+- [ ] Refine fingers, actual buckle opening, webbing deformation and recorded foley; review pacing and readability on target platforms.
+
 ## Luggage strap check pass
 
 The five-second `departure/straps` shot sets `luggage_check: true` and uses a standing Raka beside the motorcycle, with the seated rider hidden. `CinematicLuggage` builds a closed bag, two bands, buckles and free tails on the bike. The shot begins with the bag already placed and straps threaded around it; Raka pulls each tail, removing the visible slack, then leaves short secured ends. The neutral standing pose reuses the walk clip at time zero; arms reach sampled grip points while the feet stay still. Other parking shots sample the secured luggage state and retain their normal walking/riding behavior.
@@ -140,7 +189,9 @@ Automated checks sample 101 times for two-hand contact, torso clearance at the g
 
 - [ ] Watch the two pulls at natural speed and verify both hands, buckles and short tails read clearly at phone sizes.
 - [ ] Review production finger/forearm contact, strap routing, cloth tension and final recorded buckle/fabric timing. Authored point checks are not a complete mesh or cloth assessment.
-- [ ] Add carrying/placing the bag, initial threading/fastening with production assets; refine the mounting prototype below.
+- [x] Add the bounded luggage carry and seat-placement prototype before this shot.
+- [x] Add the buckle-threading prototype with a continuous handoff into tightening.
+- [ ] Add frame routing and refine strap fastening, pickup, carrying and mounting with production assets.
 - [ ] Repeat pause, Skip, memory continuity and departure framing in actual browser/Android builds.
 
 ## Laptop packing pass
@@ -154,7 +205,7 @@ The Cinematic suite samples 101 times to check lid/two-hand/flap contact, closed
 - [ ] Review the preparation cut, two-handed weight transfer, torso lean and final release at natural speed.
 - [ ] Inspect fingers, elbows, lid and bag contact using production meshes; bounded prop checks are not full character collision or cloth validation.
 - [ ] Review route readability, framing and cue timing on phone-size displays and actual Web/Android builds.
-- [ ] Add preparation movements and remaining item/luggage-fastening performances; replace synthesized fabric with recorded foley.
+- [ ] Add preparation movements and strap routing around the frame; refine fastening and replace synthesized fabric with recorded foley.
 
 ## Waking performance pass
 
@@ -180,8 +231,12 @@ Five original mono 22,050 Hz PCM sketches are synthesized by `tools/generate_cin
 | Morning / room (waking) | fabric | 1.6 s | 0.85 s |
 | Office / HR message | message | 0.25 s | 0.45 s |
 | Night / Mom calls | phone | 0.20 s | 2.6 s |
+| Departure / packing_clothes, packing_charger, packing_toolkit | fabric | 1.5 s in each insert | 0.85 s each |
 | Departure / packing | fabric | 1.6 s and 3.3 s | 0.85 s each |
 | Departure / laptop_packing | fabric | 3.0 s and 6.6 s | 0.85 s each |
+| Departure / luggage_pickup | fabric | 2.3 s and 3.7 s | 0.85 s each |
+| Departure / luggage_loading | fabric | 2.0 s and 5.9 s | 0.85 s each |
+| Departure / luggage_threading | fabric | 2.7 s and 5.4 s | 0.85 s each |
 | Departure / straps | fabric | 1.5 s and 2.8 s | 0.85 s each |
 | Departure / bike_touch | fabric | 1.6 s and 3.0 s | 0.85 s each |
 | Departure / bike_touch | memory_motor | 4.4 s | 4.0 s, across the next two cuts |

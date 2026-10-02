@@ -15,6 +15,10 @@ var elapsed: float = 0
 var chapter_data: Dictionary = {}
 var development_menu: Node
 var development_weather := ""
+var campaign_shots: Array = []
+var campaign_shot := 0
+var campaign_time := 0.0
+var campaign_closing := false
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
@@ -45,6 +49,7 @@ func _ready() -> void:
 	director.caption_changed.connect(ui.show_cinematic)
 	director.finished.connect(_cutscene_finished)
 	DialogueManager.dialogue_finished.connect(_dialogue_finished)
+	DialogueManager.line_changed.connect(_frame_encounter)
 	SaveManager.save_completed.connect(func(): ui.toast("Checkpoint saved"))
 	SaveManager.save_failed.connect(func(reason: String): ui.toast(reason))
 	ui.main_menu()
@@ -58,12 +63,14 @@ func _build_world(city: bool) -> void:
 		world.free()
 	var scene: PackedScene = preload("res://scenes/chapters/Chapter_Prologue.tscn") if city else preload("res://scenes/chapters/Chapter_Karawang.tscn")
 	world = scene.instantiate()
+	world.chapter_data = chapter_data
 	world.process_mode = Node.PROCESS_MODE_PAUSABLE
 	add_child(world)
 	world.build(city)
+	if is_instance_valid(bike): bike.route = world.riding_route
 
 func _set_overview(distance: float) -> void:
-	var center := RoadWorld.center(distance)
+	var center := world.sample_route(distance)
 	overview.position = center + Vector3(11, 5, 12)
 	overview.look_at(center + Vector3(-7, 1, -10))
 	overview.make_current()
@@ -108,7 +115,11 @@ func _on_action(action: String) -> void:
 				ui.main_menu()
 			else: ui.show_pause()
 		"interact": _interact()
-		"skip": director.finish()
+		"skip":
+			if state == "campaign_scene": _finish_campaign_scene()
+			else: director.finish()
+		"next_chapter":
+			if state == "complete": _next_chapter()
 		"menu": _return_to_menu()
 		"recover":
 			if state == "riding":
@@ -149,6 +160,7 @@ func _start_commute() -> void:
 	director.clear_room()
 	_build_world(true)
 	commute = true
+	bike.visual.luggage.visible = false
 	GameState.chapter = "prologue"
 	GameState.checkpoint = "commute"
 	SaveManager.save_game()
@@ -163,15 +175,19 @@ func _start_commute() -> void:
 	ui.toast("Use RIDE and BRAKE · Keep left" if InputModeManager.touch_mode or GameState.settings.touch else "%s to ride · %s to brake · Keep left" % [InputModeManager.key_label("accelerate"), InputModeManager.key_label("brake")])
 	await flow.fade_in()
 
-func _start_road(distance: float = 12.0, save: bool = true) -> void:
+func _start_road(distance: float = 12.0, save: bool = true, chapter_id: String = "karawang") -> void:
 	state = "transition"
 	await flow.fade_out()
 	director.clear_room()
+	chapter_data = Campaign.chapter(chapter_id)
+	ui.chapter_data = chapter_data
 	_build_world(false)
 	commute = false
-	GameState.chapter = "karawang"
+	bike.visual.luggage.visible = chapter_id != "epilogue"
+	GameState.chapter = chapter_id
 	if save:
 		GameState.checkpoint = "road_start"
+		GameState.set_flag("story.%s.entered" % chapter_id)
 		SaveManager.save_game()
 	bike.route_limit = 1735
 	bike.teleport(distance)
@@ -182,11 +198,23 @@ func _start_road(distance: float = 12.0, save: bool = true) -> void:
 	bike.camera.make_current()
 	state = "riding"
 	ui.riding()
-	ui.toast("Jakarta → Karawang · Take your time. Stop wherever you like.")
+	ui.toast("%s > %s · Take your time. Stop wherever you like." % [chapter_data.start_location, chapter_data.end_location])
 	world.set_weather_profile(_road_profile(distance), true)
 	await flow.fade_in()
 
 func _dialogue_finished(id: String) -> void:
+	if id == "campaign_" + GameState.chapter:
+		GameState.checkpoint = "encounter"
+		if GameState.chapter == "tegal":
+			GameState.bike.condition = 1.0
+		SaveManager.save_game()
+		if chapter_data.has("closing_shots"):
+			_start_campaign_scene(true)
+		elif GameState.chapter == "epilogue":
+			_reflect()
+		else:
+			_resume_ride()
+		return
 	match id:
 		"layoff": _play_cutscene("signout")
 		"mother":
@@ -204,32 +232,44 @@ func _dialogue_finished(id: String) -> void:
 			ui.toast("Tank filled · Tire pressure checked")
 			_resume_ride()
 		"guesthouse":
-			GameState.checkpoint = "rest"
-			SaveManager.save_game()
-			state = "reflection"
-			world.set_weather_profile("night")
-			AudioManager.play_music_cue("first_night")
-			ui.show_journal(true)
+			_reflect()
+
+func _reflect() -> void:
+	GameState.checkpoint = "rest"
+	SaveManager.save_game()
+	state = "reflection"
+	if GameState.chapter != "epilogue": world.set_weather_profile("night")
+	if GameState.chapter == "karawang": AudioManager.play_music_cue("first_night")
+	ui.show_journal(true)
 
 func _interact() -> void:
-	if state != "riding" or commute or not scanner.can_interact(bike):
+	if state != "riding" or commute:
+		return
+	# Input may arrive before this frame's HUD scan, especially after recovery.
+	scanner.scan(bike, world.stops)
+	if not scanner.can_interact(bike):
 		return
 	var stop := scanner.candidate
 	var id: String = stop.id
-	if id == "rest" and not GameState.flags.get("story.karawang.sheltered", false):
-		ui.toast("Stop at Sari's warung first. It's back along the road.")
+	if id == "rest" and not GameState.flags.get(Campaign.encounter_flag(GameState.chapter), false):
+		ui.toast("Stop at Sari's warung first. It's back along the road." if GameState.chapter == "karawang" else "There's still a stop to make. Follow the roadside sign.")
 		bike.teleport(1095)
 		return
 	bike.stop()
-	AudioManager.vehicle_event("stop")
+	if GameState.chapter != "banyuwangi" or id != "encounter": AudioManager.vehicle_event("stop")
 	pending_encounter = id
-	var center := RoadWorld.center(stop.distance)
+	var center := world.sample_route(stop.distance)
 	if id == "scenic":
 		state = "scenic"
 		overview.position = center + Vector3(-8, 2.0, 2)
 		overview.look_at(center + Vector3(-100, 0, -75))
 		overview.make_current()
 		ui.show_scenic()
+	elif id == "encounter":
+		_start_campaign_scene()
+	elif id == "rest" and GameState.chapter != "karawang":
+		_set_overview(1700)
+		_reflect()
 	else:
 		state = "dialogue"
 		overview.position = center + Vector3(-9, 2.3, 10)
@@ -239,8 +279,9 @@ func _interact() -> void:
 
 func _journal_selected(id: String, text: String) -> void:
 	var key: String = chapter_data.journal.id
-	GameState.journal[key] = {"chapter_id": "karawang", "selected_option_id": id, "text": text, "unlocked_at": Time.get_unix_time_from_system()}
-	GameState.set_flag("story.karawang.complete")
+	if state != "reflection": return
+	GameState.journal[key] = {"chapter_id": GameState.chapter, "selected_option_id": id, "text": text, "unlocked_at": Time.get_unix_time_from_system()}
+	GameState.set_flag("story.%s.complete" % GameState.chapter)
 	GameState.checkpoint = "complete"
 	SaveManager.save_game()
 	state = "complete"
@@ -252,13 +293,20 @@ func _restore_checkpoint() -> void:
 		"morning": _play_cutscene("morning")
 		"commute": _start_commute()
 		"departure": _play_cutscene("departure")
-		"road_start": _start_road(12, false)
+		"road_start": _start_road(1095 if GameState.chapter == "epilogue" else 12, false, GameState.chapter)
 		"warung": _start_road(1165, false)
+		"encounter":
+			await _start_road(1165, false, GameState.chapter)
+			if chapter_data.has("closing_shots"):
+				bike.stop()
+				_start_campaign_scene(true)
 		"rest", "complete":
-			await _start_road(1690, false)
+			await _start_road(1690, false, GameState.chapter)
 			bike.stop()
-			world.set_weather_profile("night", true)
+			world.set_weather_profile("morning" if GameState.chapter == "epilogue" else "night", true)
 			_set_overview(1700)
+			if chapter_data.has("closing_shots"):
+				world.encounter_stage.sample(overview, chapter_data.closing_shots.back(), 1)
 			if GameState.checkpoint == "rest":
 				state = "reflection"
 				ui.show_journal(true)
@@ -293,6 +341,8 @@ func _resume() -> void:
 		var line := DialogueManager.current.duplicate(true)
 		line["choices"] = DialogueManager.choices
 		ui.show_dialogue(line)
+	elif state == "campaign_scene":
+		_show_campaign_caption()
 	elif state == "cutscene":
 		var data: Dictionary = director.definitions[director.active_id]
 		var shot: Dictionary = data.shots[director.shot_index]
@@ -344,6 +394,8 @@ func _process(delta: float) -> void:
 	ui.weather.rain = world.rain_amount > 0.01 and state == "riding" and not get_tree().paused
 	bike.headlight.light_energy = world.night_amount * 2.5 if bike.enabled else 0
 	ui.weather.queue_redraw()
+	if state == "campaign_scene" and not get_tree().paused:
+		_tick_campaign_scene(delta)
 	if state != "riding" or get_tree().paused or flow.busy:
 		_advance_phone(delta)
 		return
@@ -361,7 +413,7 @@ func _process(delta: float) -> void:
 		var was_wet := world.wet
 		world.set_weather_profile(profile_id)
 		if world.wet and not was_wet:
-			ui.toast("Rain ahead · There's a warung by the road")
+			ui.toast("Rain ahead · There's shelter by the road")
 	_advance_phone(delta)
 
 func _road_profile(distance: float) -> String:
@@ -377,10 +429,63 @@ func _update_audio_context() -> void:
 	match state:
 		"menu", "transition": AudioManager.set_context("menu")
 		"cutscene": AudioManager.set_context(director.audio_context(), director.stage_id not in ["parking", "memory"])
+		"campaign_scene": AudioManager.set_context(chapter_data.get("audio_context", "fields"), GameState.chapter in ["kediri", "semarang", "pekalongan"])
 		"reflection", "complete": AudioManager.set_context("indoors", true)
 		"dialogue": AudioManager.set_context("warung" if pending_encounter == "warung" else "indoors", true)
 		"scenic": AudioManager.set_context("fields")
-		"riding": AudioManager.set_context(AudioManager.road_context(-bike.position.z, commute))
+		"riding": AudioManager.set_context(AudioManager.road_context(-bike.position.z, commute) if commute or GameState.chapter == "karawang" else chapter_data.get("audio_context", "fields"))
+
+func _next_chapter() -> void:
+	var next_id: String = chapter_data.get("next_chapter_id", "")
+	if next_id.is_empty(): return
+	await _start_road(1095 if next_id == "epilogue" else 12, true, next_id)
+
+func _start_campaign_scene(closing: bool = false) -> void:
+	ui.toast_timer = 0 # Arrival captions own the lower screen, including after a route reminder.
+	campaign_closing = closing
+	campaign_shots = chapter_data.get("closing_shots" if closing else "arrival_shots", [])
+	campaign_shot = 0
+	campaign_time = 0
+	state = "campaign_scene"
+	bike.stop()
+	overview.make_current()
+	_show_campaign_caption()
+	_enter_campaign_shot()
+	_tick_campaign_scene(0)
+
+func _enter_campaign_shot() -> void:
+	# Trigger on entry, never when Resume redraws a caption or Skip samples the end.
+	if campaign_shots[campaign_shot].get("action", "") == "engine_off":
+		AudioManager.vehicle_event("stop")
+
+func _show_campaign_caption() -> void:
+	ui.show_cinematic(chapter_data.end_location, chapter_data.display_name, campaign_shots[campaign_shot].get("text", ""))
+
+func _tick_campaign_scene(delta: float) -> void:
+	campaign_time += delta
+	while campaign_time >= float(campaign_shots[campaign_shot].duration):
+		campaign_time -= float(campaign_shots[campaign_shot].duration)
+		campaign_shot += 1
+		if campaign_shot >= campaign_shots.size():
+			_finish_campaign_scene()
+			return
+		_show_campaign_caption()
+		_enter_campaign_shot()
+	var shot: Dictionary = campaign_shots[campaign_shot]
+	world.encounter_stage.sample(overview, shot, clampf(campaign_time / float(shot.duration), 0, 1))
+
+func _finish_campaign_scene() -> void:
+	if state != "campaign_scene": return
+	world.encounter_stage.sample(overview, campaign_shots.back(), 1)
+	if campaign_closing:
+		_reflect()
+	else:
+		state = "dialogue"
+		DialogueManager.start("campaign_" + GameState.chapter)
+
+func _frame_encounter(line: Dictionary) -> void:
+	if state == "dialogue" and DialogueManager.active_id == "campaign_" + GameState.chapter and is_instance_valid(world.encounter_stage):
+		world.encounter_stage.frame_dialogue(overview, line.get("speaker", "Raka"))
 
 func _advance_phone(delta: float) -> void:
 	# Evaluate after road events: a weather toast or new cutscene owns this frame first.

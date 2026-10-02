@@ -10,8 +10,9 @@ func _draw() -> void:
 	for i in range(15):
 		points.append(Vector2(25 + i * (size.x - 50) / 14, 68 + sin(i * 0.5) * 28 + i * 3))
 	draw_polyline(points, Color("526f60"), 3, true)
+	var progress := mini(14, Campaign.CHAPTERS.find(GameState.chapter) + 1)
 	for i in range(15):
-		draw_circle(points[i], 7 if i < 2 else 4, Color("d8ad71") if i < 2 else Color("829384"))
+		draw_circle(points[i], 7 if i == progress else 4, Color("d8ad71") if i <= progress else Color("829384"))
 	var font := ThemeDB.fallback_font
 	draw_string(font, points[0] + Vector2(-15, -23), "Jakarta", HORIZONTAL_ALIGNMENT_LEFT, -1, 17, Color("f2e6ce"))
 	draw_string(font, points[1] + Vector2(-10, 33), "Karawang", HORIZONTAL_ALIGNMENT_LEFT, -1, 17, Color("eac68c"))

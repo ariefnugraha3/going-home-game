@@ -70,7 +70,7 @@ func stop() -> void:
 
 func _process(_delta: float) -> void:
 	for player in voices:
-		player.stream_paused = get_tree().paused or AudioManager.focus_suspended
+		AudioManager.set_player_paused(player, get_tree().paused or AudioManager.focus_suspended)
 
 func _exit_tree() -> void:
 	stop()

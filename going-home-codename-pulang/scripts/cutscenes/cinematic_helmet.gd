@@ -9,6 +9,7 @@ static func pickup(actor: CinematicActor, bike: Node3D, progress: float) -> void
 		sample(actor, bike, 0) # Exact handoff into the existing donning shot.
 		return
 	CinematicMount.sample(actor, bike, 0)
+	actor.hair.visible = true
 	actor.body.position = Vector3(0.24, 0.10, -0.12).lerp(Vector3(0, 0.28, 0), smoothstep(0.35, 0.85, p))
 	var held := Vector3(-0.58, 1.26, -0.04)
 	var point := PARKED.lerp(Vector3(0, 1.26, PARKED.z), smoothstep(0.30, 0.50, p))
@@ -36,6 +37,7 @@ static func sample(actor: CinematicActor, bike: Node3D, progress: float) -> void
 	actor.helmet.position = actor.helmet.position.lerp(worn, smoothstep(0.56, 0.74, p))
 	if p >= 0.74:
 		actor.helmet.position = worn
+	actor.hair.visible = p < .70
 	actor.chin_strap.position = actor.helmet.position - CinematicChinStrap.WORN
 	actor.chin_strap.sample(0)
 	var shrug := 0.17 * smoothstep(0.12, 0.36, p) * (1.0 - smoothstep(0.56, 0.84, p))

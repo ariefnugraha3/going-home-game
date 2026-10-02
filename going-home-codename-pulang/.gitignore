@@ -1,9 +1,12 @@
 # Godot 4+ specific ignores
 .godot/
 /android/
-export/
-tests/screenshots/
+export/*
+!export/.gdignore
+tests/screenshots/*
+!tests/screenshots/.gdignore
 *.keystore
 *.jks
 .godot-test/
+.godot-export/
 __pycache__/

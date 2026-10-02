@@ -44,12 +44,11 @@ class ContentValidationTests(unittest.TestCase):
     def rejects(self, text):
         self.assertIn(text, "\n".join(self.report()["errors"]))
 
-    def test_current_content_and_known_boundary(self):
+    def test_current_content_and_complete_route(self):
         report = self.report()
         self.assertEqual(report["errors"], [])
-        self.assertEqual(report["files"], 12)
-        self.assertEqual(len(report["warnings"]), 1)
-        self.assertIn("Cirebon", report["warnings"][0])
+        self.assertEqual(report["files"], 27)
+        self.assertEqual(report["warnings"], [])
         self.assertIn("data/dialogue/slice.json#/mother/nodes/home/text", report["text_inventory"])
 
     def test_cli_json_and_strict_exit_status(self):
@@ -58,7 +57,7 @@ class ContentValidationTests(unittest.TestCase):
             self.assertEqual(validator.main(["--project", str(self.root), "--format", "json"]), 0)
         self.assertEqual(json.loads(output.getvalue())["errors"], [])
         with contextlib.redirect_stdout(io.StringIO()):
-            self.assertEqual(validator.main(["--project", str(self.root), "--strict"]), 1)
+            self.assertEqual(validator.main(["--project", str(self.root), "--strict"]), 0)
 
     def test_read_only_and_deterministic(self):
         def fingerprints():
@@ -204,8 +203,28 @@ class ContentValidationTests(unittest.TestCase):
 
     def test_localization_coverage(self):
         report = self.report()
-        self.assertEqual(len(report["localization_keys"]), 196)
+        self.assertEqual(len(report["localization_keys"]), 616)
         self.assertTrue(all("/type" not in field and "/direction" not in field for field in report["localization_keys"]))
+
+    def test_campaign_cycle(self):
+        self.edit("chapters/epilogue.json", lambda d: d.update(next_chapter_id="karawang"))
+        self.rejects("campaign route must terminate")
+
+    def test_campaign_missing_dialogue(self):
+        self.edit("dialogue/campaign.json", lambda d: d.pop("campaign_kediri"))
+        self.rejects("unknown reference: 'campaign_kediri'")
+
+    def test_campaign_bad_shot(self):
+        self.edit("chapters/ngawi.json", lambda d: d["arrival_shots"][0].update(duration=0))
+        self.rejects("expected finite number")
+
+    def test_road_shape_zero_wavelength(self):
+        self.edit("chapters/salatiga.json", lambda d: d["road_shape"].update(wavelength=0))
+        self.rejects("expected finite number")
+
+    def test_road_shape_wrong_type(self):
+        self.edit("chapters/malang.json", lambda d: d.update(road_shape=[]))
+        self.rejects("expected an object")
 
     def test_missing_text_binding(self):
         self.edit("dialogue/slice.json", lambda d: d["mother"]["nodes"]["home"]["text_keys"].pop("text"))

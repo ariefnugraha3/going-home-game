@@ -12,6 +12,8 @@ var choices: Array = []
 
 func _ready() -> void:
 	content = ContentText.load_bundle(content_path)
+	if content_path == "res://data/dialogue/slice.json":
+		content.merge(ContentText.load_bundle("res://data/dialogue/campaign.json"))
 
 func start(id: String) -> void:
 	if not content.has(id):

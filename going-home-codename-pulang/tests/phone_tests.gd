@@ -77,6 +77,7 @@ func _ready() -> void:
 	add_child(app)
 	await frames(4)
 	app.set_process(false)
+	GameState.checkpoint = "road_start"
 	await app._start_road(1100, false)
 	GameState.set_flag("story.prologue.laid_off")
 	GameState.set_flag("story.prologue.departed")

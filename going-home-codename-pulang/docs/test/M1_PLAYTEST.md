@@ -1,6 +1,6 @@
 # M1 riding comfort playtest
 
-Status: **human review pending**. The practice road and automated regression checks are implemented. Neither automated driving nor the session report proves that riding is comfortable or enjoyable.
+Status: **human review pending**. The current acceptance scope is native Godot desktop; Web and Android are deferred by the user. The practice road and automated regression checks are implemented. Neither automated driving nor the session report proves that riding is comfortable or enjoyable.
 
 ## Setup
 
@@ -30,7 +30,7 @@ Repeat the road using **Ride the road again**. Record actual riding time; pauses
 - [ ] Repeat bends, braking, and bumps with **Limit to 30 FPS** enabled.
 - [ ] Compare clear skies and rain for road visibility and audio balance.
 - [ ] Approach the right-lane test barrier at low speed: expect a forgiving stop, then recover with Backspace or the pause menu.
-- [ ] Repeat using touch controls, including steering and throttle held together, brake, pause, and release.
+- [ ] Deferred platform check: repeat using physical touch controls, including simultaneous steering/throttle, brake, pause and release.
 
 ## Record evidence
 
@@ -54,4 +54,4 @@ Add these **human notes** alongside the report:
 
 ## Acceptance remains open
 
-M1 can only be accepted after human review confirms understandable controls, pleasant cruising, comfortable camera movement, predictable stopping, and stable collision behavior. Target-platform acceptance also needs actual Web and Android builds; desktop native and fixed-cadence headless runs do not replace those checks.
+M1 desktop acceptance requires human review of understandable controls, pleasant cruising, comfortable camera movement, predictable stopping and stable collision behavior. The complete native campaign automation now covers 23.264 km without recovery or blocking contacts, but does not answer those subjective questions. Web/Android acceptance is deferred and will require separate actual-platform evidence when resumed.

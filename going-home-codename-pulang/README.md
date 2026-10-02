@@ -330,8 +330,9 @@ Based on the [Development Roadmap v1](../PULANG_Development_Roadmap_v1.md). Stat
 - [x] Configure Godot 4.7.2, GDScript, Compatibility renderer, landscape baseline, and project folders.
 - [x] Implement boot, main menu, core services, separate settings persistence, and setup documentation.
 - [x] Add Web and Android Debug export presets; export and boot the resource PCK locally.
-- [ ] Install matching export templates and configure the Android JDK/SDK.
-- [ ] Launch actual Web and Android builds and verify setup on a clean machine.
+- [x] Install matching export templates and configure isolated Android JDK/SDK tooling; earlier Web and signed debug APK exports succeeded.
+- [ ] Deferred for the current native Godot scope: launch actual Web/Android builds and verify setup on a clean machine.
+- [x] Document the current full native campaign, F5 launch and remaining acceptance work in the [desktop guide](docs/DESKTOP_PLAY.md); Web/Android work is deferred by request.
 
 ### M1 — Motorcycle Feel Prototype · In progress
 
@@ -341,6 +342,7 @@ Based on the [Development Roadmap v1](../PULANG_Development_Roadmap_v1.md). Stat
 - [x] Complete the dedicated test track with straights, gentle/tighter curves, slope, physical bumps, an intersection, and a stop area.
 - [x] Add section selection, clear/rain comparison, repeat rides, and local playtest reports without changing story saves.
 - [x] Test continuous track traversal, collision response, route-aware recovery, pause, and save isolation automatically.
+- [x] Complete the full native assisted journey at a 30 FPS cap: 23.264 km, no automatic recovery or blocking contacts; all authored routes remain on the lane and ground.
 - [ ] Pass human 5-minute and 15-minute riding tests, including comfort and handling at 30 FPS.
 
 ### M2 — Platform & Input Prototype · In progress
@@ -356,8 +358,8 @@ Based on the [Development Roadmap v1](../PULANG_Development_Roadmap_v1.md). Stat
 - [x] Test scaled settings/save isolation, three aspect ratios, ten screen layouts, focus scrolling, caption readability and combined interface/touch scaling.
 - [x] Add independent inward/upward placement for left/right touch pairs, persistent preferences, live preview and reset.
 - [x] Test placement with button/UI scaling, safe-area limits, multitouch, input release, legacy settings and save isolation.
-- [ ] Validate browser keyboard focus, fullscreen, audio activation, and save persistence in an iframe.
-- [ ] Validate touch ergonomics, safe areas, and the same gameplay loop on physical Android devices.
+- [ ] Deferred: validate browser keyboard focus, fullscreen, audio activation, and save persistence in an iframe.
+- [ ] Deferred: validate touch ergonomics, safe areas, and the same gameplay loop on physical Android devices.
 
 ### M3 — Narrative Systems Prototype · In progress
 
@@ -372,12 +374,18 @@ Based on the [Development Roadmap v1](../PULANG_Development_Roadmap_v1.md). Stat
 - [x] Test channel reads/replies, call completion gates, read-only history, old-schema save/load, New Game, and phone navigation locks.
 - [x] Add Photos with three original rendered stills, thumbnails, captions, story-based unlocks, and bounded Previous/Next navigation.
 - [x] Test album unlock/save/New Game behavior, nested Back navigation, read-only browsing, and empty/missing-image fallbacks.
-- [ ] Validate narrative/save behavior in real Web and Android builds.
+- [ ] Deferred: validate narrative/save behavior in real Web and Android builds.
 
 ### M4 — Visual & Audio Mood Prototype · In progress
 
 - [x] Build the low-poly roadside kit: fields, trees, poles, homes, warung, fuel stop, guesthouse, and traffic.
 - [x] Add a Thunder 250-inspired placeholder bike, clear/rain transitions, and layered synthesized audio.
+- [x] Refine the motorcycle with spoked wheels, rolling tires, fenders, frame/swingarm, twin springs, controls, ignition key and persistent travel luggage; add facial features, age cues and glasses to the actors.
+- [x] Author fourteen distinct chapter road profiles with matching terrain/steering/recovery; add regional roadside groups and prevent vegetation from intersecting stop/landmark areas.
+- [x] Apply the [warm low-poly art pass](docs/ART_DIRECTION.md): sculpted foliage/characters, chamfered props, detailed roofs/windows/porches, fuller hero motorcycle, shaped traffic, furnished interiors and regional stops.
+- [x] Replace broken shoulder slabs with continuous ribbons, add shrubs/stones and distant hills, and revise warm daylight/shadows; batch static art by material while preserving vertex colors and animated parts.
+- [x] Rebuild Nadia as a woman; refine character faces, limbs, hands and shoes, grounded walking and elbow hinges; detail the motorcycle, laptop, ID card and cups, including safe closed-lid clearance and visible-only static batching.
+- [x] Correct helmet/hair, packed laptop/flap, ID strap/mug and family/porch intersections found in rendered review; validate actual mesh bounds, foot placement and deterministic Skip with 531 cinematic and 60 staging checks.
 - [x] Implement authored morning, overcast, golden-hour, and night profiles plus drizzle, rain, heavy rain, and mist.
 - [x] Blend sky/light/fog/wetness/rain; add a practice comparison menu, night headlight/stop lamps, and synthetic insect ambience.
 - [x] Test transition interruption/pause, rain quality limits, chapter profile restoration, and practice save isolation.
@@ -392,7 +400,7 @@ Based on the [Development Roadmap v1](../PULANG_Development_Roadmap_v1.md). Stat
 - [x] Batch story/practice road markings into bounded MultiMeshes after native before/after draw-call measurement.
 - [x] Test original marking transforms, dimensions, culling margins and resource disposal across repeated world loads.
 - [x] Add repeated real scene-transition regression with checkpoint restoration, background/foreground handling and per-cycle node/resource/signal/audio cleanup reports.
-- [ ] Complete long-duration natural-speed transition and OS/GPU memory profiling on actual Web/Android exports.
+- [ ] Deferred: complete long-duration natural-speed transition and OS/GPU memory profiling on actual Web/Android exports.
 - [ ] Review visual identity and sound quality, and profile actual target-platform builds.
 
 ### M5 — Vertical Slice · In progress
@@ -400,7 +408,7 @@ Based on the [Development Roadmap v1](../PULANG_Development_Roadmap_v1.md). Stat
 - [x] Connect Jakarta opening → commute → layoff → mother's call → departure → first road segment.
 - [x] Connect optional stops → rain shelter/conversation → guesthouse → journal → chapter ending.
 - [x] Test the compact desktop flow, checkpoint recovery, and Continue through completion.
-- [x] Expand the opening to 30 authored shots with interior/parking sets, readable phone/laptop inserts, post-meeting sign-out, helmet preparation, mounting, and departure/title reveal.
+- [x] Expand the opening to 36 authored shots with interior/parking sets, readable phone/laptop inserts, post-meeting sign-out, helmet preparation, mounting, and departure/title reveal.
 - [x] Add per-shot framing/FOV, restrained camera travel, reduced-motion behavior, deterministic skip, pause and stable-checkpoint regression checks.
 - [x] Add articulated prototype actors, eight director-sampled AnimationPlayer clips, phone prop handoff, and a father/young-Raka memory insert.
 - [x] Test deterministic actor poses after seeking/skipping, pause, dialogue handoff and memory-to-present restoration.
@@ -408,22 +416,26 @@ Based on the [Development Roadmap v1](../PULANG_Development_Roadmap_v1.md). Stat
 - [x] Add lying-to-seated waking performance, bedside alarm placement and timed fabric cue; verify pause/focus, seeking, mattress clearance and pose reset.
 - [x] Add raincoat pickup/placement and bag-flap closure with sampled hand contact; test pause/focus, rewind, prop reset and all-shot Skip equivalence.
 - [x] Add laptop closure, two-handed transfer and stowage after route planning, with synchronized fabric cues and prop/contact/Skip regression checks.
+- [x] Add clothes, charger and toolkit packing inserts with sequential pickup/stowage, timed fabric, hand contact, bag/content clearance and pause/rewind/Skip checks; opening totals 33 shots / 145 seconds.
 - [x] Add standing two-strap tightening, visible buckles/bands/tails, synchronized fabric cues and secured-luggage continuity through memory, Skip and departure.
+- [x] Add a two-handed luggage carry and rear-seat placement before strap checks; verify hand/torso clearance, planted placement, pause/rewind/Skip and save isolation; opening totals 34 shots / 153 seconds.
+- [x] Add two-handed table pickup of the closed bag with all packed contents, timed fabric, table/torso clearance and pause/rewind/Skip checks; opening totals 35 shots / 159 seconds.
+- [x] Add sequential threading of both luggage buckles before tightening, with emerging tails, timed fabric, hand contact and exact pose handoff; verify pause/rewind/Skip and save isolation; opening totals 36 shots / 167 seconds.
 - [x] Add the GDD bike-touch insert with tank wiping, held cloth, sampled hand contact and sound bridge into the father memory; verify pause/Skip, scene cleanup and secured luggage continuity.
 - [x] Add a helmeted mounting performance between memory and departure, with articulated legs, final grip/footrest placement and continuous seated pose; verify pause/background, rewind, reduced motion, Skip and secured luggage.
 - [x] Add two-handed helmet donning before mounting, with continuous handoff, timed fabric and pause/rewind/Skip checks; opening now totals 28 shots / 128 seconds.
 - [x] Add helmet chin-strap fastening and a tightening pull before mounting, with persistent webbing/buckle, sound and pause/rewind/Skip checks; opening totals 29 shots / 132 seconds.
 - [x] Add seat-to-hand helmet retrieval with folded webbing, continuous donning handoff and timed fabric; verify contact, clearance, pause/rewind/Skip and save isolation; opening totals 30 shots / 136 seconds.
-- [ ] Animate remaining individual packing actions, preparation movements, carrying/mounting luggage and initial strap fastening; refine fingers, cloth, posture, visible dust and recorded contact sound with production assets.
+- [ ] Animate preparation movements, transitions to parking and routing straps around the motorcycle frame; refine buckle/finger contact, cloth, posture, visible dust and recorded contact sound with production assets.
 - [ ] Refine waking bed/hand contact, facial expression, cloth and final recorded bedsheet sound with production assets.
 - [ ] Refine mounting weight transfer, helmet/strap/finger contact and cloth, remaining sitting transitions and final walking performances/footsteps with production character rigs.
 - [x] Connect the prototype UI sound set across story/practice menus, phone sections, authored choices and keyboard navigation.
-- [x] Add five original cinematic sound prototypes and seventeen timed events, including helmet retrieval/donning/strap/mounting fabric and a motorcycle sound bridge through the father memory.
+- [x] Add five original cinematic sound prototypes and twenty-six timed events, including supplies/luggage/buckle/helmet/strap/mounting fabric and a motorcycle sound bridge through the father memory.
 - [x] Test sound timing/tails, activation, SFX/Master mute, pause/background, skip/replacement cleanup and save isolation, including native playback.
 - [ ] Review cinematic sound/contact timing on headphones and phone speakers; replace prototypes with final recordings.
 - [ ] Expand and playtest pacing toward the planned 30–60 minute slice.
 - [ ] Finish production-quality opening cutscenes, character animation, hero assets, and audio.
-- [ ] Pass browser, Android, performance, riding-comfort, and narrative acceptance gates.
+- [ ] Pass remaining desktop performance, human riding-comfort and narrative acceptance gates; browser and Android gates are deferred.
 
 **Production gate:** do not begin full chapter production until the M5 riding, platform, narrative, and art issues are resolved.
 
@@ -431,33 +443,44 @@ Based on the [Development Roadmap v1](../PULANG_Development_Roadmap_v1.md). Stat
 
 - [x] Create reusable chapter, NPC and cutscene templates with an isolated [encounter preview](docs/M6_AUTHORING.md).
 - [x] Add a read-only JSON/reference/audio validator, English text inventory and fault-injection tests; integrate `-Suite Content` and preflight validation into `-Suite All`.
-- [x] Validate 196 stable JSON text keys and the English catalog; add runtime resolution and static authoring-template checks (`Content`/`Toolkit` suites).
+- [x] Validate 616 stable JSON text keys and the English catalog; add runtime resolution and static authoring-template checks (`Content`/`Toolkit` suites).
 - [x] Add an opt-in [development menu](docs/M6_DEVELOPMENT_MENU.md) for chapter/checkpoint jumps, weather/time, flags, teleport and performance, with temporary sessions that preserve journey saves.
 - [x] Verify a new preview encounter through data and Inspector properties without global core changes; test dialogue, Skip, events and save isolation.
 
 ### M7 — Chapter Production Wave 1 · Not started
 
+- [x] Connect playable **draft** Cirebon, Tegal, Pekalongan and Semarang chapters, each with an encounter, choices, journal, weather, environment variant and stable checkpoints; production acceptance remains open.
 - [ ] Produce the final Karawang chapter beyond the current prototype.
 - [ ] Produce Cirebon, Tegal, Pekalongan, and Semarang.
 - [ ] Complete each chapter's narrative, environment, audio, cutscenes, saves, and platform playtests.
 
 ### M8 — Chapter Production Wave 2 · Not started
 
+- [x] Connect playable **draft** Salatiga through Banyuwangi and the family-home epilogue, including the older rider, interview, homecoming and restrained next-morning conversation.
+- [x] Refine dinner/reverse shots, older-rider pauses, interview framing, ignition-off timing, parents' poses, hand contact on the bike, epilogue cleaning and staggered doorway entry; inspect native captures and pass 58 staging checks.
 - [ ] Produce Salatiga, Solo, Ngawi, Madiun, and Kediri.
 - [ ] Produce Malang, Lumajang, Jember, Banyuwangi, and the family-home epilogue.
-- [ ] Validate the complete route and preserve the restrained homecoming ending.
+- [x] Validate the complete native route through the restrained homecoming and next-morning ending, preserving both living parents and an unresolved career decision.
 
 ### M9 — Full Game Alpha · Not started
 
-- [ ] Make every main chapter, mandatory cutscene, transition, and ending playable without debug tools.
-- [ ] Review story continuity, English text, flags, and saves across chapters.
-- [ ] Complete the campaign in Web and Android builds with no progression blockers.
+- [x] Add normal chapter advancement through the epilogue, legacy Karawang Continue support, full journal history, route progress and chapter-linked phone messages; validate both dialogue branches and checkpoint recovery across the route.
+- [x] Export Web and signed Android debug builds; verify Web New Game, opening Skip, reload and Continue in the local browser. Full platform playthrough acceptance remains open.
+- [x] Complete both campaign branches in the Web regression build (572 checks); prevent repeated audio unpause from exhausting browser memory. Record the post-test shutdown allocator finding separately.
+- [x] Review draft encounter continuity and replace repeated closing text with chapter-specific English lines, keeping localization and saved choice flags consistent.
+- [x] Make the compact desktop campaign's main chapters, mandatory sequences, transitions and ending reachable from New Game without debug tools; native no-teleport/no-Skip automation passes 37 checks and saves all fifteen reflections.
+- [x] Review draft story continuity, English text, flags and saves across chapters; final narrative/pacing approval remains part of M10.
+- [ ] Deferred: complete the campaign in Web and Android builds with no progression blockers.
 
 ### M10 — Content Complete / Beta · Not started
 
+- [x] Add campaign regression coverage, native-renderer checks, chapter/cinematic/localization validation and an explicit [beta-readiness record](docs/test/CAMPAIGN_BETA_READINESS.md); fix stale stop selection and cinematic toast overlap found during verification.
+- [x] Validate 2,296 runtime checks across 19 suites and 50 content-tool tests, including targeted final reruns after the character/prop revision; retain separate native journey/staging evidence and the [human playtest report](docs/test/BETA_PLAYTEST_REPORT.md).
+- [x] Measure a complete native assisted campaign at about 36 minutes, including unskipped cutscenes; record this pacing gap explicitly rather than treating it as the planned 8–12 hour game.
+- [ ] Replace compact chapter/blocking prototypes with production content and close the recorded M5–M10 acceptance gaps before declaring M10 complete.
 - [ ] Lock major content and polish riding, dialogue pacing, visuals, audio, UI, and accessibility.
 - [ ] Run the planned player-category playtests, including Indonesian and motion-sensitive players.
-- [ ] Resolve findings and verify readable, comfortable touch and desktop experiences.
+- [ ] Resolve remaining production/review findings and verify readable, comfortable desktop play; physical touch acceptance is deferred.
 
 ### M11 — Optimization & Release Candidate · Not started
 

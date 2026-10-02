@@ -1,0 +1,284 @@
+{
+  "chapter_id": "banyuwangi",
+  "display_name": "The familiar turn",
+  "theme": "Home",
+  "start_location": "Jember",
+  "end_location": "Banyuwangi",
+  "main_route_length": 1800,
+  "next_chapter_id": "epilogue",
+  "mandatory_events": [
+    "encounter",
+    "rest"
+  ],
+  "biome": "home",
+  "road_shape": {
+    "bend": 17,
+    "wavelength": 240,
+    "detail": 1,
+    "rise": 1.5,
+    "grade_length": 400,
+    "phase": 0.2
+  },
+  "encounter_speaker": "Mom",
+  "audio_context": "warung",
+  "atmosphere": [
+    {
+      "distance": 0,
+      "profile": "golden_hour"
+    }
+  ],
+  "stops": [
+    {
+      "id": "fuel",
+      "distance": 390,
+      "label": "Refuel",
+      "title": "Fuel and a short break",
+      "text_keys": {
+        "label": "chapters.banyuwangi.stops.0.label",
+        "title": "chapters.banyuwangi.stops.0.title"
+      }
+    },
+    {
+      "id": "scenic",
+      "distance": 720,
+      "label": "Switch off engine",
+      "title": "A place to pause",
+      "text_keys": {
+        "label": "chapters.banyuwangi.stops.1.label",
+        "title": "chapters.banyuwangi.stops.1.title"
+      }
+    },
+    {
+      "id": "encounter",
+      "distance": 1130,
+      "label": "Stop here",
+      "title": "The familiar turn",
+      "text_keys": {
+        "label": "chapters.banyuwangi.stops.2.label",
+        "title": "chapters.banyuwangi.stops.2.title"
+      }
+    },
+    {
+      "id": "rest",
+      "distance": 1700,
+      "label": "Rest and reflect",
+      "title": "A quiet page",
+      "text_keys": {
+        "label": "chapters.banyuwangi.stops.3.label",
+        "title": "chapters.banyuwangi.stops.3.title"
+      }
+    }
+  ],
+  "journal": {
+    "id": "journal.banyuwangi.reflection",
+    "prompt": "What do I want to remember about arriving?",
+    "options": [
+      {
+        "id": "a",
+        "text": "Dad held the handlebar while I took off my gloves.",
+        "text_keys": {
+          "text": "chapters.banyuwangi.journal.options.0.text"
+        }
+      },
+      {
+        "id": "b",
+        "text": "The house sounded the same from outside.",
+        "text_keys": {
+          "text": "chapters.banyuwangi.journal.options.1.text"
+        }
+      }
+    ],
+    "text_keys": {
+      "prompt": "chapters.banyuwangi.journal.prompt"
+    }
+  },
+  "route": [
+    "Jakarta",
+    "Karawang",
+    "Cirebon",
+    "Tegal",
+    "Pekalongan",
+    "Semarang",
+    "Salatiga",
+    "Solo",
+    "Ngawi",
+    "Madiun",
+    "Kediri",
+    "Malang",
+    "Lumajang",
+    "Jember",
+    "Banyuwangi"
+  ],
+  "arrival_shots": [
+    {
+      "camera": [
+        9,
+        2,
+        12
+      ],
+      "target": [
+        0,
+        2,
+        -5
+      ],
+      "duration": 6,
+      "text": "The turn after the small bridge. I know this one.",
+      "action": "approach",
+      "text_keys": {
+        "text": "chapters.banyuwangi.arrival_shots.0.text"
+      }
+    },
+    {
+      "camera": [
+        8,
+        4,
+        9
+      ],
+      "target": [
+        0,
+        1,
+        -3
+      ],
+      "duration": 6,
+      "text": "",
+      "action": "park",
+      "text_keys": {
+        "text": "chapters.banyuwangi.arrival_shots.1.text"
+      }
+    },
+    {
+      "camera": [
+        3.4,
+        1.7,
+        3.5
+      ],
+      "target": [
+        3.18,
+        1.16,
+        2.62
+      ],
+      "duration": 4,
+      "text": "",
+      "action": "engine_off",
+      "text_keys": {
+        "text": "chapters.banyuwangi.arrival_shots.2.text"
+      }
+    },
+    {
+      "camera": [
+        0,
+        1.7,
+        1
+      ],
+      "target": [
+        0,
+        1.55,
+        -1.7
+      ],
+      "duration": 5,
+      "text": "",
+      "action": "mother",
+      "text_keys": {
+        "text": "chapters.banyuwangi.arrival_shots.3.text"
+      }
+    },
+    {
+      "camera": [
+        -1,
+        1.8,
+        -0.5
+      ],
+      "target": [
+        -0.9,
+        1.55,
+        1.7
+      ],
+      "duration": 4,
+      "text": "",
+      "action": "",
+      "text_keys": {
+        "text": "chapters.banyuwangi.arrival_shots.4.text"
+      }
+    },
+    {
+      "camera": [
+        0.5,
+        2,
+        1.3
+      ],
+      "target": [
+        2.4,
+        1.3,
+        3.05
+      ],
+      "duration": 5,
+      "text": "",
+      "action": "bike_approach",
+      "text_keys": {
+        "text": "chapters.banyuwangi.arrival_shots.5.text"
+      }
+    },
+    {
+      "camera": [
+        3.4,
+        1.6,
+        2.75
+      ],
+      "target": [
+        2.45,
+        1.15,
+        2.67
+      ],
+      "duration": 4,
+      "text": "",
+      "action": "bike",
+      "text_keys": {
+        "text": "chapters.banyuwangi.arrival_shots.6.text"
+      }
+    },
+    {
+      "camera": [
+        3,
+        1.5,
+        2.7
+      ],
+      "target": [
+        3,
+        1.1,
+        2.5
+      ],
+      "duration": 4,
+      "text": "A little farther than when I left.",
+      "action": "odometer",
+      "text_keys": {
+        "text": "chapters.banyuwangi.arrival_shots.7.text"
+      }
+    }
+  ],
+  "closing_shots": [
+    {
+      "camera": [
+        8,
+        3,
+        10
+      ],
+      "target": [
+        0,
+        1,
+        -1
+      ],
+      "duration": 9,
+      "text": "",
+      "action": "enter",
+      "text_keys": {
+        "text": "chapters.banyuwangi.closing_shots.0.text"
+      }
+    }
+  ],
+  "text_keys": {
+    "display_name": "chapters.banyuwangi.display_name",
+    "encounter_speaker": "chapters.banyuwangi.encounter_speaker",
+    "end_location": "chapters.banyuwangi.end_location",
+    "start_location": "chapters.banyuwangi.start_location"
+  }
+}

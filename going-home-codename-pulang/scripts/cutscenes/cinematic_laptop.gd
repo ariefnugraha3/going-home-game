@@ -10,12 +10,29 @@ var lid: Node3D
 var screen: Label3D
 
 func build() -> void:
-	LowPoly.box(self, Vector3.ZERO, Vector3(0.65, 0.05, 0.45), Color("374443"))
+	LowPoly.box(self, Vector3.ZERO, Vector3(0.65, 0.035, 0.45), Color("374443"))
+	# Recessed keyboard, palm rest, trackpad and side ports, all on the base.
+	LowPoly.box(self,Vector3(0,.0175,-.055),Vector3(.57,.002,.25),Color("202d30"))
+	for row in range(4):
+		for column in range(12):
+			LowPoly.box(self,Vector3(-.253+column*.046,.0195,-.15+row*.054),Vector3(.039,.004,.042),Color("78817a"))
+	LowPoly.box(self,Vector3(0,.0195,.052),Vector3(.22,.004,.034),Color("78817a"))
+	LowPoly.box(self,Vector3(0,.0178,.137),Vector3(.19,.002,.097),Color("929b92"))
+	LowPoly.box(self,Vector3(0,.019,.137),Vector3(.181,.001,.088),Color("536761"))
+	for z in [-.14,-.07,.0]: LowPoly.box(self,Vector3(-.326,0,z),Vector3(.003,.013,.036),Color("172724"))
+	for z in [-.15,-.12,-.09,-.06]: LowPoly.box(self,Vector3(.326,0,z),Vector3(.003,.009,.017),Color("172724"))
+	for x in [-.24,.24]:
+		var hinge := LowPoly.cylinder(self,Vector3(x,.025,-.205),.014,.085,Color("969d90"),-1,12)
+		hinge.rotation.z = PI/2
 	lid = Node3D.new()
 	add_child(lid)
-	lid.position = Vector3(0, 0.03, -0.21)
-	LowPoly.box(lid, Vector3(0, 0.20, 0), Vector3(0.65, 0.40, 0.04), Color("283c40"))
-	screen = LowPoly.label(lid, "", Vector3(0, 0.22, 0.028), 32)
+	lid.position = Vector3(0, 0.036, -0.21)
+	LowPoly.box(lid, Vector3(0, 0.20, 0), Vector3(0.65, 0.40, 0.018), Color("283c40"))
+	LowPoly.box(lid,Vector3(0,.207,.0105),Vector3(.588,.331,.003),Color("93a99e"))
+	LowPoly.box(lid,Vector3(0,.354,.0125),Vector3(.584,.023,.001),Color("567971"))
+	LowPoly.sphere(lid,Vector3(0,.385,.0105),Vector3(.010,.010,.003),Color("101d20"))
+	LowPoly.box(lid,Vector3(0,.2,-.01),Vector3(.058,.049,.002),Color("7c948a"))
+	screen = LowPoly.label(lid, "", Vector3(0, 0.22, 0.015), 32)
 	screen.pixel_size = 0.0009
 	screen.no_depth_test = false
 	reset_to_desk()

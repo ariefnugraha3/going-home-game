@@ -114,6 +114,7 @@ func _physics_process(delta: float) -> void:
 		velocity.y = -0.5
 	var previous_position := position
 	move_and_slide()
+	visual.roll_wheels(position.distance_to(previous_position))
 	# A forgiving stop on a solid obstacle, with no bounce or damage.
 	for index in range(get_slide_collision_count()):
 		var normal := get_slide_collision(index).get_normal()

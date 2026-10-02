@@ -1,0 +1,167 @@
+{
+  "chapter_id": "salatiga",
+  "display_name": "Room to breathe",
+  "theme": "Quiet",
+  "start_location": "Semarang",
+  "end_location": "Salatiga",
+  "main_route_length": 1800,
+  "next_chapter_id": "solo",
+  "mandatory_events": [
+    "encounter",
+    "rest"
+  ],
+  "biome": "highlands",
+  "road_shape": {"bend": 30, "wavelength": 135, "detail": 3, "rise": 5, "grade_length": 250, "phase": 0.5},
+  "encounter_speaker": "Raka",
+  "audio_context": "fields",
+  "atmosphere": [
+    {
+      "distance": 0,
+      "profile": "morning"
+    }
+  ],
+  "stops": [
+    {
+      "id": "fuel",
+      "distance": 390,
+      "label": "Refuel",
+      "title": "Fuel and a short break",
+      "text_keys": {
+        "label": "chapters.salatiga.stops.0.label",
+        "title": "chapters.salatiga.stops.0.title"
+      }
+    },
+    {
+      "id": "scenic",
+      "distance": 720,
+      "label": "Switch off engine",
+      "title": "A place to pause",
+      "text_keys": {
+        "label": "chapters.salatiga.stops.1.label",
+        "title": "chapters.salatiga.stops.1.title"
+      }
+    },
+    {
+      "id": "encounter",
+      "distance": 1130,
+      "label": "Stop here",
+      "title": "Room to breathe",
+      "text_keys": {
+        "label": "chapters.salatiga.stops.2.label",
+        "title": "chapters.salatiga.stops.2.title"
+      }
+    },
+    {
+      "id": "rest",
+      "distance": 1700,
+      "label": "Rest and reflect",
+      "title": "A quiet page",
+      "text_keys": {
+        "label": "chapters.salatiga.stops.3.label",
+        "title": "chapters.salatiga.stops.3.title"
+      }
+    }
+  ],
+  "journal": {
+    "id": "journal.salatiga.reflection",
+    "prompt": "What belongs on this page?",
+    "options": [
+      {
+        "id": "a",
+        "text": "I sat until the engine stopped ticking.",
+        "text_keys": {
+          "text": "chapters.salatiga.journal.options.0.text"
+        }
+      },
+      {
+        "id": "b",
+        "text": "There was nothing I needed to explain to the hills.",
+        "text_keys": {
+          "text": "chapters.salatiga.journal.options.1.text"
+        }
+      }
+    ],
+    "text_keys": {
+      "prompt": "chapters.salatiga.journal.prompt"
+    }
+  },
+  "route": [
+    "Jakarta",
+    "Karawang",
+    "Cirebon",
+    "Tegal",
+    "Pekalongan",
+    "Semarang",
+    "Salatiga",
+    "Solo",
+    "Ngawi",
+    "Madiun",
+    "Kediri",
+    "Malang",
+    "Lumajang",
+    "Jember",
+    "Banyuwangi"
+  ],
+  "arrival_shots": [
+    {
+      "camera": [
+        7,
+        3,
+        9
+      ],
+      "target": [
+        0,
+        1,
+        1
+      ],
+      "duration": 7,
+      "text": "",
+      "action": "",
+      "text_keys": {
+        "text": "chapters.salatiga.arrival_shots.0.text"
+      }
+    },
+    {
+      "camera": [
+        0,
+        1.5,
+        4
+      ],
+      "target": [
+        -70,
+        10,
+        -90
+      ],
+      "duration": 12,
+      "text": "",
+      "action": "",
+      "text_keys": {
+        "text": "chapters.salatiga.arrival_shots.1.text"
+      }
+    },
+    {
+      "camera": [
+        3,
+        2,
+        5
+      ],
+      "target": [
+        0,
+        1,
+        1.7
+      ],
+      "duration": 8,
+      "text": "",
+      "action": "",
+      "text_keys": {
+        "text": "chapters.salatiga.arrival_shots.2.text"
+      }
+    }
+  ],
+  "text_keys": {
+    "display_name": "chapters.salatiga.display_name",
+    "encounter_speaker": "chapters.salatiga.encounter_speaker",
+    "end_location": "chapters.salatiga.end_location",
+    "start_location": "chapters.salatiga.start_location"
+  }
+}

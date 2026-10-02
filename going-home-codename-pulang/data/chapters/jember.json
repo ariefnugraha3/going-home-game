@@ -1,0 +1,167 @@
+{
+  "chapter_id": "jember",
+  "display_name": "One more stretch",
+  "theme": "Almost Home",
+  "start_location": "Lumajang",
+  "end_location": "Jember",
+  "main_route_length": 1800,
+  "next_chapter_id": "banyuwangi",
+  "mandatory_events": [
+    "encounter",
+    "rest"
+  ],
+  "biome": "plantation",
+  "road_shape": {"bend": 23, "wavelength": 190, "detail": 3, "rise": 2.7, "grade_length": 320, "phase": 1.5},
+  "encounter_speaker": "Mom",
+  "audio_context": "fields",
+  "atmosphere": [
+    {
+      "distance": 0,
+      "profile": "golden_hour"
+    }
+  ],
+  "stops": [
+    {
+      "id": "fuel",
+      "distance": 390,
+      "label": "Refuel",
+      "title": "Fuel and a short break",
+      "text_keys": {
+        "label": "chapters.jember.stops.0.label",
+        "title": "chapters.jember.stops.0.title"
+      }
+    },
+    {
+      "id": "scenic",
+      "distance": 720,
+      "label": "Switch off engine",
+      "title": "A place to pause",
+      "text_keys": {
+        "label": "chapters.jember.stops.1.label",
+        "title": "chapters.jember.stops.1.title"
+      }
+    },
+    {
+      "id": "encounter",
+      "distance": 1130,
+      "label": "Stop here",
+      "title": "One more stretch",
+      "text_keys": {
+        "label": "chapters.jember.stops.2.label",
+        "title": "chapters.jember.stops.2.title"
+      }
+    },
+    {
+      "id": "rest",
+      "distance": 1700,
+      "label": "Rest and reflect",
+      "title": "A quiet page",
+      "text_keys": {
+        "label": "chapters.jember.stops.3.label",
+        "title": "chapters.jember.stops.3.title"
+      }
+    }
+  ],
+  "journal": {
+    "id": "journal.jember.reflection",
+    "prompt": "What am I carrying into tomorrow?",
+    "options": [
+      {
+        "id": "a",
+        "text": "Being close to home felt different from imagining it.",
+        "text_keys": {
+          "text": "chapters.jember.journal.options.0.text"
+        }
+      },
+      {
+        "id": "b",
+        "text": "I don't need to rehearse what to say at the gate.",
+        "text_keys": {
+          "text": "chapters.jember.journal.options.1.text"
+        }
+      }
+    ],
+    "text_keys": {
+      "prompt": "chapters.jember.journal.prompt"
+    }
+  },
+  "route": [
+    "Jakarta",
+    "Karawang",
+    "Cirebon",
+    "Tegal",
+    "Pekalongan",
+    "Semarang",
+    "Salatiga",
+    "Solo",
+    "Ngawi",
+    "Madiun",
+    "Kediri",
+    "Malang",
+    "Lumajang",
+    "Jember",
+    "Banyuwangi"
+  ],
+  "arrival_shots": [
+    {
+      "camera": [
+        8,
+        4,
+        10
+      ],
+      "target": [
+        0,
+        1,
+        0
+      ],
+      "duration": 6,
+      "text": "",
+      "action": "",
+      "text_keys": {
+        "text": "chapters.jember.arrival_shots.0.text"
+      }
+    },
+    {
+      "camera": [
+        0,
+        1.8,
+        5
+      ],
+      "target": [
+        0,
+        1.1,
+        1.7
+      ],
+      "duration": 5,
+      "text": "",
+      "action": "",
+      "text_keys": {
+        "text": "chapters.jember.arrival_shots.1.text"
+      }
+    },
+    {
+      "camera": [
+        4,
+        2,
+        6
+      ],
+      "target": [
+        3,
+        0.8,
+        3
+      ],
+      "duration": 4,
+      "text": "",
+      "action": "",
+      "text_keys": {
+        "text": "chapters.jember.arrival_shots.2.text"
+      }
+    }
+  ],
+  "text_keys": {
+    "display_name": "chapters.jember.display_name",
+    "encounter_speaker": "chapters.jember.encounter_speaker",
+    "end_location": "chapters.jember.end_location",
+    "start_location": "chapters.jember.start_location"
+  }
+}

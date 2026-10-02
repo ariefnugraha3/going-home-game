@@ -1,0 +1,167 @@
+{
+  "chapter_id": "solo",
+  "display_name": "An ordinary table",
+  "theme": "Family",
+  "start_location": "Salatiga",
+  "end_location": "Solo",
+  "main_route_length": 1800,
+  "next_chapter_id": "ngawi",
+  "mandatory_events": [
+    "encounter",
+    "rest"
+  ],
+  "biome": "neighborhood",
+  "road_shape": {"bend": 13, "wavelength": 250, "detail": 2, "rise": 1.2, "grade_length": 360, "phase": 1.4},
+  "encounter_speaker": "Food seller",
+  "audio_context": "warung",
+  "atmosphere": [
+    {
+      "distance": 0,
+      "profile": "golden_hour"
+    }
+  ],
+  "stops": [
+    {
+      "id": "fuel",
+      "distance": 390,
+      "label": "Refuel",
+      "title": "Fuel and a short break",
+      "text_keys": {
+        "label": "chapters.solo.stops.0.label",
+        "title": "chapters.solo.stops.0.title"
+      }
+    },
+    {
+      "id": "scenic",
+      "distance": 720,
+      "label": "Switch off engine",
+      "title": "A place to pause",
+      "text_keys": {
+        "label": "chapters.solo.stops.1.label",
+        "title": "chapters.solo.stops.1.title"
+      }
+    },
+    {
+      "id": "encounter",
+      "distance": 1130,
+      "label": "Stop here",
+      "title": "An ordinary table",
+      "text_keys": {
+        "label": "chapters.solo.stops.2.label",
+        "title": "chapters.solo.stops.2.title"
+      }
+    },
+    {
+      "id": "rest",
+      "distance": 1700,
+      "label": "Rest and reflect",
+      "title": "A quiet page",
+      "text_keys": {
+        "label": "chapters.solo.stops.3.label",
+        "title": "chapters.solo.stops.3.title"
+      }
+    }
+  ],
+  "journal": {
+    "id": "journal.solo.reflection",
+    "prompt": "What made the table feel familiar?",
+    "options": [
+      {
+        "id": "a",
+        "text": "Nobody at the next table needed a reason to be together.",
+        "text_keys": {
+          "text": "chapters.solo.journal.options.0.text"
+        }
+      },
+      {
+        "id": "b",
+        "text": "I remembered the sound of dinner at home.",
+        "text_keys": {
+          "text": "chapters.solo.journal.options.1.text"
+        }
+      }
+    ],
+    "text_keys": {
+      "prompt": "chapters.solo.journal.prompt"
+    }
+  },
+  "route": [
+    "Jakarta",
+    "Karawang",
+    "Cirebon",
+    "Tegal",
+    "Pekalongan",
+    "Semarang",
+    "Salatiga",
+    "Solo",
+    "Ngawi",
+    "Madiun",
+    "Kediri",
+    "Malang",
+    "Lumajang",
+    "Jember",
+    "Banyuwangi"
+  ],
+  "arrival_shots": [
+    {
+      "camera": [
+        8,
+        4,
+        10
+      ],
+      "target": [
+        0,
+        1,
+        0
+      ],
+      "duration": 6,
+      "text": "",
+      "action": "",
+      "text_keys": {
+        "text": "chapters.solo.arrival_shots.0.text"
+      }
+    },
+    {
+      "camera": [
+        0,
+        1.8,
+        5
+      ],
+      "target": [
+        0,
+        1.1,
+        1.7
+      ],
+      "duration": 5,
+      "text": "",
+      "action": "",
+      "text_keys": {
+        "text": "chapters.solo.arrival_shots.1.text"
+      }
+    },
+    {
+      "camera": [
+        4,
+        2,
+        6
+      ],
+      "target": [
+        3,
+        0.8,
+        3
+      ],
+      "duration": 4,
+      "text": "",
+      "action": "",
+      "text_keys": {
+        "text": "chapters.solo.arrival_shots.2.text"
+      }
+    }
+  ],
+  "text_keys": {
+    "display_name": "chapters.solo.display_name",
+    "encounter_speaker": "chapters.solo.encounter_speaker",
+    "end_location": "chapters.solo.end_location",
+    "start_location": "chapters.solo.start_location"
+  }
+}

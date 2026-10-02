@@ -3,12 +3,25 @@ extends RefCounted
 
 # Shared by road geometry, recovery and steering; the bike never guesses a track.
 var practice: bool = false
+var profile: Dictionary = {}
 
 static func story_center(distance: float) -> Vector3:
 	return Vector3(sin(distance / 180.0) * 20.0 + sin(distance / 77.0) * 3.0, sin(distance / 230.0) * 2.0, -distance)
 
 func sample(distance: float) -> Vector3:
 	if not practice:
+		if not profile.is_empty():
+			# Smooth grades and bends keep geometry, steering and recovery on the
+			# same authored route. No random sampling occurs during physics.
+			var phase: float = profile.get("phase", 0.0)
+			var bend: float = profile.get("bend", 20.0)
+			var wavelength: float = profile.get("wavelength", 180.0)
+			var detail: float = profile.get("detail", 3.0)
+			var rise: float = profile.get("rise", 2.0)
+			var grade_length: float = profile.get("grade_length", 230.0)
+			var x := bend * (sin(distance / wavelength + phase) - sin(phase)) + detail * sin(distance / 77.0)
+			var y := rise * (1.0 - cos(distance / grade_length))
+			return Vector3(x, y, -distance)
 		return story_center(distance)
 	var x := 0.0
 	var y := 0.0

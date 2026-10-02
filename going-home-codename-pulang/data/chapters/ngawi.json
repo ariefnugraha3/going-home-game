@@ -1,0 +1,174 @@
+{
+  "chapter_id": "ngawi",
+  "display_name": "Two parked motorcycles",
+  "theme": "Loneliness",
+  "start_location": "Solo",
+  "end_location": "Ngawi",
+  "main_route_length": 1800,
+  "next_chapter_id": "madiun",
+  "mandatory_events": [
+    "encounter",
+    "rest"
+  ],
+  "biome": "teak",
+  "road_shape": {
+    "bend": 24,
+    "wavelength": 185,
+    "detail": 2,
+    "rise": 2.8,
+    "grade_length": 280,
+    "phase": 1.0
+  },
+  "encounter_speaker": "Older rider",
+  "audio_context": "fields",
+  "atmosphere": [
+    {
+      "distance": 0,
+      "profile": "golden_hour"
+    }
+  ],
+  "stops": [
+    {
+      "id": "fuel",
+      "distance": 390,
+      "label": "Refuel",
+      "title": "Fuel and a short break",
+      "text_keys": {
+        "label": "chapters.ngawi.stops.0.label",
+        "title": "chapters.ngawi.stops.0.title"
+      }
+    },
+    {
+      "id": "scenic",
+      "distance": 720,
+      "label": "Switch off engine",
+      "title": "A place to pause",
+      "text_keys": {
+        "label": "chapters.ngawi.stops.1.label",
+        "title": "chapters.ngawi.stops.1.title"
+      }
+    },
+    {
+      "id": "encounter",
+      "distance": 1130,
+      "label": "Stop here",
+      "title": "Two parked motorcycles",
+      "text_keys": {
+        "label": "chapters.ngawi.stops.2.label",
+        "title": "chapters.ngawi.stops.2.title"
+      }
+    },
+    {
+      "id": "rest",
+      "distance": 1700,
+      "label": "Rest and reflect",
+      "title": "A quiet page",
+      "text_keys": {
+        "label": "chapters.ngawi.stops.3.label",
+        "title": "chapters.ngawi.stops.3.title"
+      }
+    }
+  ],
+  "journal": {
+    "id": "journal.ngawi.reflection",
+    "prompt": "What will I remember from the roadside?",
+    "options": [
+      {
+        "id": "a",
+        "text": "We watched the road together for a while.",
+        "text_keys": {
+          "text": "chapters.ngawi.journal.options.0.text"
+        }
+      },
+      {
+        "id": "b",
+        "text": "He checked my rear strap before we left.",
+        "text_keys": {
+          "text": "chapters.ngawi.journal.options.1.text"
+        }
+      }
+    ],
+    "text_keys": {
+      "prompt": "chapters.ngawi.journal.prompt"
+    }
+  },
+  "route": [
+    "Jakarta",
+    "Karawang",
+    "Cirebon",
+    "Tegal",
+    "Pekalongan",
+    "Semarang",
+    "Salatiga",
+    "Solo",
+    "Ngawi",
+    "Madiun",
+    "Kediri",
+    "Malang",
+    "Lumajang",
+    "Jember",
+    "Banyuwangi"
+  ],
+  "arrival_shots": [
+    {
+      "camera": [
+        8,
+        4,
+        10
+      ],
+      "target": [
+        0,
+        1,
+        0
+      ],
+      "duration": 8,
+      "text": "",
+      "action": "",
+      "text_keys": {
+        "text": "chapters.ngawi.arrival_shots.0.text"
+      }
+    },
+    {
+      "camera": [
+        4,
+        1.8,
+        3
+      ],
+      "target": [
+        0,
+        1.1,
+        1.7
+      ],
+      "duration": 9,
+      "text": "",
+      "action": "",
+      "text_keys": {
+        "text": "chapters.ngawi.arrival_shots.1.text"
+      }
+    },
+    {
+      "camera": [
+        4,
+        2,
+        6
+      ],
+      "target": [
+        3,
+        0.8,
+        3
+      ],
+      "duration": 9,
+      "text": "",
+      "action": "",
+      "text_keys": {
+        "text": "chapters.ngawi.arrival_shots.2.text"
+      }
+    }
+  ],
+  "text_keys": {
+    "display_name": "chapters.ngawi.display_name",
+    "encounter_speaker": "chapters.ngawi.encounter_speaker",
+    "end_location": "chapters.ngawi.end_location",
+    "start_location": "chapters.ngawi.start_location"
+  }
+}

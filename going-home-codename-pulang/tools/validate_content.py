@@ -259,6 +259,32 @@ class Validator:
                 continue
             self.require(identity not in chapters, path, f"duplicate chapter_id: {identity}")
             chapters[identity] = (data, path)
+            if "road_shape" in data:
+                shape = self.mapping(data["road_shape"], path + "#/road_shape")
+                for field, low, high in (("bend", 0, 35), ("wavelength", 100, 450), ("detail", 0, 4), ("rise", 0, 6), ("grade_length", 180, 450), ("phase", 0, 6.3)):
+                    self.number(shape.get(field), path + "#/road_shape/" + field, low, high)
+            if identity != "karawang":
+                self.reference("campaign_" + identity, self.bundles("dialogue"), path + "#/encounter")
+                self.reference(data.get("biome"), {"coast", "workshop", "textiles", "city", "highlands", "neighborhood", "teak", "fields", "guesthouse", "campus", "mountain", "plantation", "home"}, path + "#/biome")
+                self.text(data.get("encounter_speaker"), path + "#/encounter_speaker")
+                soundscape = self.mapping(self.documents.get("data/audio/soundscape.json", {}), "data/audio/soundscape.json")
+                self.reference(data.get("audio_context"), self.mapping(soundscape.get("zones", {}), "data/audio/soundscape.json#/zones"), path + "#/audio_context")
+                for sequence in ("arrival_shots", "closing_shots"):
+                    if sequence == "closing_shots" and sequence not in data:
+                        continue
+                    shots = self.array(data.get(sequence), path + "#/" + sequence)
+                    self.require(bool(shots), path, "campaign sequence needs shots")
+                    for i, raw in enumerate(shots):
+                        loc = f"{path}#/{sequence}/{i}"
+                        shot = self.mapping(raw, loc)
+                        self.number(shot.get("duration"), loc + "/duration", .1, 60)
+                        self.vector(shot.get("camera"), loc + "/camera")
+                        self.vector(shot.get("target"), loc + "/target")
+                        if "camera_end" in shot:
+                            self.vector(shot["camera_end"], loc + "/camera_end")
+                        self.reference(shot.get("action", ""), {"", "bike", "enter", "approach", "park", "engine_off", "mother", "bike_approach", "odometer"}, loc + "/action")
+                        self.require(shot.get("camera") != shot.get("target"), loc, "camera and look target coincide")
+                        self.text(shot.get("text"), loc + "/text", optional=True)
             for field in ("display_name", "theme", "start_location", "end_location"):
                 self.text(data.get(field), path + "#/" + field, localizable=field != "theme")
             length = data.get("main_route_length")
@@ -293,10 +319,13 @@ class Validator:
             if not isinstance(target, str):
                 self.error(path + "#/next_chapter_id", "expected chapter ID or empty terminal value")
             elif target and target not in chapters:
-                if identity == "karawang" and target == "cirebon":
-                    self.warnings.append(f"{path}#/next_chapter_id: planned Cirebon chapter is not implemented (known slice boundary)")
-                else:
-                    self.error(path + "#/next_chapter_id", f"missing chapter: {target}")
+                self.error(path + "#/next_chapter_id", f"missing chapter: {target}")
+        visited, current = set(), "karawang"
+        while isinstance(current, str) and current and current in chapters and current not in visited:
+            visited.add(current)
+            current = chapters[current][0].get("next_chapter_id", "")
+        self.require(not current, "data/chapters", "campaign route must terminate without a cycle")
+        self.require(visited == set(chapters), "data/chapters", "all chapters must be reachable from Karawang")
 
     def phone(self, dialogues):
         fields = {"messages": ("from", "type", "text", "reply"),

@@ -1,0 +1,167 @@
+{
+  "chapter_id": "pekalongan",
+  "display_name": "Under the same roof",
+  "theme": "Waiting",
+  "start_location": "Tegal",
+  "end_location": "Pekalongan",
+  "main_route_length": 1800,
+  "next_chapter_id": "semarang",
+  "mandatory_events": [
+    "encounter",
+    "rest"
+  ],
+  "biome": "textiles",
+  "road_shape": {"bend": 12, "wavelength": 270, "detail": 2, "rise": 0.8, "grade_length": 320, "phase": 1.2},
+  "encounter_speaker": "Stall keeper",
+  "audio_context": "warung",
+  "atmosphere": [
+    {
+      "distance": 0,
+      "profile": "heavy_rain"
+    }
+  ],
+  "stops": [
+    {
+      "id": "fuel",
+      "distance": 390,
+      "label": "Refuel",
+      "title": "Fuel and a short break",
+      "text_keys": {
+        "label": "chapters.pekalongan.stops.0.label",
+        "title": "chapters.pekalongan.stops.0.title"
+      }
+    },
+    {
+      "id": "scenic",
+      "distance": 720,
+      "label": "Switch off engine",
+      "title": "A place to pause",
+      "text_keys": {
+        "label": "chapters.pekalongan.stops.1.label",
+        "title": "chapters.pekalongan.stops.1.title"
+      }
+    },
+    {
+      "id": "encounter",
+      "distance": 1130,
+      "label": "Stop here",
+      "title": "Under the same roof",
+      "text_keys": {
+        "label": "chapters.pekalongan.stops.2.label",
+        "title": "chapters.pekalongan.stops.2.title"
+      }
+    },
+    {
+      "id": "rest",
+      "distance": 1700,
+      "label": "Rest and reflect",
+      "title": "A quiet page",
+      "text_keys": {
+        "label": "chapters.pekalongan.stops.3.label",
+        "title": "chapters.pekalongan.stops.3.title"
+      }
+    }
+  ],
+  "journal": {
+    "id": "journal.pekalongan.reflection",
+    "prompt": "What happened while I was waiting?",
+    "options": [
+      {
+        "id": "a",
+        "text": "The rain changed. I hadn't needed to make it change.",
+        "text_keys": {
+          "text": "chapters.pekalongan.journal.options.0.text"
+        }
+      },
+      {
+        "id": "b",
+        "text": "Someone moved a bundle so I could sit.",
+        "text_keys": {
+          "text": "chapters.pekalongan.journal.options.1.text"
+        }
+      }
+    ],
+    "text_keys": {
+      "prompt": "chapters.pekalongan.journal.prompt"
+    }
+  },
+  "route": [
+    "Jakarta",
+    "Karawang",
+    "Cirebon",
+    "Tegal",
+    "Pekalongan",
+    "Semarang",
+    "Salatiga",
+    "Solo",
+    "Ngawi",
+    "Madiun",
+    "Kediri",
+    "Malang",
+    "Lumajang",
+    "Jember",
+    "Banyuwangi"
+  ],
+  "arrival_shots": [
+    {
+      "camera": [
+        8,
+        4,
+        10
+      ],
+      "target": [
+        0,
+        1,
+        0
+      ],
+      "duration": 6,
+      "text": "",
+      "action": "",
+      "text_keys": {
+        "text": "chapters.pekalongan.arrival_shots.0.text"
+      }
+    },
+    {
+      "camera": [
+        0,
+        1.8,
+        5
+      ],
+      "target": [
+        0,
+        1.1,
+        1.7
+      ],
+      "duration": 5,
+      "text": "",
+      "action": "",
+      "text_keys": {
+        "text": "chapters.pekalongan.arrival_shots.1.text"
+      }
+    },
+    {
+      "camera": [
+        4,
+        2,
+        6
+      ],
+      "target": [
+        3,
+        0.8,
+        3
+      ],
+      "duration": 4,
+      "text": "",
+      "action": "",
+      "text_keys": {
+        "text": "chapters.pekalongan.arrival_shots.2.text"
+      }
+    }
+  ],
+  "text_keys": {
+    "display_name": "chapters.pekalongan.display_name",
+    "encounter_speaker": "chapters.pekalongan.encounter_speaker",
+    "end_location": "chapters.pekalongan.end_location",
+    "start_location": "chapters.pekalongan.start_location"
+  }
+}

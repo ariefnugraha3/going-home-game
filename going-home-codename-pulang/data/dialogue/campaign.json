@@ -1,0 +1,898 @@
+{
+  "campaign_cirebon": {
+    "nodes": {
+      "start": {
+        "speaker": "Mira",
+        "text": "I used to take the bus the other way. Cirebon to Jakarta. Every Sunday evening.",
+        "choices": [
+          {
+            "text": "Did you find what you went for?",
+            "set": {
+              "story.cirebon.choice": "a"
+            },
+            "next": "a",
+            "text_keys": {
+              "text": "dialogue.campaign.campaign_cirebon.nodes.start.choices.0.text"
+            }
+          },
+          {
+            "text": "I'm not sure what coming back means.",
+            "set": {
+              "story.cirebon.choice": "b"
+            },
+            "next": "b",
+            "text_keys": {
+              "text": "dialogue.campaign.campaign_cirebon.nodes.start.choices.1.text"
+            }
+          }
+        ],
+        "text_keys": {
+          "speaker": "dialogue.campaign.campaign_cirebon.nodes.start.speaker",
+          "text": "dialogue.campaign.campaign_cirebon.nodes.start.text"
+        }
+      },
+      "a": {
+        "speaker": "Mira",
+        "text": "Some of it. I learned things I still use here. Leaving wasn't a mistake.",
+        "next": "close",
+        "text_keys": {
+          "speaker": "dialogue.campaign.campaign_cirebon.nodes.a.speaker",
+          "text": "dialogue.campaign.campaign_cirebon.nodes.a.text"
+        }
+      },
+      "b": {
+        "speaker": "Mira",
+        "text": "You don't have to give the whole trip a name yet. Your tea is getting cold.",
+        "next": "close",
+        "text_keys": {
+          "speaker": "dialogue.campaign.campaign_cirebon.nodes.b.speaker",
+          "text": "dialogue.campaign.campaign_cirebon.nodes.b.text"
+        }
+      },
+      "close": {
+        "speaker": "Raka",
+        "text": "Mira clears the empty cups. I ask her which turn takes me back to the main road.",
+        "set": {
+          "story.cirebon.encounter": true
+        },
+        "next": "end",
+        "text_keys": {
+          "speaker": "dialogue.campaign.campaign_cirebon.nodes.close.speaker",
+          "text": "dialogue.campaign.campaign_cirebon.nodes.close.text"
+        }
+      }
+    }
+  },
+  "campaign_tegal": {
+    "nodes": {
+      "start": {
+        "speaker": "Mechanic",
+        "text": "Your chain is dry. Nothing terrible. Put it on the stand and let the engine cool.",
+        "choices": [
+          {
+            "text": "I kept putting that off.",
+            "set": {
+              "story.tegal.choice": "a"
+            },
+            "next": "a",
+            "text_keys": {
+              "text": "dialogue.campaign.campaign_tegal.nodes.start.choices.0.text"
+            }
+          },
+          {
+            "text": "My father showed me this once.",
+            "set": {
+              "story.tegal.choice": "b"
+            },
+            "next": "b",
+            "text_keys": {
+              "text": "dialogue.campaign.campaign_tegal.nodes.start.choices.1.text"
+            }
+          }
+        ],
+        "text_keys": {
+          "speaker": "dialogue.campaign.campaign_tegal.nodes.start.speaker",
+          "text": "dialogue.campaign.campaign_tegal.nodes.start.text"
+        }
+      },
+      "a": {
+        "speaker": "Mechanic",
+        "text": "Easy to do. Hold the cloth here. We'll turn the wheel by hand.",
+        "next": "close",
+        "text_keys": {
+          "speaker": "dialogue.campaign.campaign_tegal.nodes.a.speaker",
+          "text": "dialogue.campaign.campaign_tegal.nodes.a.text"
+        }
+      },
+      "b": {
+        "speaker": "Mechanic",
+        "text": "Then your hands might remember before you do. Take your time.",
+        "next": "close",
+        "text_keys": {
+          "speaker": "dialogue.campaign.campaign_tegal.nodes.b.speaker",
+          "text": "dialogue.campaign.campaign_tegal.nodes.b.text"
+        }
+      },
+      "close": {
+        "speaker": "Raka",
+        "text": "The rear wheel turns freely. I wipe my hands and put the cloth back beside the tools.",
+        "set": {
+          "story.tegal.encounter": true
+        },
+        "next": "end",
+        "text_keys": {
+          "speaker": "dialogue.campaign.campaign_tegal.nodes.close.speaker",
+          "text": "dialogue.campaign.campaign_tegal.nodes.close.text"
+        }
+      }
+    }
+  },
+  "campaign_pekalongan": {
+    "nodes": {
+      "start": {
+        "speaker": "Stall keeper",
+        "text": "Move your helmet away from that edge. The roof leaks there when the wind turns.",
+        "choices": [
+          {
+            "text": "Am I in your way?",
+            "set": {
+              "story.pekalongan.choice": "a"
+            },
+            "next": "a",
+            "text_keys": {
+              "text": "dialogue.campaign.campaign_pekalongan.nodes.start.choices.0.text"
+            }
+          },
+          {
+            "text": "I'll wait a little longer.",
+            "set": {
+              "story.pekalongan.choice": "b"
+            },
+            "next": "b",
+            "text_keys": {
+              "text": "dialogue.campaign.campaign_pekalongan.nodes.start.choices.1.text"
+            }
+          }
+        ],
+        "text_keys": {
+          "speaker": "dialogue.campaign.campaign_pekalongan.nodes.start.speaker",
+          "text": "dialogue.campaign.campaign_pekalongan.nodes.start.text"
+        }
+      },
+      "a": {
+        "speaker": "Stall keeper",
+        "text": "No. Those bundles are waiting too. They'll leave when the rain does.",
+        "next": "close",
+        "text_keys": {
+          "speaker": "dialogue.campaign.campaign_pekalongan.nodes.a.speaker",
+          "text": "dialogue.campaign.campaign_pekalongan.nodes.a.text"
+        }
+      },
+      "b": {
+        "speaker": "Stall keeper",
+        "text": "There's hot water in the flask. You can refill your cup.",
+        "next": "close",
+        "text_keys": {
+          "speaker": "dialogue.campaign.campaign_pekalongan.nodes.b.speaker",
+          "text": "dialogue.campaign.campaign_pekalongan.nodes.b.text"
+        }
+      },
+      "close": {
+        "speaker": "Raka",
+        "text": "The rain softens. I finish the last of the tea before carrying my helmet back outside.",
+        "set": {
+          "story.pekalongan.encounter": true
+        },
+        "next": "end",
+        "text_keys": {
+          "speaker": "dialogue.campaign.campaign_pekalongan.nodes.close.speaker",
+          "text": "dialogue.campaign.campaign_pekalongan.nodes.close.text"
+        }
+      }
+    }
+  },
+  "campaign_semarang": {
+    "nodes": {
+      "start": {
+        "speaker": "Dimas",
+        "text": "You still pick the seat facing the door. I ordered what we used to get. Hope that's all right.",
+        "choices": [
+          {
+            "text": "You seem to have things figured out.",
+            "set": {
+              "story.semarang.choice": "a"
+            },
+            "next": "a",
+            "text_keys": {
+              "text": "dialogue.campaign.campaign_semarang.nodes.start.choices.0.text"
+            }
+          },
+          {
+            "text": "I didn't know who to tell about the job.",
+            "set": {
+              "story.semarang.choice": "b"
+            },
+            "next": "b",
+            "text_keys": {
+              "text": "dialogue.campaign.campaign_semarang.nodes.start.choices.1.text"
+            }
+          }
+        ],
+        "text_keys": {
+          "speaker": "dialogue.campaign.campaign_semarang.nodes.start.speaker",
+          "text": "dialogue.campaign.campaign_semarang.nodes.start.text"
+        }
+      },
+      "a": {
+        "speaker": "Dimas",
+        "text": "The promotion looks good from outside. I keep postponing a conversation with my wife about moving. I don't know why.",
+        "next": "close",
+        "text_keys": {
+          "speaker": "dialogue.campaign.campaign_semarang.nodes.a.speaker",
+          "text": "dialogue.campaign.campaign_semarang.nodes.a.text"
+        }
+      },
+      "b": {
+        "speaker": "Dimas",
+        "text": "You can tell me without making it sound manageable. We can also just eat for a minute.",
+        "next": "close",
+        "text_keys": {
+          "speaker": "dialogue.campaign.campaign_semarang.nodes.b.speaker",
+          "text": "dialogue.campaign.campaign_semarang.nodes.b.text"
+        }
+      },
+      "close": {
+        "speaker": "Raka",
+        "text": "By the time we reach for the bill, both plates are empty. Dimas asks me to message him when I get home.",
+        "set": {
+          "story.semarang.encounter": true
+        },
+        "next": "end",
+        "text_keys": {
+          "speaker": "dialogue.campaign.campaign_semarang.nodes.close.speaker",
+          "text": "dialogue.campaign.campaign_semarang.nodes.close.text"
+        }
+      }
+    }
+  },
+  "campaign_salatiga": {
+    "nodes": {
+      "start": {
+        "speaker": "Raka",
+        "text": "The engine ticks as it cools. Below the turnout, a small truck moves between the trees.",
+        "choices": [
+          {
+            "text": "Stay a little longer.",
+            "set": {
+              "story.salatiga.choice": "a"
+            },
+            "next": "a",
+            "text_keys": {
+              "text": "dialogue.campaign.campaign_salatiga.nodes.start.choices.0.text"
+            }
+          },
+          {
+            "text": "Listen to the wind.",
+            "set": {
+              "story.salatiga.choice": "b"
+            },
+            "next": "b",
+            "text_keys": {
+              "text": "dialogue.campaign.campaign_salatiga.nodes.start.choices.1.text"
+            }
+          }
+        ],
+        "text_keys": {
+          "speaker": "dialogue.campaign.campaign_salatiga.nodes.start.speaker",
+          "text": "dialogue.campaign.campaign_salatiga.nodes.start.text"
+        }
+      },
+      "a": {
+        "speaker": "Raka",
+        "text": "I put the phone face down. The cloud shadow keeps moving across the slope.",
+        "next": "close",
+        "text_keys": {
+          "speaker": "dialogue.campaign.campaign_salatiga.nodes.a.speaker",
+          "text": "dialogue.campaign.campaign_salatiga.nodes.a.text"
+        }
+      },
+      "b": {
+        "speaker": "Raka",
+        "text": "For a while there is only wind, and a bird somewhere I can't see.",
+        "next": "close",
+        "text_keys": {
+          "speaker": "dialogue.campaign.campaign_salatiga.nodes.b.speaker",
+          "text": "dialogue.campaign.campaign_salatiga.nodes.b.text"
+        }
+      },
+      "close": {
+        "speaker": "Raka",
+        "text": "I stay until the shadow reaches the road below. For once, I haven't been checking the time.",
+        "set": {
+          "story.salatiga.encounter": true
+        },
+        "next": "end",
+        "text_keys": {
+          "speaker": "dialogue.campaign.campaign_salatiga.nodes.close.speaker",
+          "text": "dialogue.campaign.campaign_salatiga.nodes.close.text"
+        }
+      }
+    }
+  },
+  "campaign_solo": {
+    "nodes": {
+      "start": {
+        "speaker": "Food seller",
+        "text": "Sorry about the noise. My daughter is doing her homework here. Her brother thinks he can help.",
+        "choices": [
+          {
+            "text": "It sounds familiar.",
+            "set": {
+              "story.solo.choice": "a"
+            },
+            "next": "a",
+            "text_keys": {
+              "text": "dialogue.campaign.campaign_solo.nodes.start.choices.0.text"
+            }
+          },
+          {
+            "text": "I don't mind staying here.",
+            "set": {
+              "story.solo.choice": "b"
+            },
+            "next": "b",
+            "text_keys": {
+              "text": "dialogue.campaign.campaign_solo.nodes.start.choices.1.text"
+            }
+          }
+        ],
+        "text_keys": {
+          "speaker": "dialogue.campaign.campaign_solo.nodes.start.speaker",
+          "text": "dialogue.campaign.campaign_solo.nodes.start.text"
+        }
+      },
+      "a": {
+        "speaker": "Food seller",
+        "text": "Do you have younger siblings? No? Then perhaps you were the one making the noise.",
+        "next": "close",
+        "text_keys": {
+          "speaker": "dialogue.campaign.campaign_solo.nodes.a.speaker",
+          "text": "dialogue.campaign.campaign_solo.nodes.a.text"
+        }
+      },
+      "b": {
+        "speaker": "Food seller",
+        "text": "Good. I'll bring a little more rice. They're going to argue about that answer for a while.",
+        "next": "close",
+        "text_keys": {
+          "speaker": "dialogue.campaign.campaign_solo.nodes.b.speaker",
+          "text": "dialogue.campaign.campaign_solo.nodes.b.text"
+        }
+      },
+      "close": {
+        "speaker": "Raka",
+        "text": "I finish my food while the argument over homework carries on. Nobody asks me to explain why I'm here.",
+        "set": {
+          "story.solo.encounter": true
+        },
+        "next": "end",
+        "text_keys": {
+          "speaker": "dialogue.campaign.campaign_solo.nodes.close.speaker",
+          "text": "dialogue.campaign.campaign_solo.nodes.close.text"
+        }
+      }
+    }
+  },
+  "campaign_ngawi": {
+    "nodes": {
+      "start": {
+        "speaker": "Older rider",
+        "text": "I still stop here. My wife liked the shade. Since she died, I bring one cup and somehow look for two places to put it.",
+        "choices": [
+          {
+            "text": "Would you like some company?",
+            "set": {
+              "story.ngawi.choice": "a"
+            },
+            "next": "a",
+            "text_keys": {
+              "text": "dialogue.campaign.campaign_ngawi.nodes.start.choices.0.text"
+            }
+          },
+          {
+            "text": "We can sit without talking.",
+            "set": {
+              "story.ngawi.choice": "b"
+            },
+            "next": "b",
+            "text_keys": {
+              "text": "dialogue.campaign.campaign_ngawi.nodes.start.choices.1.text"
+            }
+          }
+        ],
+        "text_keys": {
+          "speaker": "dialogue.campaign.campaign_ngawi.nodes.start.speaker",
+          "text": "dialogue.campaign.campaign_ngawi.nodes.start.text"
+        }
+      },
+      "a": {
+        "speaker": "Older rider",
+        "text": "For a few minutes, yes. You can put your helmet there. The bench is dry.",
+        "next": "close",
+        "text_keys": {
+          "speaker": "dialogue.campaign.campaign_ngawi.nodes.a.speaker",
+          "text": "dialogue.campaign.campaign_ngawi.nodes.a.text"
+        }
+      },
+      "b": {
+        "speaker": "Older rider",
+        "text": "That would be all right. Let those trucks go ahead of us.",
+        "next": "close",
+        "text_keys": {
+          "speaker": "dialogue.campaign.campaign_ngawi.nodes.b.speaker",
+          "text": "dialogue.campaign.campaign_ngawi.nodes.b.text"
+        }
+      },
+      "close": {
+        "speaker": "Raka",
+        "text": "A truck passes. We watch it disappear around the bend, leaving the bench quiet again.",
+        "set": {
+          "story.ngawi.encounter": true
+        },
+        "next": "end",
+        "text_keys": {
+          "speaker": "dialogue.campaign.campaign_ngawi.nodes.close.speaker",
+          "text": "dialogue.campaign.campaign_ngawi.nodes.close.text"
+        }
+      }
+    }
+  },
+  "campaign_madiun": {
+    "nodes": {
+      "start": {
+        "speaker": "Old friend",
+        "text": "You found the place. I was about to send another set of directions. Sit down; the kettle's already on.",
+        "choices": [
+          {
+            "text": "Sorry I haven't called much.",
+            "set": {
+              "story.madiun.choice": "a"
+            },
+            "next": "a",
+            "text_keys": {
+              "text": "dialogue.campaign.campaign_madiun.nodes.start.choices.0.text"
+            }
+          },
+          {
+            "text": "Can we walk before we talk?",
+            "set": {
+              "story.madiun.choice": "b"
+            },
+            "next": "b",
+            "text_keys": {
+              "text": "dialogue.campaign.campaign_madiun.nodes.start.choices.1.text"
+            }
+          }
+        ],
+        "text_keys": {
+          "speaker": "dialogue.campaign.campaign_madiun.nodes.start.speaker",
+          "text": "dialogue.campaign.campaign_madiun.nodes.start.text"
+        }
+      },
+      "a": {
+        "speaker": "Old friend",
+        "text": "Neither have I. Here, move that bag. Tell me about the bike first.",
+        "next": "close",
+        "text_keys": {
+          "speaker": "dialogue.campaign.campaign_madiun.nodes.a.speaker",
+          "text": "dialogue.campaign.campaign_madiun.nodes.a.text"
+        }
+      },
+      "b": {
+        "speaker": "Old friend",
+        "text": "Of course. The lane still floods at the corner, so don't follow me too closely.",
+        "next": "close",
+        "text_keys": {
+          "speaker": "dialogue.campaign.campaign_madiun.nodes.b.speaker",
+          "text": "dialogue.campaign.campaign_madiun.nodes.b.text"
+        }
+      },
+      "close": {
+        "speaker": "Raka",
+        "text": "We spend the rest of the visit talking about people we both know. Some of the names take a moment to come back.",
+        "set": {
+          "story.madiun.encounter": true
+        },
+        "next": "end",
+        "text_keys": {
+          "speaker": "dialogue.campaign.campaign_madiun.nodes.close.speaker",
+          "text": "dialogue.campaign.campaign_madiun.nodes.close.text"
+        }
+      }
+    }
+  },
+  "campaign_kediri": {
+    "nodes": {
+      "start": {
+        "speaker": "Interviewer",
+        "text": "Thanks for making time during your trip, Raka. Can you tell me how you handled the service migration when the deadline changed?",
+        "choices": [
+          {
+            "text": "I reduced the scope and made the risks visible.",
+            "set": {
+              "story.kediri.choice": "a"
+            },
+            "next": "a",
+            "text_keys": {
+              "text": "dialogue.campaign.campaign_kediri.nodes.start.choices.0.text"
+            }
+          },
+          {
+            "text": "I asked the team what we could safely defer.",
+            "set": {
+              "story.kediri.choice": "b"
+            },
+            "next": "b",
+            "text_keys": {
+              "text": "dialogue.campaign.campaign_kediri.nodes.start.choices.1.text"
+            }
+          }
+        ],
+        "text_keys": {
+          "speaker": "dialogue.campaign.campaign_kediri.nodes.start.speaker",
+          "text": "dialogue.campaign.campaign_kediri.nodes.start.text"
+        }
+      },
+      "a": {
+        "speaker": "Interviewer",
+        "text": "That sounds useful here. The role includes mentoring as well as delivery. What would you want to ask us?",
+        "next": "close",
+        "text_keys": {
+          "speaker": "dialogue.campaign.campaign_kediri.nodes.a.speaker",
+          "text": "dialogue.campaign.campaign_kediri.nodes.a.text"
+        }
+      },
+      "b": {
+        "speaker": "Interviewer",
+        "text": "We value that judgment. We have another interview round after this. What would you need to know before then?",
+        "next": "close",
+        "text_keys": {
+          "speaker": "dialogue.campaign.campaign_kediri.nodes.b.speaker",
+          "text": "dialogue.campaign.campaign_kediri.nodes.b.text"
+        }
+      },
+      "close": {
+        "speaker": "Raka",
+        "text": "I'd like to understand the team's pace, and what support looks like when plans change. Thank you. I'll read your follow-up after I get home.",
+        "set": {
+          "story.kediri.encounter": true
+        },
+        "next": "end",
+        "text_keys": {
+          "speaker": "dialogue.campaign.campaign_kediri.nodes.close.speaker",
+          "text": "dialogue.campaign.campaign_kediri.nodes.close.text"
+        }
+      }
+    }
+  },
+  "campaign_malang": {
+    "nodes": {
+      "start": {
+        "speaker": "Raka",
+        "text": "Outside the copy shop, students are arguing about a poster. I used to spend whole afternoons choosing a typeface.",
+        "choices": [
+          {
+            "text": "Walk past the old meeting place.",
+            "set": {
+              "story.malang.choice": "a"
+            },
+            "next": "a",
+            "text_keys": {
+              "text": "dialogue.campaign.campaign_malang.nodes.start.choices.0.text"
+            }
+          },
+          {
+            "text": "Take out the notebook.",
+            "set": {
+              "story.malang.choice": "b"
+            },
+            "next": "b",
+            "text_keys": {
+              "text": "dialogue.campaign.campaign_malang.nodes.start.choices.1.text"
+            }
+          }
+        ],
+        "text_keys": {
+          "speaker": "dialogue.campaign.campaign_malang.nodes.start.speaker",
+          "text": "dialogue.campaign.campaign_malang.nodes.start.text"
+        }
+      },
+      "a": {
+        "speaker": "Raka",
+        "text": "The chairs are different. Someone has left a sketchbook open beside a glass of tea.",
+        "next": "close",
+        "text_keys": {
+          "speaker": "dialogue.campaign.campaign_malang.nodes.a.speaker",
+          "text": "dialogue.campaign.campaign_malang.nodes.a.text"
+        }
+      },
+      "b": {
+        "speaker": "Raka",
+        "text": "I draw the shape of the window. It doesn't need to become anything else.",
+        "next": "close",
+        "text_keys": {
+          "speaker": "dialogue.campaign.campaign_malang.nodes.b.speaker",
+          "text": "dialogue.campaign.campaign_malang.nodes.b.text"
+        }
+      },
+      "close": {
+        "speaker": "Raka",
+        "text": "At the next corner, I notice another window I'd like to draw. I leave a blank page for it.",
+        "set": {
+          "story.malang.encounter": true
+        },
+        "next": "end",
+        "text_keys": {
+          "speaker": "dialogue.campaign.campaign_malang.nodes.close.speaker",
+          "text": "dialogue.campaign.campaign_malang.nodes.close.text"
+        }
+      }
+    }
+  },
+  "campaign_lumajang": {
+    "nodes": {
+      "start": {
+        "speaker": "Raka",
+        "text": "The ridge is farther away than it looked from the road. A line of cloud rests below its edge.",
+        "choices": [
+          {
+            "text": "Sit and look.",
+            "set": {
+              "story.lumajang.choice": "a"
+            },
+            "next": "a",
+            "text_keys": {
+              "text": "dialogue.campaign.campaign_lumajang.nodes.start.choices.0.text"
+            }
+          },
+          {
+            "text": "Drink some water.",
+            "set": {
+              "story.lumajang.choice": "b"
+            },
+            "next": "b",
+            "text_keys": {
+              "text": "dialogue.campaign.campaign_lumajang.nodes.start.choices.1.text"
+            }
+          }
+        ],
+        "text_keys": {
+          "speaker": "dialogue.campaign.campaign_lumajang.nodes.start.speaker",
+          "text": "dialogue.campaign.campaign_lumajang.nodes.start.text"
+        }
+      },
+      "a": {
+        "speaker": "Raka",
+        "text": "I can't fit the whole slope into a picture. I leave the camera in my pocket.",
+        "next": "close",
+        "text_keys": {
+          "speaker": "dialogue.campaign.campaign_lumajang.nodes.a.speaker",
+          "text": "dialogue.campaign.campaign_lumajang.nodes.a.text"
+        }
+      },
+      "b": {
+        "speaker": "Raka",
+        "text": "The bottle is warm. Down below, someone is walking through a field.",
+        "next": "close",
+        "text_keys": {
+          "speaker": "dialogue.campaign.campaign_lumajang.nodes.b.speaker",
+          "text": "dialogue.campaign.campaign_lumajang.nodes.b.text"
+        }
+      },
+      "close": {
+        "speaker": "Raka",
+        "text": "When I stand up, the ridge is still partly hidden. I put the bottle away and take my time fastening the helmet.",
+        "set": {
+          "story.lumajang.encounter": true
+        },
+        "next": "end",
+        "text_keys": {
+          "speaker": "dialogue.campaign.campaign_lumajang.nodes.close.speaker",
+          "text": "dialogue.campaign.campaign_lumajang.nodes.close.text"
+        }
+      }
+    }
+  },
+  "campaign_jember": {
+    "nodes": {
+      "start": {
+        "speaker": "Mom",
+        "text": "Have you stopped somewhere? I can hear the road. Your father keeps checking whether the gate opens all the way.",
+        "choices": [
+          {
+            "text": "I'm close. A little nervous, actually.",
+            "set": {
+              "story.jember.choice": "a"
+            },
+            "next": "a",
+            "text_keys": {
+              "text": "dialogue.campaign.campaign_jember.nodes.start.choices.0.text"
+            }
+          },
+          {
+            "text": "Please don't wait outside for me.",
+            "set": {
+              "story.jember.choice": "b"
+            },
+            "next": "b",
+            "text_keys": {
+              "text": "dialogue.campaign.campaign_jember.nodes.start.choices.1.text"
+            }
+          }
+        ],
+        "text_keys": {
+          "speaker": "dialogue.campaign.campaign_jember.nodes.start.speaker",
+          "text": "dialogue.campaign.campaign_jember.nodes.start.text"
+        }
+      },
+      "a": {
+        "speaker": "Mom",
+        "text": "There's no need to arrive with a speech. Tell us when you've found a place to sleep.",
+        "next": "close",
+        "text_keys": {
+          "speaker": "dialogue.campaign.campaign_jember.nodes.a.speaker",
+          "text": "dialogue.campaign.campaign_jember.nodes.a.text"
+        }
+      },
+      "b": {
+        "speaker": "Mom",
+        "text": "We'll be here. Your room has clean sheets. Ride while there's light and stop when you need to.",
+        "next": "close",
+        "text_keys": {
+          "speaker": "dialogue.campaign.campaign_jember.nodes.b.speaker",
+          "text": "dialogue.campaign.campaign_jember.nodes.b.text"
+        }
+      },
+      "close": {
+        "speaker": "Raka",
+        "text": "I'll call after I stop for the night. Tell Dad the bike is doing well. See you soon, Mom.",
+        "set": {
+          "story.jember.encounter": true
+        },
+        "next": "end",
+        "text_keys": {
+          "speaker": "dialogue.campaign.campaign_jember.nodes.close.speaker",
+          "text": "dialogue.campaign.campaign_jember.nodes.close.text"
+        }
+      }
+    }
+  },
+  "campaign_banyuwangi": {
+    "nodes": {
+      "start": {
+        "speaker": "Mom",
+        "text": "You're here. Leave the bag for a moment. Have you had water?",
+        "choices": [
+          {
+            "text": "It's good to see you.",
+            "set": {
+              "story.banyuwangi.choice": "a"
+            },
+            "next": "a",
+            "text_keys": {
+              "text": "dialogue.campaign.campaign_banyuwangi.nodes.start.choices.0.text"
+            }
+          },
+          {
+            "text": "I didn't know what to say when I got here.",
+            "set": {
+              "story.banyuwangi.choice": "b"
+            },
+            "next": "b",
+            "text_keys": {
+              "text": "dialogue.campaign.campaign_banyuwangi.nodes.start.choices.1.text"
+            }
+          }
+        ],
+        "text_keys": {
+          "speaker": "dialogue.campaign.campaign_banyuwangi.nodes.start.speaker",
+          "text": "dialogue.campaign.campaign_banyuwangi.nodes.start.text"
+        }
+      },
+      "a": {
+        "speaker": "Mom",
+        "text": "Come in when you're ready. Your father wants to look at the bike first.",
+        "next": "close",
+        "text_keys": {
+          "speaker": "dialogue.campaign.campaign_banyuwangi.nodes.a.speaker",
+          "text": "dialogue.campaign.campaign_banyuwangi.nodes.a.text"
+        }
+      },
+      "b": {
+        "speaker": "Mom",
+        "text": "You can start with whether you're hungry. The rest can wait.",
+        "next": "close",
+        "text_keys": {
+          "speaker": "dialogue.campaign.campaign_banyuwangi.nodes.b.speaker",
+          "text": "dialogue.campaign.campaign_banyuwangi.nodes.b.text"
+        }
+      },
+      "close": {
+        "speaker": "Raka",
+        "text": "Dad bends toward the odometer. He pats the seat once, then helps me loosen the bag.",
+        "set": {
+          "story.banyuwangi.encounter": true
+        },
+        "next": "end",
+        "text_keys": {
+          "speaker": "dialogue.campaign.campaign_banyuwangi.nodes.close.speaker",
+          "text": "dialogue.campaign.campaign_banyuwangi.nodes.close.text"
+        }
+      }
+    }
+  },
+  "campaign_epilogue": {
+    "nodes": {
+      "start": {
+        "speaker": "Dad",
+        "text": "There's a cloth on the seat if you want it. That road dust gets into everything.",
+        "choices": [
+          {
+            "text": "I still don't know what comes next.",
+            "set": {
+              "story.epilogue.choice": "a"
+            },
+            "next": "a",
+            "text_keys": {
+              "text": "dialogue.campaign.campaign_epilogue.nodes.start.choices.0.text"
+            }
+          },
+          {
+            "text": "The interview might lead somewhere. I'm not sure yet.",
+            "set": {
+              "story.epilogue.choice": "b"
+            },
+            "next": "b",
+            "text_keys": {
+              "text": "dialogue.campaign.campaign_epilogue.nodes.start.choices.1.text"
+            }
+          }
+        ],
+        "text_keys": {
+          "speaker": "dialogue.campaign.campaign_epilogue.nodes.start.speaker",
+          "text": "dialogue.campaign.campaign_epilogue.nodes.start.text"
+        }
+      },
+      "a": {
+        "speaker": "Dad",
+        "text": "That's okay. We can clean this first.",
+        "next": "close",
+        "text_keys": {
+          "speaker": "dialogue.campaign.campaign_epilogue.nodes.a.speaker",
+          "text": "dialogue.campaign.campaign_epilogue.nodes.a.text"
+        }
+      },
+      "b": {
+        "speaker": "Dad",
+        "text": "That's okay. You don't have to decide before breakfast.",
+        "next": "close",
+        "text_keys": {
+          "speaker": "dialogue.campaign.campaign_epilogue.nodes.b.speaker",
+          "text": "dialogue.campaign.campaign_epilogue.nodes.b.text"
+        }
+      },
+      "close": {
+        "speaker": "Raka",
+        "text": "I take the other cloth. From inside, Mom calls us to the table.",
+        "set": {
+          "story.epilogue.encounter": true
+        },
+        "next": "end",
+        "text_keys": {
+          "speaker": "dialogue.campaign.campaign_epilogue.nodes.close.speaker",
+          "text": "dialogue.campaign.campaign_epilogue.nodes.close.text"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,174 @@
+{
+  "chapter_id": "kediri",
+  "display_name": "A room and a call",
+  "theme": "Career Returns",
+  "start_location": "Madiun",
+  "end_location": "Kediri",
+  "main_route_length": 1800,
+  "next_chapter_id": "malang",
+  "mandatory_events": [
+    "encounter",
+    "rest"
+  ],
+  "biome": "guesthouse",
+  "road_shape": {
+    "bend": 21,
+    "wavelength": 230,
+    "detail": 2,
+    "rise": 2.1,
+    "grade_length": 350,
+    "phase": 1.1
+  },
+  "encounter_speaker": "Interviewer",
+  "audio_context": "warung",
+  "atmosphere": [
+    {
+      "distance": 0,
+      "profile": "night"
+    }
+  ],
+  "stops": [
+    {
+      "id": "fuel",
+      "distance": 390,
+      "label": "Refuel",
+      "title": "Fuel and a short break",
+      "text_keys": {
+        "label": "chapters.kediri.stops.0.label",
+        "title": "chapters.kediri.stops.0.title"
+      }
+    },
+    {
+      "id": "scenic",
+      "distance": 720,
+      "label": "Switch off engine",
+      "title": "A place to pause",
+      "text_keys": {
+        "label": "chapters.kediri.stops.1.label",
+        "title": "chapters.kediri.stops.1.title"
+      }
+    },
+    {
+      "id": "encounter",
+      "distance": 1130,
+      "label": "Stop here",
+      "title": "A room and a call",
+      "text_keys": {
+        "label": "chapters.kediri.stops.2.label",
+        "title": "chapters.kediri.stops.2.title"
+      }
+    },
+    {
+      "id": "rest",
+      "distance": 1700,
+      "label": "Rest and reflect",
+      "title": "A quiet page",
+      "text_keys": {
+        "label": "chapters.kediri.stops.3.label",
+        "title": "chapters.kediri.stops.3.title"
+      }
+    }
+  ],
+  "journal": {
+    "id": "journal.kediri.reflection",
+    "prompt": "What do I know after the interview?",
+    "options": [
+      {
+        "id": "a",
+        "text": "I can still do the work. I can also ask for time.",
+        "text_keys": {
+          "text": "chapters.kediri.journal.options.0.text"
+        }
+      },
+      {
+        "id": "b",
+        "text": "An opportunity can stay open while I finish this journey.",
+        "text_keys": {
+          "text": "chapters.kediri.journal.options.1.text"
+        }
+      }
+    ],
+    "text_keys": {
+      "prompt": "chapters.kediri.journal.prompt"
+    }
+  },
+  "route": [
+    "Jakarta",
+    "Karawang",
+    "Cirebon",
+    "Tegal",
+    "Pekalongan",
+    "Semarang",
+    "Salatiga",
+    "Solo",
+    "Ngawi",
+    "Madiun",
+    "Kediri",
+    "Malang",
+    "Lumajang",
+    "Jember",
+    "Banyuwangi"
+  ],
+  "arrival_shots": [
+    {
+      "camera": [
+        4,
+        2,
+        4
+      ],
+      "target": [
+        0,
+        1,
+        0
+      ],
+      "duration": 6,
+      "text": "",
+      "action": "",
+      "text_keys": {
+        "text": "chapters.kediri.arrival_shots.0.text"
+      }
+    },
+    {
+      "camera": [
+        0,
+        1.6,
+        1.5
+      ],
+      "target": [
+        0,
+        1.15,
+        -0.2
+      ],
+      "duration": 5,
+      "text": "The connection is ready.",
+      "action": "",
+      "text_keys": {
+        "text": "chapters.kediri.arrival_shots.1.text"
+      }
+    },
+    {
+      "camera": [
+        -3,
+        1.7,
+        2
+      ],
+      "target": [
+        0,
+        1.2,
+        1.7
+      ],
+      "duration": 5,
+      "text": "",
+      "action": "",
+      "text_keys": {
+        "text": "chapters.kediri.arrival_shots.2.text"
+      }
+    }
+  ],
+  "text_keys": {
+    "display_name": "chapters.kediri.display_name",
+    "encounter_speaker": "chapters.kediri.encounter_speaker",
+    "end_location": "chapters.kediri.end_location",
+    "start_location": "chapters.kediri.start_location"
+  }
+}

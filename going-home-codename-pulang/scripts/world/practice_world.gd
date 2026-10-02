@@ -20,8 +20,8 @@ func build(_is_city: bool = false) -> void:
 			if d % 24 == 0:
 				LowPoly.cylinder(self, pos + Vector3(side * 6, 0.28, 0), 0.18, 0.55, Color("c89156"), 0.04).visibility_range_end = 150
 			if d % 48 == 0:
-				LowPoly.cylinder(self, pos + Vector3(side * 17, 2.2, 0), 0.18, 4.4, Color("736b49")).visibility_range_end = 220
-				LowPoly.sphere(self, pos + Vector3(side * 17, 5, 0), Vector3(6, 3, 5), Color("57764e")).visibility_range_end = 230
+				var tree := CozyForms.tree(self, pos + Vector3(side * 17, 0, 0), d % 3, 6.5)
+				LowPoly.bake(tree)
 	marking_batches.append_array(RoadMarkings.build(self, center_marks, Vector3(.12, .02, 2), Color("ddd3ad"), 180, "CenterMarkings"))
 	for section in definition.sections:
 		var pos := route.sample(section.start)

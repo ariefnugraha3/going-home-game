@@ -18,6 +18,7 @@ func _ready() -> void:
 	director.set_process(false)
 	director.finished.disconnect(app._cutscene_finished)
 	director.finished.connect(func(id: String): completions.append(id))
+	await _test_hero_geometry(director)
 	check(director.definitions.size() == 5, "Five opening sequences include post-meeting sign-out")
 	for id in director.definitions:
 		var data: Dictionary = director.definitions[id]
@@ -77,8 +78,12 @@ func _ready() -> void:
 	await _test_walk(director, "morning", "parking", "walker")
 	await _test_walk(director, "office", "walk_to_meeting", "raka")
 	await _test_wake(director)
+	await _test_supplies(director)
 	await _test_pack(director)
 	await _test_laptop(director)
+	await _test_luggage_pickup(director)
+	await _test_luggage_loading(director)
+	await _test_luggage_threading(director)
 	await _test_straps(director)
 	await _test_bike_touch(director)
 	await _test_mount(director)
@@ -122,7 +127,9 @@ func _ready() -> void:
 	held_pose = actor.pose_snapshot()
 	check(not actor.sample("missing", 0.5) and actor.pose_snapshot() == held_pose, "Unknown clip preserves the current actor pose")
 	director.play("departure")
-	director.shot_index = 1
+	for i in range(director.definitions.departure.shots.size()):
+		if director.definitions.departure.shots[i].shot_id == "packing":
+			director.shot_index = i
 	director._show_shot()
 	director._process(2.5)
 	check(director.room.props.raka.active_clip == "pack" and director.room.props.raka.visible, "Packing insert shows its authored hand gesture")
@@ -218,6 +225,72 @@ func _test_walk(director: CutsceneDirector, sequence: String, shot_id: String, a
 	else:
 		check(actor.seated_legs.visible and not actor.walking_legs.visible and actor.position == Vector3(0, 0, 0.45) and actor.body.position == Vector3.ZERO, "Meeting cut restores original seated proportions and placement")
 
+func _test_hero_geometry(director: CutsceneDirector) -> void:
+	director.play("office")
+	var stage := director.room
+	check(stage.props.nadia.female and not stage.props.raka.female,"Nadia uses the female character variant in the opening")
+	stage.pose({"performance":"listen"},.5)
+	var palms_clear := true
+	for arm in [stage.props.nadia.left_forearm,stage.props.nadia.right_forearm]:
+		var point: Vector3 = stage.to_local(arm.to_global(Vector3(0,-.29,0)))
+		palms_clear = palms_clear and point.y > .92 and point.z > -1.20 and point.z < 0
+	check(palms_clear,"Nadia's resting palms clear the meeting tabletop and back edge")
+	await capture("hero_nadia_in_scene")
+	var laptop: CinematicLaptop = stage.props.laptop
+	laptop.lid.rotation.x = PI/2
+	var lid_clear := true
+	for child in laptop.lid.get_children():
+		if child is MeshInstance3D:
+			for corner in range(8):
+				var point := laptop.to_local(child.to_global(child.mesh.get_aabb().get_endpoint(corner)))
+				lid_clear = lid_clear and point.y > .022
+	check(lid_clear,"Closed laptop lid, screen and webcam remain above keyboard keycaps")
+	laptop.reset_to_desk()
+	var actor: CinematicActor = stage.props.raka
+	actor.position = Vector3.ZERO
+	actor.sample("walk",0)
+	var anchored := true
+	var level := true
+	var knee_forward := true
+	var planted_at := Vector3.ZERO
+	for step in range(21):
+		var phase := .1+step*.02
+		actor.position = Vector3(0,0,-phase*.7)
+		actor.sample("walk",phase)
+		actor.ground_gait(phase,.7)
+		var sole := actor.shoes[0].global_position
+		if step == 0: planted_at = sole
+		anchored = anchored and sole.distance_to(planted_at) < .002
+		level = level and actor.shoes[0].global_basis.y.dot(Vector3.UP) > .999 and sole.y > .065
+		var knee: Node3D = actor.walking_legs.get_node("LeftHip/Knee")
+		knee_forward = knee_forward and actor.to_local(knee.global_position).z < .02
+	check(anchored,"Walking stance cancels root motion without foot sliding (21 samples)")
+	check(level and knee_forward,"Planted soles remain level above the floor and knees bend forward")
+	actor.position = Vector3.ZERO
+	actor.sample("rest",0)
+	var hinge := true
+	for step in range(21):
+		actor.reach_hand(false,actor.body.to_global(Vector3(.28,1.0,-.25-step*.008)))
+		hinge = hinge and absf(actor.right_forearm.rotation.y) < .0001 and absf(actor.right_forearm.rotation.z) < .0001 and absf(actor.right_forearm.rotation.x) < deg_to_rad(155)
+	check(hinge,"Reaching bends the elbow on one hinge within its flexion limit")
+	# Static baking must preserve visible mesh children and omit hidden limbs.
+	var root := Node3D.new()
+	add_child(root)
+	var mesh := LowPoly.box(root,Vector3.ZERO,Vector3.ONE,Color("123456"))
+	LowPoly.box(mesh,Vector3(0,1,0),Vector3.ONE*.2,Color("654321"))
+	var hidden := LowPoly.box(root,Vector3(0,10,0),Vector3.ONE,Color("456789"))
+	hidden.hide()
+	LowPoly.bake(root)
+	var batches := 0
+	var bounded := true
+	for child in root.get_children():
+		if child is MeshInstance3D and child.visible:
+			batches += 1
+			bounded = bounded and child.mesh.get_aabb().end.y < 2
+	check(batches == 2 and bounded,"Static character baking retains mesh children and excludes hidden alternate legs")
+	root.free()
+	director.clear_room()
+
 func _check_walk_framing(camera: Camera3D, actor: CinematicActor, label: String) -> void:
 	var size := get_viewport().get_visible_rect().size
 	var visible := true
@@ -286,6 +359,98 @@ func _test_wake(director: CutsceneDirector) -> void:
 	check(director.room.props.phone_body.position == Vector3(0.86, 0.925, -0.45), "Following shots restore the desk phone placement")
 	check(GameState.snapshot() == saved, "Waking performance and seeking leave journey state unchanged")
 
+func _test_supplies(director: CutsceneDirector) -> void:
+	var saved := GameState.snapshot()
+	director.play("departure")
+	var ids := ["packing_clothes", "packing_charger", "packing_toolkit"]
+	var stage := director.room
+	var bag: PackingProps = stage.props.bag
+	var actor: CinematicActor = stage.props.raka
+	var nodes := get_tree().get_node_count()
+	var size := get_viewport().get_visible_rect().size
+	var walls := [AABB(Vector3(-0.34, 0.92, -0.52), Vector3(0.03, 0.24, 0.52)), AABB(Vector3(0.41, 0.92, -0.52), Vector3(0.03, 0.24, 0.52)), AABB(Vector3(-0.34, 0.92, -0.52), Vector3(0.78, 0.24, 0.03)), AABB(Vector3(-0.34, 0.92, -0.03), Vector3(0.78, 0.24, 0.03))]
+	for index in range(3):
+		var shots: Array = director.definitions.departure.shots
+		for i in range(shots.size()):
+			if shots[i].shot_id == ids[index]:
+				director.shot_index = i
+		var shot: Dictionary = shots[director.shot_index]
+		check(shots[director.shot_index + 1].shot_id == (ids[index + 1] if index < 2 else "packing"), "Ordered supply-to-raincoat sequence: " + ids[index])
+		director._show_shot()
+		var initial := stage.prop_snapshot()
+		check(bag.supplies[index].position == PackingProps.SUPPLY_START[index] and is_equal_approx(bag.supplies[index].position.y - PackingProps.SUPPLY_SIZE[index].y / 2, 0.89), "Supply rests on the table before pickup: " + ids[index])
+		check(bag.visible and bag.flap.rotation.x > 1.5 and bag.raincoat.position == PackingProps.START, "Supply insert preserves open bag and waiting raincoat")
+		await capture("supplies_ready_" + str(index))
+		var contact := true
+		var clear := true
+		var framed := true
+		var ordered := true
+		for step in range(101):
+			var p := float(step) / 100
+			stage.pose(shot, p)
+			for i in range(3):
+				var t := clampf(index + p - i, 0, 1)
+				var item := bag.supplies[i]
+				if t >= 0.18 and t <= 0.78:
+					var hand := actor.right_forearm if i == 0 else actor.left_forearm
+					contact = contact and hand.to_global(Vector3(0, -0.29, 0)).distance_to(item.to_global(Vector3(0, PackingProps.SUPPLY_SIZE[i].y / 2 + 0.006, 0))) < 0.002
+				if t <= 0.18:
+					ordered = ordered and item.position == PackingProps.SUPPLY_START[i]
+				if t >= 0.78:
+					ordered = ordered and item.position.is_equal_approx(PackingProps.SUPPLY_INSIDE[i])
+				var bounds := AABB(item.position - PackingProps.SUPPLY_SIZE[i] / 2, PackingProps.SUPPLY_SIZE[i])
+				clear = clear and bounds.position.y >= 0.889
+				for wall in walls:
+					clear = clear and not bounds.intersects(wall)
+				for j in range(i):
+					clear = clear and not bounds.intersects(AABB(bag.supplies[j].position - PackingProps.SUPPLY_SIZE[j] / 2, PackingProps.SUPPLY_SIZE[j]))
+				for corner in range(8):
+					var point := bag.to_global(bounds.get_endpoint(corner))
+					var pixel := director.camera.unproject_position(point)
+					framed = framed and not director.camera.is_position_behind(point) and pixel.x > 0 and pixel.x < size.x and pixel.y > size.y * 0.15 and pixel.y < size.y * 0.78
+		check(contact, "Supply grip remains within 2 mm: " + ids[index])
+		check(clear, "Supply bounds clear table, bag walls and each other: " + ids[index])
+		check(ordered, "Waiting and stowed supplies remain in place: " + ids[index])
+		check(framed, "Supplies remain between caption bars: " + ids[index])
+		var head_x: float = bag.to_local(actor.head.global_position).x
+		check(head_x + 0.20 < -0.34 or head_x - 0.20 > 0.44, "Actor head stays beside the upright flap: " + ids[index])
+		check(get_tree().get_node_count() == nodes, "Supply sampling creates no nodes")
+		stage.pose(shot, 0.48)
+		await capture("supplies_lift_" + str(index))
+		var middle := stage.prop_snapshot()
+		var pose := stage.actor_snapshot()
+		var elapsed := director.elapsed
+		director.set_process(true)
+		get_tree().paused = true
+		await frames(6)
+		check(stage.prop_snapshot() == middle and stage.actor_snapshot() == pose and director.elapsed == elapsed, "Pause freezes supply and hand")
+		get_tree().paused = false
+		AudioManager.focus_suspended = true
+		await frames(6)
+		check(stage.prop_snapshot() == middle and stage.actor_snapshot() == pose, "Focus loss freezes supply packing")
+		AudioManager.focus_suspended = false
+		director.set_process(false)
+		stage.pose(shot, 1)
+		await capture("supplies_stowed_" + str(index))
+		var stowed := bag.pose_snapshot()
+		stage.pose(shot, 0.48)
+		check(stage.prop_snapshot() == middle and stage.actor_snapshot() == pose, "Backward seek reconstructs supply and hand")
+		stage.pose(shot, 0)
+		check(stage.prop_snapshot() == initial, "Rewind restores supply insert")
+		director._apply_shot(0.48)
+		middle = stage.prop_snapshot()
+		pose = stage.actor_snapshot()
+		var reduced: bool = GameState.settings.reduced_motion
+		GameState.settings.reduced_motion = not reduced
+		director._apply_shot(0.48)
+		check(stage.prop_snapshot() == middle and stage.actor_snapshot() == pose, "Reduced motion preserves supply action")
+		GameState.settings.reduced_motion = reduced
+		director._process(3)
+		check(bag.pose_snapshot() == stowed, "Next insert retains every supply and the open bag")
+	check(GameState.snapshot() == saved, "Supply packing does not change journey state")
+	director.play("morning")
+	check(not director.room.props.bag.visible and director.room.props.raka.body.position == Vector3.ZERO, "Other scenes hide supplies and clear packing placement")
+
 func _test_pack(director: CutsceneDirector) -> void:
 	var saved := GameState.snapshot()
 	director.play("departure")
@@ -326,6 +491,7 @@ func _test_pack(director: CutsceneDirector) -> void:
 	var clearance := true
 	var framed := true
 	var viewport_size := get_viewport().get_visible_rect().size
+	var contents_clear := true
 	for step in range(101):
 		var weight := float(step) / 100
 		stage.pose(shot, weight)
@@ -335,6 +501,9 @@ func _test_pack(director: CutsceneDirector) -> void:
 			right_contact = right_contact and actor.right_forearm.to_global(Vector3(0, -0.29, 0)).distance_to(packing.flap.to_global(Vector3(0.10, 0.025, -0.18))) < 0.002
 		if packing.raincoat.position.x > -0.43 and weight < 0.44:
 			clearance = clearance and packing.raincoat.position.y - 0.05 > 1.17
+		var raincoat_bounds := AABB(packing.raincoat.position - Vector3(0.12, 0.05, 0.09), Vector3(0.24, 0.11, 0.18))
+		for i in range(3):
+			contents_clear = contents_clear and not raincoat_bounds.intersects(AABB(packing.supplies[i].position - PackingProps.SUPPLY_SIZE[i] / 2, PackingProps.SUPPLY_SIZE[i]))
 		var points: Array[Vector3] = []
 		for x in [-0.12, 0.12]:
 			for y in [-0.05, 0.06]:
@@ -349,6 +518,7 @@ func _test_pack(director: CutsceneDirector) -> void:
 	check(left_contact, "Raincoat grip remains within 2 mm throughout pickup and placement")
 	check(right_contact, "Right hand follows the flap throughout closure")
 	check(clearance, "Raincoat clears the bag wall before crossing into its opening")
+	check(contents_clear, "Raincoat placement clears all three packed supplies")
 	check(framed, "Raincoat and flap stay between caption bars throughout packing")
 	check(get_tree().get_node_count() == nodes, "Packing sampling never duplicates props or creates animation nodes")
 	stage.pose(shot, 0.65)
@@ -451,6 +621,12 @@ func _test_laptop(director: CutsceneDirector) -> void:
 	director.set_process(false)
 	stage.pose(shot, 1)
 	check(laptop.position == CinematicLaptop.INSIDE and is_zero_approx(bag.flap.rotation.x) and not laptop.screen.visible, "Laptop finishes inside the closed bag")
+	var actual_stack_clear := true
+	for mesh in laptop.find_children("*","MeshInstance3D",true,false):
+		for corner in range(8):
+			var point: Vector3 = bag.to_local(mesh.to_global(mesh.mesh.get_aabb().get_endpoint(corner)))
+			actual_stack_clear = actual_stack_clear and point.y < 1.1575 and point.y > bag.raincoat.position.y+.058
+	check(actual_stack_clear,"Every packed laptop mesh clears the raincoat trim and closed bag flap")
 	check(laptop.position.x - 0.325 > -0.31 and laptop.position.x + 0.325 < 0.41 and laptop.position.z - 0.225 > -0.49 and laptop.position.z + 0.225 < -0.03 and laptop.position.y - 0.025 > bag.raincoat.position.y + 0.05 and laptop.position.y + 0.05 < 1.1575, "Packed laptop fits within the bag above the raincoat and below the flap")
 	await capture("laptop_packed")
 	stage.pose(shot, 0.52)
@@ -470,7 +646,283 @@ func _test_laptop(director: CutsceneDirector) -> void:
 	director.shot_index = index
 	director._show_shot()
 	director._process(8)
-	check(director.stage_id == "parking" and director.room.props.luggage.visible and not is_instance_valid(laptop), "Laptop packing hands off to parking and frees the interior props")
+	check(director.definitions.departure.shots[director.shot_index].shot_id == "luggage_pickup" and laptop.position == CinematicLaptop.INSIDE and is_zero_approx(bag.flap.rotation.x), "Laptop packing hands off to the same closed bag before pickup")
+	director._process(6)
+	check(director.stage_id == "parking" and director.room.props.luggage.visible and not is_instance_valid(laptop), "Luggage pickup hands off to parking and frees the interior props")
+
+func _test_luggage_pickup(director: CutsceneDirector) -> void:
+	var saved := GameState.snapshot()
+	director.play("departure")
+	for i in range(director.definitions.departure.shots.size()):
+		if director.definitions.departure.shots[i].shot_id == "luggage_pickup":
+			director.shot_index = i
+	var shots: Array = director.definitions.departure.shots
+	check(shots[director.shot_index - 1].shot_id == "laptop_packing" and shots[director.shot_index + 1].shot_id == "luggage_loading", "Table pickup connects laptop stowage to the parking carry")
+	director._show_shot()
+	var stage := director.room
+	var bag: PackingProps = stage.props.bag
+	var laptop: CinematicLaptop = stage.props.laptop
+	var actor: CinematicActor = stage.props.raka
+	var shot: Dictionary = shots[director.shot_index]
+	var initial := stage.prop_snapshot()
+	var feet := [actor.shoes[0].global_transform, actor.shoes[1].global_transform]
+	var nodes := get_tree().get_node_count()
+	check(bag.position == Vector3.ZERO and is_zero_approx(bag.flap.rotation.x) and laptop.position == CinematicLaptop.INSIDE and not laptop.screen.visible, "Pickup starts with the packed bag closed on the table")
+	check(actor.visible and actor.walking_legs.visible and not actor.seated_legs.visible and stage.props.raka_chair.position.x < -1, "Raka stands in front of the table with his chair moved aside")
+	await capture("bag_pickup_ready")
+	var contact := true
+	var contents := true
+	var clear := true
+	var planted := true
+	var framed := true
+	var size := get_viewport().get_visible_rect().size
+	for step in range(101):
+		var p := float(step) / 100
+		stage.pose(shot, p)
+		if p <= 0.28:
+			clear = clear and bag.position == Vector3.ZERO
+		if bag.position.z > 0:
+			clear = clear and bag.position.y >= 0.209
+		for i in range(2):
+			var hand := actor.left_forearm if i == 0 else actor.right_forearm
+			if p >= 0.22:
+				contact = contact and hand.to_global(Vector3(0, -0.29, 0)).distance_to(bag.to_global(PackingProps.PICKUP_GRIPS[i])) < 0.002
+			planted = planted and actor.shoes[i].global_transform.is_equal_approx(feet[i])
+		contents = contents and bag.to_local(laptop.global_position).distance_to(CinematicLaptop.INSIDE) < 0.002 and is_equal_approx(laptop.lid.rotation.x, PI / 2) and not laptop.screen.visible
+		contents = contents and bag.raincoat.position == PackingProps.INSIDE and is_zero_approx(bag.flap.rotation.x)
+		for i in range(3):
+			contents = contents and bag.supplies[i].position == PackingProps.SUPPLY_INSIDE[i]
+		var torso: Vector3 = stage.to_local(actor.body.to_global(Vector3(0, 0.95, 0)))
+		var points := [actor.head.to_global(Vector3(0, 0.31, 0)), actor.shoes[0].global_position, actor.shoes[1].global_position]
+		for x in [-0.34, 0.44]:
+			for y in [0.895, 1.205]:
+				for z in [-0.52, 0.0]:
+					var point := bag.to_global(Vector3(x, y, z))
+					var local: Vector3 = stage.to_local(point)
+					clear = clear and local.y >= 0.889 and local.z < torso.z - 0.14
+					points.append(point)
+		for point in points:
+			var pixel := director.camera.unproject_position(point)
+			framed = framed and not director.camera.is_position_behind(point) and pixel.x > 0 and pixel.x < size.x and pixel.y > size.y * 0.15 and pixel.y < size.y * 0.78
+	check(contact, "Both pickup grips retain contact within 2 mm after reaching")
+	check(contents, "Laptop and all packed items travel with the closed bag")
+	check(clear, "Bag waits for the grip, clears the table before drawing back and stays ahead of the torso")
+	check(planted, "Standing pickup keeps both feet planted")
+	check(framed, "Bag, head and feet remain between caption bars during table pickup")
+	check(nodes == get_tree().get_node_count(), "Pickup reuses bag contents without allocating nodes")
+	stage.pose(shot, 0.45)
+	await capture("bag_pickup_lift")
+	stage.pose(shot, 0.66)
+	await capture("bag_pickup_draw")
+	var middle := stage.prop_snapshot()
+	var pose := stage.actor_snapshot()
+	var elapsed := director.elapsed
+	director.set_process(true)
+	get_tree().paused = true
+	await frames(6)
+	check(stage.prop_snapshot() == middle and stage.actor_snapshot() == pose and director.elapsed == elapsed, "Pause freezes pickup, packed contents and shot clock")
+	get_tree().paused = false
+	AudioManager.focus_suspended = true
+	await frames(6)
+	check(stage.prop_snapshot() == middle and stage.actor_snapshot() == pose, "Focus loss freezes table pickup")
+	AudioManager.focus_suspended = false
+	director.set_process(false)
+	stage.pose(shot, 1)
+	check(bag.position == PackingProps.PICKUP_OFFSET and actor.body.position == Vector3(0, 0.28, 0), "Pickup ends upright with the bag held clear of the table")
+	await capture("bag_pickup_held")
+	stage.pose(shot, 0.66)
+	check(stage.prop_snapshot() == middle and stage.actor_snapshot() == pose, "Backward seek restores table pickup and contents exactly")
+	stage.pose(shot, 0)
+	check(stage.prop_snapshot() == initial, "Rewind restores the closed bag to the table")
+	director._apply_shot(0.66)
+	middle = stage.prop_snapshot()
+	pose = stage.actor_snapshot()
+	var reduced: bool = GameState.settings.reduced_motion
+	GameState.settings.reduced_motion = not reduced
+	director._apply_shot(0.66)
+	check(stage.prop_snapshot() == middle and stage.actor_snapshot() == pose, "Reduced motion preserves table pickup")
+	GameState.settings.reduced_motion = reduced
+	stage.pose(shot, 1)
+	var route: Dictionary = shots.filter(func(s): return s.shot_id == "route")[0]
+	stage.configure(route)
+	stage.pose(route, 0)
+	check(bag.position == Vector3.ZERO and laptop.position == CinematicLaptop.DESK and actor.body.position == Vector3.ZERO and stage.props.raka_chair.position == Vector3(0, 0, 0.45), "Returning to the route resets bag offset, laptop, chair and actor")
+	director._show_shot()
+	director._process(6)
+	check(director.stage_id == "parking" and not is_instance_valid(bag) and not is_instance_valid(laptop) and director.room.props.walker.visible, "Pickup releases the apartment props and enters the parking carry")
+	check(GameState.snapshot() == saved, "Table pickup changes no journey or checkpoint state")
+
+func _test_luggage_loading(director: CutsceneDirector) -> void:
+	var saved := GameState.snapshot()
+	director.play("departure")
+	for i in range(director.definitions.departure.shots.size()):
+		if director.definitions.departure.shots[i].shot_id == "luggage_loading":
+			director.shot_index = i
+	var shots: Array = director.definitions.departure.shots
+	check(shots[director.shot_index - 1].shot_id == "luggage_pickup" and shots[director.shot_index + 1].shot_id == "luggage_threading", "Luggage carrying connects table pickup to buckle threading")
+	director._show_shot()
+	var stage := director.room
+	var bag: CinematicLuggage = stage.props.luggage
+	var actor: CinematicActor = stage.props.walker
+	var bike: Node3D = stage.props.bike
+	var shot: Dictionary = shots[director.shot_index]
+	var initial := stage.prop_snapshot()
+	var nodes := get_tree().get_node_count()
+	check(actor.visible and actor.walking_legs.visible and not stage.props.rider.visible and not actor.helmet.visible, "One unhelmeted Raka carries luggage toward the bike")
+	check(actor.position == CinematicLuggage.CARRY_FROM and not bag.rigging.visible, "Carry starts away from the bike without motorcycle attachment straps")
+	await capture("luggage_carry_start")
+	stage.pose(shot, 0.22)
+	check(actor.position.distance_to(CinematicLuggage.CARRY_FROM) > 0.4 and actor.position.distance_to(CinematicLuggage.CARRY_TO) > 0.4, "Carrying moves the actor along the approach")
+	await capture("luggage_carry_step")
+	stage.pose(shot, 0.55)
+	var feet := [actor.shoes[0].global_transform, actor.shoes[1].global_transform]
+	var contact := true
+	var clear := true
+	var planted := true
+	var framed := true
+	var size := get_viewport().get_visible_rect().size
+	for step in range(101):
+		var p := float(step) / 100
+		stage.pose(shot, p)
+		for i in range(2):
+			var hand := actor.left_forearm if i == 0 else actor.right_forearm
+			if p <= 0.84:
+				contact = contact and hand.to_global(Vector3(0, -0.29, 0)).distance_to(bag.to_global(CinematicLuggage.LOAD_GRIPS[i])) < 0.002
+			if p >= 0.45:
+				planted = planted and actor.shoes[i].global_transform.is_equal_approx(feet[i])
+		var torso: Vector3 = stage.to_local(actor.body.to_global(Vector3(0, 0.95, 0)))
+		for point in [actor.head.to_global(Vector3(0, 0.31, 0)), actor.shoes[0].global_position, actor.shoes[1].global_position]:
+			var pixel := director.camera.unproject_position(point)
+			framed = framed and pixel.x > 0 and pixel.x < size.x and pixel.y > size.y * 0.15 and pixel.y < size.y * 0.78
+		for x in [-0.39, 0.39]:
+			for y in [-0.14, 0.16]:
+				for z in [-0.26, 0.26]:
+					var point := bag.to_global(Vector3(x, y, z))
+					var local: Vector3 = stage.to_local(point)
+					clear = clear and local.y >= 0.854 and local.z < torso.z - 0.14
+					var pixel := director.camera.unproject_position(point)
+					framed = framed and not director.camera.is_position_behind(point) and pixel.x > 0 and pixel.x < size.x and pixel.y > size.y * 0.15 and pixel.y < size.y * 0.78
+	check(contact, "Both hands retain bag contact within 2 mm through carrying and lowering")
+	check(clear, "Carried bag clears the seat height and stays in front of the torso")
+	check(planted and bike.position == Vector3.ZERO, "Feet plant before placement and the motorcycle stays still")
+	check(framed, "Luggage, head and feet remain between caption bars during carrying and loading")
+	check(nodes == get_tree().get_node_count(), "Carrying reuses one luggage prop without allocating nodes")
+	stage.pose(shot, 0.72)
+	await capture("luggage_lowering")
+	var middle := stage.prop_snapshot()
+	var pose := stage.actor_snapshot()
+	var elapsed := director.elapsed
+	director.set_process(true)
+	get_tree().paused = true
+	await frames(6)
+	check(stage.prop_snapshot() == middle and stage.actor_snapshot() == pose and director.elapsed == elapsed, "Pause freezes carrying and its shot clock")
+	get_tree().paused = false
+	AudioManager.focus_suspended = true
+	await frames(6)
+	check(stage.prop_snapshot() == middle and stage.actor_snapshot() == pose, "Focus loss freezes luggage placement")
+	AudioManager.focus_suspended = false
+	director.set_process(false)
+	stage.pose(shot, 1)
+	check(bag.position.is_equal_approx(CinematicLuggage.SEAT) and actor.position == CinematicLuggage.CARRY_TO and actor.body.position == Vector3(0, 0.28, 0), "Loading ends with bag on the seat and Raka standing beside it")
+	check(not bag.rigging.visible, "Initial strap threading is left to the following editorial cut")
+	await capture("luggage_loaded")
+	var placed := bag.transform
+	stage.pose(shot, 0.72)
+	check(stage.prop_snapshot() == middle and stage.actor_snapshot() == pose, "Backward seek reconstructs bag, gait and hand poses")
+	stage.pose(shots.back(), 1)
+	stage.pose(shot, 0)
+	check(stage.prop_snapshot() == initial, "Rewind from the departing bike restores the carried bag exactly")
+	director._apply_shot(0.72)
+	middle = stage.prop_snapshot()
+	pose = stage.actor_snapshot()
+	var reduced: bool = GameState.settings.reduced_motion
+	GameState.settings.reduced_motion = not reduced
+	director._apply_shot(0.72)
+	check(stage.prop_snapshot() == middle and stage.actor_snapshot() == pose, "Reduced motion preserves luggage carrying")
+	GameState.settings.reduced_motion = reduced
+	director._process(8)
+	check(bag.transform.is_equal_approx(placed) and bag.rigging.visible and bag.threaded == [false, false] and bag.tensions == [0.0, 0.0], "Buckle threading retains the placed bag with two unthreaded ends")
+	check(GameState.snapshot() == saved, "Luggage loading changes no journey or checkpoint state")
+
+func _test_luggage_threading(director: CutsceneDirector) -> void:
+	var saved := GameState.snapshot()
+	director.play("departure")
+	for i in range(director.definitions.departure.shots.size()):
+		if director.definitions.departure.shots[i].shot_id == "luggage_threading":
+			director.shot_index = i
+	var shots: Array = director.definitions.departure.shots
+	check(shots[director.shot_index - 1].shot_id == "luggage_loading" and shots[director.shot_index + 1].shot_id == "straps", "Both buckles are threaded between seat placement and tightening")
+	director._show_shot()
+	var stage := director.room
+	var bag: CinematicLuggage = stage.props.luggage
+	var actor: CinematicActor = stage.props.walker
+	var shot: Dictionary = shots[director.shot_index]
+	var initial := stage.prop_snapshot()
+	var feet := [actor.shoes[0].global_transform, actor.shoes[1].global_transform]
+	var nodes := get_tree().get_node_count()
+	check(actor.visible and not stage.props.rider.visible and bag.threaded == [false, false] and bag.tails.all(func(t): return not t.visible), "Threading begins with two loose ends and no emerging tails")
+	await capture("threading_ready")
+	stage.pose(shot, 0.375)
+	check(bag.threaded == [true, false] and bag.tails[0].visible and not bag.tails[1].visible and bag.tensions == [0.0, 0.0], "First buckle is threaded before the second and before tightening")
+	await capture("threading_first")
+	stage.pose(shot, 0.82)
+	await capture("threading_second")
+	var middle := stage.prop_snapshot()
+	var pose := stage.actor_snapshot()
+	var elapsed := director.elapsed
+	director.set_process(true)
+	get_tree().paused = true
+	await frames(6)
+	check(stage.prop_snapshot() == middle and stage.actor_snapshot() == pose and director.elapsed == elapsed, "Pause freezes threading hands, tails and clock")
+	get_tree().paused = false
+	AudioManager.focus_suspended = true
+	await frames(6)
+	check(stage.prop_snapshot() == middle and stage.actor_snapshot() == pose, "Focus loss freezes buckle threading")
+	AudioManager.focus_suspended = false
+	director.set_process(false)
+	var contact := true
+	var anchored := true
+	var clear := true
+	var framed := true
+	var size := get_viewport().get_visible_rect().size
+	for step in range(101):
+		var p := float(step) / 100
+		stage.pose(shot, p)
+		for i in range(2):
+			var t := clampf(p * 2 - i, 0, 1)
+			var hand := actor.left_forearm if i == 0 else actor.right_forearm
+			if t >= 0.15 and t <= 0.75:
+				contact = contact and hand.to_global(Vector3(0, -0.29, 0)).distance_to(bag.to_global(bag.grips[i])) < 0.002
+			clear = clear and actor.to_local(bag.to_global(bag.grips[i])).z < -0.215 and bag.grips[i].x >= 0.429
+			anchored = anchored and actor.shoes[i].global_transform.is_equal_approx(feet[i])
+			anchored = anchored and (bag.bands[i][0].transform * Vector3(0, -0.5, 0)).is_equal_approx(Vector3(-0.245, -0.24, CinematicLuggage.STRAP_Z[i]))
+			anchored = anchored and (bag.bands[i][6].transform * Vector3(0, 0.5, 0)).is_equal_approx(Vector3(0.245, -0.24, CinematicLuggage.STRAP_Z[i]))
+			var pixel := director.camera.unproject_position(bag.to_global(bag.grips[i]))
+			framed = framed and not director.camera.is_position_behind(bag.to_global(bag.grips[i])) and pixel.x > 0 and pixel.x < size.x and pixel.y > size.y * 0.15 and pixel.y < size.y * 0.78
+	check(contact, "Each hand retains the feeding webbing within 2 mm")
+	check(clear, "Threading grips stay outside the bag and ahead of the torso")
+	check(anchored and bag.position == CinematicLuggage.SEAT and stage.props.bike.position == Vector3.ZERO, "Threading preserves frame anchors, feet, bag and bike positions")
+	check(framed, "Both feeding ends remain between the caption bars")
+	check(nodes == get_tree().get_node_count(), "Threading reuses the existing webbing without allocating nodes")
+	check(bag.threaded == [true, true] and bag.tails.all(func(t): return t.visible) and bag.tensions == [0.0, 0.0], "Threading ends with two loose tails ready to tighten")
+	await capture("threading_complete")
+	var final_props := stage.prop_snapshot()
+	var final_actor := stage.actor_snapshot()
+	stage.pose(shot, 0.82)
+	check(stage.prop_snapshot() == middle and stage.actor_snapshot() == pose, "Backward seek reconstructs threading hands and webbing")
+	stage.pose(shot, 0)
+	check(stage.prop_snapshot() == initial, "Rewind restores both unthreaded ends")
+	director._apply_shot(0.82)
+	middle = stage.prop_snapshot()
+	pose = stage.actor_snapshot()
+	var reduced: bool = GameState.settings.reduced_motion
+	GameState.settings.reduced_motion = not reduced
+	director._apply_shot(0.82)
+	check(stage.prop_snapshot() == middle and stage.actor_snapshot() == pose, "Reduced motion preserves buckle threading")
+	GameState.settings.reduced_motion = reduced
+	director._process(8)
+	check(stage.prop_snapshot() == final_props and stage.actor_snapshot() == final_actor, "Tightening starts with exactly the threaded webbing and actor pose")
+	check(GameState.snapshot() == saved, "Threading changes no journey or checkpoint state")
 
 func _test_straps(director: CutsceneDirector) -> void:
 	var saved := GameState.snapshot()
@@ -636,8 +1088,8 @@ func _test_helmet(director: CutsceneDirector) -> void:
 				var hand := actor.left_forearm if i == 0 else actor.right_forearm
 				var rim := actor.head.to_global(actor.helmet.position + Vector3(-0.18 if i == 0 else 0.18, -0.07, 0))
 				contact = contact and hand.to_global(Vector3(0, -0.29, 0)).distance_to(rim) < 0.002
-		for corner in [Vector3(-0.5, -0.5, -0.5), Vector3(0.5, 0.5, 0.5)]:
-			var point := actor.helmet.to_global(corner)
+		for corner in range(8):
+			var point := actor.helmet.to_global(actor.helmet.mesh.get_aabb().get_endpoint(corner))
 			var pixel := director.camera.unproject_position(point)
 			framed = framed and not director.camera.is_position_behind(point) and pixel.x > 0 and pixel.x < size.x and pixel.y > size.y * 0.15 and pixel.y < size.y * 0.78
 	check(contact, "Both hands follow helmet rim targets within 2 mm until release")
@@ -677,7 +1129,7 @@ func _test_helmet_pickup(director: CutsceneDirector) -> void:
 	var node_count := get_tree().get_node_count()
 	check(actor.visible and actor.helmet.visible and not stage.props.walker.visible, "Retrieval uses one Raka and the existing helmet")
 	check(stage.props.bike.to_local(actor.helmet.global_position).distance_to(CinematicHelmet.PARKED) < 0.002, "Helmet starts resting on the front of the seat")
-	check(absf(stage.props.bike.to_local(actor.helmet.to_global(Vector3(0, -0.5, 0))).y - 0.855) < 0.002, "Helmet lower surface rests on the seat height")
+	check(absf(stage.props.bike.to_local(actor.helmet.to_global(Vector3(0,actor.helmet.mesh.get_aabb().position.y,0))).y - 0.855) < 0.002, "Helmet lower surface rests on the seat height")
 	await capture("helmet_pickup_seat")
 	stage.pose(shot, 0.28)
 	check(stage.props.bike.to_local(actor.helmet.global_position).distance_to(CinematicHelmet.PARKED) < 0.002, "Both hands reach the helmet before it leaves the seat")
@@ -714,8 +1166,8 @@ func _test_helmet_pickup(director: CutsceneDirector) -> void:
 				var hand := actor.left_forearm if i == 0 else actor.right_forearm
 				var rim := actor.head.to_global(actor.helmet.position + Vector3(-0.18 if i == 0 else 0.18, -0.07, 0))
 				contact = contact and hand.to_global(Vector3(0, -0.29, 0)).distance_to(rim) < 0.002
-		for corner in [Vector3(-0.5, -0.5, -0.5), Vector3(0.5, 0.5, 0.5), Vector3(0, -0.5, 0)]:
-			var point := actor.helmet.to_global(corner)
+		for corner in range(8):
+			var point := actor.helmet.to_global(actor.helmet.mesh.get_aabb().get_endpoint(corner))
 			var local: Vector3 = stage.props.bike.to_local(point)
 			clear = clear and local.y >= 0.853 and not bag.has_point(local)
 			var pixel := director.camera.unproject_position(point)

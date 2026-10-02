@@ -120,6 +120,7 @@ func _ready() -> void:
 	add_child(app)
 	await frames(4)
 	GameState.checkpoint = "road_start"
+	GameState.chapter = "karawang"
 	app._restore_checkpoint()
 	await settle()
 	await frames(5)

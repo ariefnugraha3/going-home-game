@@ -28,6 +28,7 @@ func _text(value: String, pos: Vector3, size: float = 0.002) -> Label3D:
 	return label
 
 func _interior(location: String, night: bool) -> void:
+	CozyDressing.interior(self,location == "office")
 	LowPoly.box(self, Vector3(0, -0.1, 0), Vector3(10, 0.2, 10), Color("9c9279"))
 	LowPoly.box(self, Vector3(0, 2, -3), Vector3(10, 4, 0.2), Color("c7c6ae"))
 	LowPoly.box(self, Vector3(-4, 2, 0), Vector3(0.2, 4, 6), Color("929f93"))
@@ -43,7 +44,7 @@ func _interior(location: String, night: bool) -> void:
 	laptop.build()
 	props.laptop = laptop
 	screen = laptop.screen
-	LowPoly.cylinder(self, Vector3(-0.95, 1, -0.7), 0.09, 0.22, Color("eee0b5"))
+	LowPoly.cup(self, Vector3(-0.95, 1, -0.7), 0.09, 0.22, Color("eee0b5"))
 	LowPoly.cylinder(self, Vector3(-1.2, 1.08, -0.8), 0.14, 0.35, Color("819591"))
 	LowPoly.beam(self, Vector3(-1.2, 1.1, -0.8), Vector3(-1.0, 1.22, -0.8), 0.04, Color("819591"))
 	props.phone_body = LowPoly.box(self, Vector3(0.86, 0.925, -0.45), Vector3(0.18, 0.025, 0.33), Color("253a3b"))
@@ -51,12 +52,12 @@ func _interior(location: String, night: bool) -> void:
 	var phone := _text("06:40", Vector3(0.86, 0.947, -0.45), 0.00065)
 	phone.rotation.x = -PI / 2
 	props.phone = phone
-	var badge := LowPoly.box(self, Vector3(-0.5, 0.915, -0.35), Vector3(0.15, 0.035, 0.23), Color("dbd6bd"))
+	var badge := DeskDetails.badge(self)
 	props.badge = badge
-	var badge_text := _text("RAKA", Vector3(-0.5, 0.938, -0.35), 0.00055)
+	var badge_text := _text("RAKA", Vector3(-0.5, 0.931, -0.307), 0.00040)
 	badge_text.rotation.x = -PI / 2
 	props.badge_text = badge_text
-	props.lanyard = LowPoly.beam(self, Vector3(-0.58, 0.945, -0.44), Vector3(-0.7, 0.945, -0.63), 0.012, Color("48676e"))
+	props.lanyard = DeskDetails.lanyard(self)
 	var bag := PackingProps.new()
 	add_child(bag)
 	bag.build()
@@ -64,10 +65,11 @@ func _interior(location: String, night: bool) -> void:
 	bag.visible = false
 	if location == "office":
 		_text("MEETING ROOM 03", Vector3(1.4, 2.6, -2.8), 0.005)
-		props.nadia = _seated(Vector3(0.65, 0, -1.7), PI, Color("677c7c"))
+		props.nadia = _seated(Vector3(0.65, 0, -1.7), PI, Color("8c7f83"), true)
 		_chair(Vector3(0.65, 0, -1.7), PI)
 	else:
-		LowPoly.box(self, Vector3(2.5, 0.35, -1), Vector3(1.4, 0.65, 2.6), Color("4e6e68"))
+		LowPoly.box(self, Vector3(2.5, 0.50, -1), Vector3(1.4, 0.35, 2.6), Color("d2c6a8"))
+		LowPoly.box(self, Vector3(2.5, .68, -.55), Vector3(1.42, .08, 1.85), Color("738e80"))
 		LowPoly.box(self, Vector3(2.5, 0.72, -1.85), Vector3(1.1, 0.2, 0.55), Color("ddd3b5"))
 		LowPoly.box(self, Vector3(1.5, 0.69, -1.75), Vector3(0.6, 0.08, 0.65), Color("80634a"))
 		for x in [1.28, 1.72]:
@@ -76,6 +78,8 @@ func _interior(location: String, night: bool) -> void:
 		LowPoly.box(self, Vector3(-2.6, 0.45, 0.2), Vector3(0.65, 0.08, 0.6), Color("665b47"))
 		LowPoly.box(self, Vector3(-2.6, 0.95, -0.08), Vector3(0.65, 0.9, 0.08), Color("665b47"))
 		LowPoly.box(self, Vector3(-2.6, 1.02, 0.01), Vector3(0.55, 0.55, 0.14), Color("698174"))
+		for x in [-2.83,-2.37]:
+			for z in [-.02,.42]: LowPoly.box(self,Vector3(x,.2,z),Vector3(.07,.4,.07),Color("80684c"))
 	props.raka = _seated(Vector3(0, 0, 0.45), 0, Color("65715d"))
 	props.raka_chair = _chair(Vector3(0, 0, 0.45), 0)
 	if night:
@@ -102,12 +106,12 @@ func _chair(pos: Vector3, facing: float) -> Node3D:
 			LowPoly.box(chair, Vector3(x, 0.3, z), Vector3(0.06, 0.6, 0.06), Color("665b47"))
 	return chair
 
-func _seated(pos: Vector3, facing: float, shirt: Color) -> CinematicActor:
+func _seated(pos: Vector3, facing: float, shirt: Color, female: bool = false) -> CinematicActor:
 	var actor := CinematicActor.new()
 	add_child(actor)
 	actor.position = pos
 	actor.rotation.y = facing
-	actor.build(shirt)
+	actor.build(shirt, female)
 	return actor
 
 func _parking(memory: bool = false) -> void:
@@ -171,10 +175,12 @@ func configure(shot: Dictionary) -> void:
 	if props.has("luggage"):
 		props.luggage.visible = shot.get("luggage", false)
 	if props.has("walker"):
-		props.walker.visible = shot.get("performance", "rest") == "walk" or shot.get("luggage_check", false) or shot.get("bike_touch", false)
+		props.walker.visible = shot.get("performance", "rest") == "walk" or shot.get("luggage_check", false) or shot.get("luggage_loading", false) or shot.get("luggage_threading", false) or shot.get("bike_touch", false)
 		props.rider.visible = not props.walker.visible
 
 func pose(shot: Dictionary, weight: float) -> void:
+	if props.has("bike"):
+		props.bike.position.x = float(shot.get("travel", 0.0)) * weight
 	if props.has("raka"):
 		if shot.get("performance", "rest") == "walk":
 			_pose_walk(props.raka, shot, weight)
@@ -197,18 +203,32 @@ func pose(shot: Dictionary, weight: float) -> void:
 		if shot.get("laptop_packing", false):
 			props.laptop.sample(weight, packing, props.raka)
 		props.raka_chair.position = Vector3(-0.35, 0, 0.25) if shot.get("laptop_packing", false) else Vector3(0, 0, 0.45)
+		if shot.get("supplies_packing", false):
+			packing.sample_supplies(props.raka, int(shot.get("supply_index", 0)), weight)
+			props.raka_chair.position = props.raka.position
+		if shot.get("luggage_pickup", false):
+			packing.sample_pickup(props.raka, props.laptop, weight)
+			props.raka_chair.position = Vector3(-1.5, 0, 0.7)
 		var on_table: bool = not props.raka.handset.visible
 		for key in ["phone", "phone_body", "phone_face"]:
 			props[key].visible = on_table
 	if props.has("nadia"):
 		props.nadia.sample(shot.get("npc_performance", "listen"), weight)
+		# Rest palms over the table, keeping wrists clear of its edge.
+		props.nadia.body.position.z = -.10
+		for side in [-1,1]:
+			props.nadia.reach_hand(side == -1,to_global(Vector3(.65-side*.22,.94,-1.15)))
 	if props.has("rider"):
 		props.rider.sample("ride", weight)
 	if props.has("luggage"):
 		props.luggage.sample(weight if shot.get("luggage_check", false) else 1.0)
 		props.bike_touch.reset()
 	if props.has("walker"):
-		if shot.get("bike_touch", false):
+		if shot.get("luggage_loading", false):
+			props.luggage.sample_loading(props.walker, weight)
+		elif shot.get("luggage_threading", false):
+			props.luggage.sample_threading(props.walker, weight)
+		elif shot.get("bike_touch", false):
 			props.bike_touch.sample(props.walker, weight)
 		elif shot.get("luggage_check", false):
 			props.luggage.pose_actor(props.walker, weight)
@@ -245,7 +265,10 @@ func _pose_walk(actor: CinematicActor, shot: Dictionary, weight: float) -> void:
 	# Root travel and the repeating gait share the director's eased progress.
 	# An integer stride count lands on a neutral pose at either end, and seeking
 	# backwards or skipping never depends on a previous animation frame.
-	actor.sample("walk", fposmod(weight * maxi(1, int(shot.get("walk_cycles", 1))), 1.0))
+	var cycles := maxi(1, int(shot.get("walk_cycles", 1)))
+	var phase := fposmod(weight * cycles, 1.0)
+	actor.sample("walk", phase)
+	if weight > 0 and weight < 1: actor.ground_gait(phase,direction.length()/cycles)
 
 func actor_snapshot() -> Dictionary:
 	var result := {}

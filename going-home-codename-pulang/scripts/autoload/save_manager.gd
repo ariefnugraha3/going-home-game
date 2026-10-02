@@ -34,9 +34,7 @@ func _ready() -> void:
 func validate(data: Variant) -> bool:
 	if not data is Dictionary or data.get("schema_version", 0) != 1:
 		return false
-	if data.get("chapter", "") not in ["prologue", "karawang"]:
-		return false
-	if data.get("checkpoint", "") not in ["morning", "commute", "departure", "road_start", "warung", "rest", "complete"]:
+	if not Campaign.valid_checkpoint(str(data.get("chapter", "")), str(data.get("checkpoint", ""))):
 		return false
 	for key in ["flags", "bike", "journal", "phone"]:
 		if not data.has(key) or not data[key] is Dictionary:
